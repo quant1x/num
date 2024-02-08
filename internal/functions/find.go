@@ -1,0 +1,12 @@
+package functions
+
+import "gitee.com/quant1x/go-num/internal/constraints"
+
+func Find_Go[T constraints.Float](x []T, a T) int {
+	for i, v := range x {
+		if v == a {
+			return i
+		}
+	}
+	return -1
+}
