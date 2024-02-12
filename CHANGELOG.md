@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.0.8] - 2024-02-12
+### Changed
+- 删除废弃的切片反转函数.
+
 ## [0.0.7] - 2024-02-12
 ### Changed
 - 修订参数是sereis的情况, 提取一个接口来转换.
@@ -43,8 +47,9 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.0.7...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.0.8...HEAD
 
+[0.0.8]: https://gitee.com/quant1x/num/compare/v0.0.7...v0.0.8
 [0.0.7]: https://gitee.com/quant1x/num/compare/v0.0.6...v0.0.7
 [0.0.6]: https://gitee.com/quant1x/num/compare/v0.0.5...v0.0.6
 [0.0.5]: https://gitee.com/quant1x/num/compare/v0.0.4...v0.0.5
