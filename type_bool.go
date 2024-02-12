@@ -23,17 +23,31 @@ const (
 )
 
 func StringIsTrue(s string) bool {
-	if s == "true" || s == "TRUE" || s == "True" || s == "1" || s == "真" || s == "对" || s == "好" {
+	switch s {
+	case "true", "TRUE", "True":
 		return true
-	} else {
+	case "y", "Y", "yes", "Yes", "YES", "on", "On", "ON":
+		return true
+	case "1":
+		return true
+	case "真", "对", "好":
+		return true
+	default:
 		return false
 	}
 }
 
 func StringIsFalse(s string) bool {
-	if s == "false" || s == "FALSE" || s == "False" || s == "0" || s == "假" || s == "错" || s == "坏" {
+	switch s {
+	case "false", "FALSE", "False":
 		return true
-	} else {
+	case "n", "N", "no", "No", "NO", "off", "Off", "OFF":
+		return true
+	case "0":
+		return true
+	case "假", "错", "坏":
+		return true
+	default:
 		return false
 	}
 }
