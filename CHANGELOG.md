@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.0.6] - 2024-02-12
+### Changed
+- 优化单元测试.
+
 ## [0.0.5] - 2024-02-12
 ### Changed
 - 调整string转bool的函数, if改switch.
@@ -33,8 +37,9 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.0.5...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.0.6...HEAD
 
+[0.0.6]: https://gitee.com/quant1x/num/compare/v0.0.5...v0.0.6
 [0.0.5]: https://gitee.com/quant1x/num/compare/v0.0.4...v0.0.5
 [0.0.4]: https://gitee.com/quant1x/num/compare/v0.0.3...v0.0.4
 [0.0.3]: https://gitee.com/quant1x/num/compare/v0.0.2...v0.0.3
