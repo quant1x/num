@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.0.3] - 2024-02-12
+### Changed
+- 调整统一处理类型错误的函数名.
+
 ## [0.0.2] - 2024-02-12
 ### Changed
 - 调整package.
@@ -21,7 +25,8 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.0.2...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.0.3...HEAD
 
+[0.0.3]: https://gitee.com/quant1x/num/compare/v0.0.2...v0.0.3
 [0.0.2]: https://gitee.com/quant1x/num/compare/v0.0.1...v0.0.2
 [0.0.1]: https://gitee.com/quant1x/go-num/releases/tag/v0.0.1
