@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.0.2] - 2024-02-12
+### Changed
+- 调整package.
+- 调整代码结构.
+- 删除arm64冗余代码.
+- 修订math32测试数据.
+- 新增测试类功能函数.
+- 新增部分计算类功能函数.
+- First commit.
+
 ## [0.0.1] - 2023-12-30
 
 ### Changed
@@ -11,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.0.1...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.0.2...HEAD
 
+[0.0.2]: https://gitee.com/quant1x/num/compare/v0.0.1...v0.0.2
 [0.0.1]: https://gitee.com/quant1x/go-num/releases/tag/v0.0.1
