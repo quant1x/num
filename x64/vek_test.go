@@ -1,7 +1,7 @@
 package x64
 
 import (
-	"gitee.com/quant1x/go-num"
+	"gitee.com/quant1x/go-num/internal/functions"
 	"gitee.com/quant1x/pkg/testify/require"
 	"math"
 	"slices"
@@ -23,11 +23,11 @@ var negTwo []float64 = []float64{-1, -2}
 var negThree []float64 = []float64{-1, -2, -3}
 var negFour []float64 = []float64{-1, -2, -3, -4} // AVX register
 var negFive []float64 = []float64{-1, -2, -3, -4, -5}
-var accel []bool = []bool{false, num.Info().Acceleration}
+var accel []bool = []bool{false, functions.Info().Acceleration}
 
 func TestArithmetic(t *testing.T) {
 	for _, accel := range accel {
-		num.SetAcceleration(accel)
+		functions.SetAcceleration(accel)
 
 		dst := make([]float64, 4)
 
@@ -147,7 +147,7 @@ func TestArithmetic(t *testing.T) {
 
 func TestAggregates(t *testing.T) {
 	for _, accel := range accel {
-		num.SetAcceleration(accel)
+		functions.SetAcceleration(accel)
 
 		dst := slices.Clone(four)
 		_ = dst
@@ -208,7 +208,7 @@ func TestAggregates(t *testing.T) {
 
 func TestDistance(t *testing.T) {
 	for _, accel := range accel {
-		num.SetAcceleration(accel)
+		functions.SetAcceleration(accel)
 
 		require.Panics(t, func() { Dot(nil, empty) })
 		require.Panics(t, func() { Dot(one, two) })
@@ -257,7 +257,7 @@ func TestDistance(t *testing.T) {
 
 func TestMatrices(t *testing.T) {
 	for _, accel := range accel {
-		num.SetAcceleration(accel)
+		functions.SetAcceleration(accel)
 
 		dst := make([]float64, 4)
 
@@ -289,7 +289,7 @@ func TestMatrices(t *testing.T) {
 
 func TestSpecial(t *testing.T) {
 	for _, accel := range accel {
-		num.SetAcceleration(accel)
+		functions.SetAcceleration(accel)
 
 		dst := make([]float64, 4)
 
@@ -349,7 +349,7 @@ func TestSpecial(t *testing.T) {
 
 func TestComparison(t *testing.T) {
 	for _, accel := range accel {
-		num.SetAcceleration(accel)
+		functions.SetAcceleration(accel)
 
 		dst := make([]float64, 4)
 
@@ -520,7 +520,7 @@ func TestBool(t *testing.T) {
 	dstBool := make([]bool, 4)
 
 	for _, accel := range accel {
-		num.SetAcceleration(accel)
+		functions.SetAcceleration(accel)
 
 		require.Equal(t, []bool{}, Not(emptyBool))
 		require.Equal(t, []bool{false}, Not(oneBool))
@@ -604,7 +604,7 @@ func TestBool(t *testing.T) {
 
 func TestConstruction(t *testing.T) {
 	for _, accel := range accel {
-		num.SetAcceleration(accel)
+		functions.SetAcceleration(accel)
 
 		dst := make([]float64, 4)
 

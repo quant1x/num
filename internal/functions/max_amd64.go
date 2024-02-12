@@ -1,8 +1,8 @@
 package functions
 
 func ArgMax_AVX2_F64(x []float64) int {
-	max := Max_AVX2_F64(x)
-	idx := Find_AVX2_F64(x, max)
+	maxValue := Max_AVX2_F64(x)
+	idx := Find_AVX2_F64(x, maxValue)
 	if idx == len(x) {
 		return -1
 	}
@@ -10,8 +10,8 @@ func ArgMax_AVX2_F64(x []float64) int {
 }
 
 func ArgMax_AVX2_F32(x []float32) int {
-	max := Max_AVX2_F32(x)
-	idx := Find_AVX2_F32(x, max)
+	maxValue := Max_AVX2_F32(x)
+	idx := Find_AVX2_F32(x, maxValue)
 	if idx == len(x) {
 		return -1
 	}

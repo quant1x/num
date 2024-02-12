@@ -5,21 +5,21 @@ import (
 )
 
 func Min_Go[T constraints.Float](x []T) T {
-	min := x[0]
+	minValue := x[0]
 	for _, v := range x[1:] {
-		if v < min {
-			min = v
+		if v < minValue {
+			minValue = v
 		}
 	}
-	return min
+	return minValue
 }
 
 func ArgMin_Go[T constraints.Float](x []T) int {
-	min := x[0]
+	minValue := x[0]
 	idx := 0
 	for i, v := range x[1:] {
-		if v < min {
-			min = v
+		if v < minValue {
+			minValue = v
 			idx = 1 + i
 		}
 	}

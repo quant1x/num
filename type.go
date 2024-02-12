@@ -1,6 +1,9 @@
 package num
 
-import "math/big"
+import (
+	"math/big"
+	"reflect"
+)
 
 // Signed is a constraint that permits any signed integer type.
 // If future releases of Go add new predeclared signed integer types,
@@ -102,4 +105,170 @@ type MoveType interface {
 // Number int和uint的长度取决于CPU是多少位
 type Number interface {
 	Integer | Float
+}
+
+// TypeDefault 设定泛型默认值, 0或者NaN
+func TypeDefault[T BaseType]() T {
+	var d any
+	var t T
+	var v any = t
+	switch v.(type) {
+	case int8, uint8, int16, uint16, int32, uint32, int64, uint64, int, uint, uintptr:
+		d = t
+	case float32:
+		d = Nil2Float32
+	case float64:
+		d = Nil2Float64
+	case bool:
+		d = false
+	case string:
+		d = StringNaN
+	default:
+		d = t
+	}
+
+	return d.(T)
+}
+
+// any转number
+func valueToNumber[T Number](v any, nil2t T, bool2t func(b bool) T, string2t func(s string, v any) T) T {
+	switch val := v.(type) {
+	case nil: // 这个地方判断nil值
+		return nil2t
+	case int8:
+		return T(val)
+	case uint8:
+		return T(val)
+	case int16:
+		return T(val)
+	case uint16:
+		return T(val)
+	case int32:
+		return T(val)
+	case uint32:
+		return T(val)
+	case int64:
+		return T(val)
+	case uint64:
+		return T(val)
+	case int:
+		return T(val)
+	case uint:
+		return T(val)
+	case uintptr:
+		return T(val)
+	case float32:
+		return T(val)
+	case float64:
+		return T(val)
+	case bool:
+		return bool2t(val)
+	case string:
+		return string2t(val, v)
+	default:
+		panic(Throw(v))
+	}
+	return T(0)
+}
+
+// any转number
+func __anyToNumber[T Number](v any) T {
+	switch val := v.(type) {
+	case nil: // 这个地方判断nil值
+		return TypeDefault[T]()
+	case int8:
+		return T(val)
+	case uint8:
+		return T(val)
+	case int16:
+		return T(val)
+	case uint16:
+		return T(val)
+	case int32:
+		return T(val)
+	case uint32:
+		return T(val)
+	case int64:
+		return T(val)
+	case uint64:
+		return T(val)
+	case int:
+		return T(val)
+	case uint:
+		return T(val)
+	case uintptr:
+		return T(val)
+	case float32:
+		return T(val)
+	case float64:
+		return T(val)
+	case bool:
+		return T(BoolToInt(val))
+	case string:
+		vt := ParseFloat64(val, v)
+		if Float64IsNaN(vt) {
+			td := T(0)
+			if !reflect.ValueOf(td).CanFloat() {
+				return td
+			}
+		}
+		return T(vt)
+	default:
+		panic(Throw(v))
+	}
+	return T(0)
+}
+
+// AnyToGeneric any转其它类型
+// 支持3个方向: any到number, any到bool, any到string
+func AnyToGeneric[T BaseType](v any) T {
+	var d any
+	var to T
+	switch any(to).(type) {
+	case int8:
+		d = __anyToNumber[int8](v)
+	case uint8:
+		d = __anyToNumber[uint8](v)
+	case int16:
+		d = __anyToNumber[int16](v)
+	case uint16:
+		d = __anyToNumber[uint16](v)
+	case int32:
+		d = __anyToNumber[int32](v)
+	case uint32:
+		d = __anyToNumber[uint32](v)
+	case int64:
+		d = __anyToNumber[int64](v)
+	case uint64:
+		d = __anyToNumber[uint64](v)
+	case int:
+		d = __anyToNumber[int](v)
+	case uint:
+		d = __anyToNumber[uint](v)
+	case uintptr:
+		d = __anyToNumber[uintptr](v)
+	case float32:
+		d = __anyToNumber[float32](v)
+	case float64:
+		d = __anyToNumber[float64](v)
+	case bool:
+		d = AnyToBool(v)
+	case string:
+		d = AnyToString(v)
+	case []int8, []uint8, []int16, []uint16, []int32, []uint32, []int64, []uint64, []int, []uint, []uintptr, []float32, []float64:
+		// 什么也不处理, 给个默认值
+		d = to
+	case []bool:
+		d = to
+	case []string:
+		d = to
+	default:
+		panic(Throw(v))
+	}
+	return d.(T)
+}
+
+// GenericParse 泛型解析
+func GenericParse[T BaseType](text string) T {
+	return AnyToGeneric[T](text)
 }

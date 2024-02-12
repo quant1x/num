@@ -1,6 +1,8 @@
 package num
 
-import "math"
+import (
+	"math"
+)
 
 func IsNaN(f float64) bool {
 	return math.IsNaN(f) || math.IsInf(f, 0)
