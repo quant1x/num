@@ -1,8 +1,8 @@
 package num
 
 import (
-	"gitee.com/quant1x/go-num/x32"
-	"gitee.com/quant1x/go-num/x64"
+	"gitee.com/quant1x/num/x32"
+	"gitee.com/quant1x/num/x64"
 )
 
 func __compare[T ~[]E, E any](x T, y any, c int, comparator func(f1, f2 DType) bool) []bool {

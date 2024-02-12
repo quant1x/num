@@ -1,7 +1,7 @@
 package x64
 
 import (
-	"gitee.com/quant1x/go-num/internal/functions"
+	"gitee.com/quant1x/num/internal/functions"
 	"gitee.com/quant1x/pkg/testify/require"
 	"math"
 	"slices"

@@ -2,9 +2,9 @@ package num
 
 import (
 	"fmt"
-	"gitee.com/quant1x/go-num/x64"
 	"gitee.com/quant1x/gox/exception"
 	"gitee.com/quant1x/gox/logger"
+	"gitee.com/quant1x/num/x64"
 	"reflect"
 	"strconv"
 )

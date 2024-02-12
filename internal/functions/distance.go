@@ -1,8 +1,8 @@
 package functions
 
 import (
-	"gitee.com/quant1x/go-num/internal/constraints"
-	"gitee.com/quant1x/go-num/math32"
+	"gitee.com/quant1x/num/internal/constraints"
+	"gitee.com/quant1x/num/math32"
 	"math"
 )
 

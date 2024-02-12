@@ -1,8 +1,8 @@
 package num
 
 import (
-	"gitee.com/quant1x/go-num/x32"
-	"gitee.com/quant1x/go-num/x64"
+	"gitee.com/quant1x/num/x32"
+	"gitee.com/quant1x/num/x64"
 )
 
 // Repeat 构造n长度的f的泛型切片

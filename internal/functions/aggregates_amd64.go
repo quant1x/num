@@ -1,7 +1,7 @@
 package functions
 
 import (
-	"gitee.com/quant1x/go-num/internal/partial"
+	"gitee.com/quant1x/num/internal/partial"
 	"math"
 	"slices"
 )

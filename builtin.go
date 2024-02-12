@@ -3,7 +3,7 @@ package num
 import (
 	"bytes"
 	"fmt"
-	"gitee.com/quant1x/go-num/internal/functions"
+	"gitee.com/quant1x/num/internal/functions"
 	"math"
 	"reflect"
 	"runtime"

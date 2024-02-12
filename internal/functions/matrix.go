@@ -1,7 +1,7 @@
 package functions
 
 import (
-	"gitee.com/quant1x/go-num/internal/constraints"
+	"gitee.com/quant1x/num/internal/constraints"
 	"runtime"
 	"sync"
 )

@@ -1,4 +1,4 @@
-module gitee.com/quant1x/go-num
+module gitee.com/quant1x/num
 
 go 1.21.5
 

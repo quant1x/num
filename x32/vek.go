@@ -1,9 +1,9 @@
 package x32
 
 import (
-	"gitee.com/quant1x/go-num/internal/constraints"
-	"gitee.com/quant1x/go-num/internal/functions"
-	"gitee.com/quant1x/go-num/math32"
+	"gitee.com/quant1x/num/internal/constraints"
+	"gitee.com/quant1x/num/internal/functions"
+	"gitee.com/quant1x/num/math32"
 	"slices"
 	"unsafe"
 )

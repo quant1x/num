@@ -1,7 +1,7 @@
 package functions
 
 import (
-	"gitee.com/quant1x/go-num/internal/rand"
+	"gitee.com/quant1x/num/internal/rand"
 	"gitee.com/quant1x/pkg/testify/require"
 	"slices"
 	"testing"

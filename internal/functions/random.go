@@ -1,8 +1,8 @@
 package functions
 
 import (
-	"gitee.com/quant1x/go-num/internal/constraints"
-	"gitee.com/quant1x/go-num/internal/rand"
+	"gitee.com/quant1x/num/internal/constraints"
+	"gitee.com/quant1x/num/internal/rand"
 )
 
 func Random[T constraints.Integer | constraints.Float](size int) []T {

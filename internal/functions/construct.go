@@ -1,6 +1,6 @@
 package functions
 
-import "gitee.com/quant1x/go-num/internal/constraints"
+import "gitee.com/quant1x/num/internal/constraints"
 
 type Number interface {
 	constraints.Float | constraints.Integer
