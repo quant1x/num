@@ -21,6 +21,10 @@ const (
 	StringFalse2Float32 float32 = float32(0)                           // 字符串false转float32
 )
 
+func Float32NaN() float32 {
+	return float32(NaN())
+}
+
 // Float32IsNaN 判断float32是否NaN
 func Float32IsNaN(f float32) bool {
 	return Float64IsNaN(float64(f))

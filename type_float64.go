@@ -25,6 +25,10 @@ const (
 
 // NaN returns an IEEE 754 “not-a-number” value.
 func NaN() float64 {
+	return Float64NaN()
+}
+
+func Float64NaN() float64 {
 	return math.NaN()
 }
 

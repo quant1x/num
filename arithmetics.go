@@ -73,9 +73,13 @@ func BinaryOperations[T Number](x []T, y any, f32 func(x, y []float32) []float32
 	switch vs := s.(type) {
 	case []float32:
 		f32s := AnyToSlice[float32](y, length)
+		//vs = FillNa(vs, 0.00)
+		//f32s = FillNa(f32s, 0.00)
 		d = f32(vs, f32s)
 	case []float64:
 		f64s := AnyToSlice[float64](y, length)
+		//vs = FillNa(vs, 0.00)
+		//f64s = FillNa(f64s, 0.00)
 		d = f64(vs, f64s)
 	default:
 		ys := AnyToSlice[T](y, length)
