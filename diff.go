@@ -52,7 +52,7 @@ func Diff2[T BaseType](s []T, param any) []T {
 	//	d = xv
 	default:
 		// 其它类型原样返回
-		panic(Throw(any(s)))
+		panic(TypeError(any(s)))
 	}
 
 	return d.([]T)

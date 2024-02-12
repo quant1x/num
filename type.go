@@ -166,7 +166,7 @@ func valueToNumber[T Number](v any, nil2t T, bool2t func(b bool) T, string2t fun
 	case string:
 		return string2t(val, v)
 	default:
-		panic(Throw(v))
+		panic(TypeError(v))
 	}
 	return T(0)
 }
@@ -214,7 +214,7 @@ func __anyToNumber[T Number](v any) T {
 		}
 		return T(vt)
 	default:
-		panic(Throw(v))
+		panic(TypeError(v))
 	}
 	return T(0)
 }
@@ -263,7 +263,7 @@ func AnyToGeneric[T BaseType](v any) T {
 	case []string:
 		d = to
 	default:
-		panic(Throw(v))
+		panic(TypeError(v))
 	}
 	return d.(T)
 }

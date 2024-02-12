@@ -178,7 +178,7 @@ func __arithmetic[T ~[]E, E Number](x T, y any, c int, calculator func(f1, f2 DT
 	//	d = __arithmetic_slice(x, Y, c, calculator)
 	default:
 		// 其它未知类型抛异常
-		panic(Throw(y))
+		panic(TypeError(y))
 	}
 	return d
 }

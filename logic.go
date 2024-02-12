@@ -46,7 +46,7 @@ func __compare[T ~[]E, E any](x T, y any, c int, comparator func(f1, f2 DType) b
 		d = __compare_slice(x, Y, c, comparator)
 	default:
 		// 其它未知类型抛异常
-		panic(Throw(y))
+		panic(TypeError(y))
 	}
 	return d
 }

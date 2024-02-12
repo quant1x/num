@@ -2,7 +2,7 @@ package num
 
 import (
 	"errors"
-	"gitee.com/quant1x/gox/exception"
+	"fmt"
 	"reflect"
 )
 
@@ -12,12 +12,12 @@ const (
 
 var (
 	// ErrUnsupportedType 不支持的类型
-	ErrUnsupportedType = exception.New(errorTypeBase+0, "unsupported type")
-	ErrRange           = exception.New(errorTypeBase+1, "range error")
+	ErrUnsupportedType = errors.New("unsupported type")
+	ErrRange           = errors.New("range error")
 	ErrInvalidWindow   = errors.New("error window")
 )
 
-func Throw(tv any) *exception.Exception {
+func TypeError(tv any) error {
 	typeName := reflect.TypeOf(tv).String()
-	return exception.New(errorTypeBase+1, "unsupported type: "+typeName)
+	return fmt.Errorf("unsupported type: " + typeName)
 }

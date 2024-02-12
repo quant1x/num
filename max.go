@@ -53,7 +53,7 @@ func Max2[T BaseType](x []T) T {
 		d = __max_go(vs)
 	default:
 		// 其它类型原样返回
-		panic(Throw(any(x)))
+		panic(TypeError(any(x)))
 	}
 
 	return d.(T)

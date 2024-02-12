@@ -48,7 +48,7 @@ func ArgMax2[T BaseType](x []T) int {
 		d = __arg_max_go_bool(vs)
 	default:
 		// 其它类型原样返回
-		panic(Throw(any(x)))
+		panic(TypeError(any(x)))
 	}
 
 	return d

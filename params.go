@@ -19,7 +19,7 @@ func AnyToSlice[T BaseType](A any, n int) []T {
 	//case Series:
 	//	d = v.Values()
 	default:
-		panic(Throw(A))
+		panic(TypeError(A))
 	}
 	return d.([]T)
 }
