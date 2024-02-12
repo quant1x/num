@@ -70,6 +70,10 @@ type Array interface {
 	Values() any
 }
 
+type DTypeArray interface {
+	DTypes() any
+}
+
 // PanicTrace panic 堆栈信息
 func PanicTrace(err interface{}) string {
 	buf := new(bytes.Buffer)

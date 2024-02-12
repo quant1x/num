@@ -3,6 +3,9 @@ package num
 // Rolling returns an array with elements that roll beyond the last position are re-introduced at the first.
 // 滑动窗口, 数据不足是用空数组占位
 func Rolling[T BaseType](S []T, N any) [][]T {
+	if __y, ok := N.(DTypeArray); ok {
+		N = __y.DTypes()
+	}
 	sLen := len(S)
 	// 这样就具备了序列化滑动窗口的特性了
 	var window []DType

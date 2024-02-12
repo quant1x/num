@@ -9,6 +9,9 @@ import (
 //
 //	param 支持前后移动
 func Shift[T BaseType](S []T, N any) []T {
+	if __y, ok := N.(DTypeArray); ok {
+		N = __y.DTypes()
+	}
 	length := len(S)
 	var _n []DType
 	switch v := N.(type) {
