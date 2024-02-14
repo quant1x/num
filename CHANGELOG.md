@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.0.9] - 2024-02-14
+### Changed
+- 修订错误的测试用例.
+- 删除废弃的代码.
+- 更新gox依赖库版本到1.20.1.
+- 类型错误函数增加注释.
+- 深度对比函数补充注释.
+
 ## [0.0.8] - 2024-02-12
 ### Changed
 - 删除废弃的切片反转函数.
@@ -47,8 +55,9 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.0.8...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.0.9...HEAD
 
+[0.0.9]: https://gitee.com/quant1x/num/compare/v0.0.8...v0.0.9
 [0.0.8]: https://gitee.com/quant1x/num/compare/v0.0.7...v0.0.8
 [0.0.7]: https://gitee.com/quant1x/num/compare/v0.0.6...v0.0.7
 [0.0.6]: https://gitee.com/quant1x/num/compare/v0.0.5...v0.0.6
