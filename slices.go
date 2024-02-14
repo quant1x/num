@@ -3,109 +3,118 @@ package num
 // AnyToSlice any转切片
 //
 //	如果a是基础类型, 就是repeat
-//	如果a是切片, 就做对齐处理
-func AnyToSlice[T BaseType](A any, n int) []T {
+//	如果a是切片, 就做对齐处理, 截断或者填充
+func AnyToSlice[T BaseType](A any, N int) []T {
 	var d any
 	switch v := A.(type) {
 	case nil:
-		d = Repeat[T](TypeDefault[T](), n)
-	case /*nil, */ int8, uint8, int16, uint16, int32, uint32, int64, uint64, int, uint, float32, float64, bool, string:
+		d = Repeat[T](TypeDefault[T](), N)
+	case int8, uint8, int16, uint16, int32, uint32, int64, uint64, int, uint, float32, float64, bool, string:
+		// 基础数据类型, 复制N次
 		//d = Repeat[T](v.(T), n)
 		x := AnyToGeneric[T](v)
-		d = Repeat[T](x, n)
+		d = Repeat[T](x, N)
+	case *int8, *uint8, *int16, *uint16, *int32, *uint32, *int64, *uint64, *int, *uint, *float32, *float64, *bool, *string:
+		//value := reflect.ValueOf(v)
+		//if value.Kind() == reflect.Pointer {
+		//	v = value.Elem().Interface()
+		//}
+		// 基础数据类型, 复制N次
+		x := AnyToGeneric[T](v)
+		d = Repeat[T](x, N)
 	case []T:
 		// 类型相同
-		d = Align(v, TypeDefault[T](), n)
+		d = Align(v, TypeDefault[T](), N)
 	case []int8:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []uint8:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []int16:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []uint16:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []int32:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []uint32:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []int64:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []uint64:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []int:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []uint:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []uintptr:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []float32:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []float64:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []string:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	case []bool:
 		sliceT := make([]T, len(v))
 		for i := 0; i < len(v); i++ {
 			sliceT[i] = AnyToGeneric[T](v[i])
 		}
-		d = Align[T](sliceT, TypeDefault[T](), n)
+		d = Align[T](sliceT, TypeDefault[T](), N)
 	//case []int8, []uint8, []int16, []uint16, []int32, []uint32, []int64, []uint64, []int, []uint, []uintptr, []float32, []float64, []bool, []string:
 	//  // 效率不高
 	//	// T和A类型不同
@@ -125,7 +134,7 @@ func AnyToSlice[T BaseType](A any, n int) []T {
 	//	d = Align[T](sliceT, TypeDefault[T](), n)
 	case Array:
 		values := v.Values()
-		d = AnyToSlice[T](values, n)
+		d = AnyToSlice[T](values, N)
 	default:
 		panic(TypeError(A))
 	}

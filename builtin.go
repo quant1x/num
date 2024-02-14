@@ -65,13 +65,14 @@ func IsEmpty(s string) bool {
 	}
 }
 
+// Array 获取any类型切片数据
 type Array interface {
-	// Values 获得全部数据集
-	Values() any
+	Values() any // 保持原类型
 }
 
+// DTypeArray 获取DType切片的接口
 type DTypeArray interface {
-	DTypes() any
+	DTypes() []DType // to dtype
 }
 
 // PanicTrace panic 堆栈信息

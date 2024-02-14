@@ -5,7 +5,6 @@ import (
 )
 
 type DType = float64
-type Int = int32
 
 // DTypeIsNaN 判断DType是否NaN
 func DTypeIsNaN(d DType) bool {
@@ -23,6 +22,6 @@ func Any2DType(v any) DType {
 }
 
 // DType2Int DType切片转int32切片
-func DType2Int(d []DType) []Int {
+func DType2Int(d []DType) []int32 {
 	return x64.ToInt32(d)
 }
