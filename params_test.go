@@ -89,7 +89,7 @@ func TestAnyToSlice(t *testing.T) {
 				x: []float64{-0.1, 1.0, -2.00, -3},
 				y: 4,
 			},
-			Want: []float64{-0.1, 1.0, -2.00, -3},
+			Want: []float32{-0.1, 1.0, -2.00, -3},
 			TestFunc: func(v any) any {
 				vs := v.(args)
 				return AnyToSlice[float32](vs.x.([]float64), vs.y)
@@ -112,7 +112,7 @@ func TestAnyToSlice(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.Name, func(t *testing.T) {
 			if got := tt.TestFunc(tt.Args); !labs.DeepEqual(got, tt.Want) {
-				t.Errorf("AnyToSlice() = %v, want %v", got, tt.Want)
+				t.Errorf("AnyToSlice() = %v(%T), want %v(%T)", got, got, tt.Want, tt.Want)
 			}
 		})
 	}

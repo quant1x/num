@@ -21,7 +21,7 @@ func TestAbs(t *testing.T) {
 		},
 		{
 			name: "string",
-			args: []string{"1"},
+			args: []string{"1", "2"},
 			want: []string{"1", "2"},
 		},
 		{
