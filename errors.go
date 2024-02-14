@@ -17,6 +17,7 @@ var (
 	ErrInvalidWindow   = errors.New("error window")
 )
 
+// TypeError 类型错误
 func TypeError(tv any) error {
 	typeName := reflect.TypeOf(tv).String()
 	return fmt.Errorf("unsupported type: " + typeName)
