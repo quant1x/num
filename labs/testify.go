@@ -35,6 +35,9 @@ func SliceWantFloat[T ~float32 | ~float64](got, want []T) bool {
 	return b == len(got)
 }
 
+// DeepEqual 深度比较是否相等
+//
+//	这里重构的目的是float类型中NaN和Inf的处理, 从数据的逻辑层面上应该记作相等
 func DeepEqual(x, y any) bool {
 	if x == nil || y == nil {
 		return x == y
