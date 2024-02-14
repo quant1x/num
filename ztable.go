@@ -34,11 +34,6 @@ func ZscoreToConfidenceInterval(zScore float64) (confidenceInterval float64) {
 	return confidenceInterval
 }
 
-func __SearchFloat64s_v1(a []float64, x float64) int {
-	n := sort.Search(len(a), func(i int) bool { return a[i] >= x })
-	return n
-}
-
 func __SearchFloat64s(a []float64, x float64) int {
 	n, found := sort.Find(len(a), func(i int) int {
 		m := x - a[i]
