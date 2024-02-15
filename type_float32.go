@@ -31,7 +31,7 @@ func Float32IsNaN(f float32) bool {
 }
 
 // 普通的处理方式, 将切片强制转换成float32
-func slice_any_to_float32[T Number](s []T) []float32 {
+func sliceNumberToFloat32[T Number](s []T) []float32 {
 	count := len(s)
 	if count == 0 {
 		return []float32{}
@@ -49,25 +49,25 @@ func SliceToFloat32(v any) []float32 {
 	var vs []float32
 	switch values := v.(type) {
 	case []int8:
-		return slice_any_to_float32(values)
+		return sliceNumberToFloat32(values)
 	case []uint8:
-		return slice_any_to_float32(values)
+		return sliceNumberToFloat32(values)
 	case []int16:
-		return slice_any_to_float32(values)
+		return sliceNumberToFloat32(values)
 	case []uint16:
-		return slice_any_to_float32(values)
+		return sliceNumberToFloat32(values)
 	case []int32: // 加速
 		return x32.FromInt32(values)
 	case []uint32:
-		return slice_any_to_float32(values)
+		return sliceNumberToFloat32(values)
 	case []int64: // 加速
 		return x32.FromInt64(values)
 	case []uint64:
-		return slice_any_to_float32(values)
+		return sliceNumberToFloat32(values)
 	case []int:
-		return slice_any_to_float32(values)
+		return sliceNumberToFloat32(values)
 	case []uint:
-		return slice_any_to_float32(values)
+		return sliceNumberToFloat32(values)
 	case []float32: // 克隆
 		//return slices.Clone(values)
 		return values
