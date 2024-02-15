@@ -193,28 +193,28 @@ func __arithmetic_dtype[T ~[]E, E Number](x T, y DType, c int, calculator func(f
 	xLen := len(x)
 	kind := checkoutRawType(x)
 	switch {
-	case kind == SERIES_TYPE_FLOAT64 && c == __k_calc_add:
+	case kind == reflect.Float64 && c == __k_calc_add:
 		fs := make([]float64, xLen)
 		d = num.AddNumber_Into(fs, any(x).([]float64), y)
-	case kind == SERIES_TYPE_FLOAT64 && c == __k_calc_sub:
+	case kind == reflect.Float64 && c == __k_calc_sub:
 		fs := make([]float64, xLen)
 		d = num.SubNumber_Into(fs, any(x).([]float64), y)
-	case kind == SERIES_TYPE_FLOAT64 && c == __k_calc_mul:
+	case kind == reflect.Float64 && c == __k_calc_mul:
 		fs := make([]float64, xLen)
 		d = num.MulNumber_Into(fs, any(x).([]float64), y)
-	case kind == SERIES_TYPE_FLOAT64 && c == __k_calc_div:
+	case kind == reflect.Float64 && c == __k_calc_div:
 		fs := make([]float64, xLen)
 		d = num.DivNumber_Into(fs, any(x).([]float64), y)
-	case kind == SERIES_TYPE_FLOAT32 && c == __k_calc_add:
+	case kind == reflect.Float32 && c == __k_calc_add:
 		fs := make([]float32, xLen)
 		d = num32.AddNumber_Into(fs, any(x).([]float32), float32(y))
-	case kind == SERIES_TYPE_FLOAT32 && c == __k_calc_sub:
+	case kind == reflect.Float32 && c == __k_calc_sub:
 		fs := make([]float32, xLen)
 		d = num32.SubNumber_Into(fs, any(x).([]float32), float32(y))
-	case kind == SERIES_TYPE_FLOAT32 && c == __k_calc_mul:
+	case kind == reflect.Float32 && c == __k_calc_mul:
 		fs := make([]float32, xLen)
 		d = num32.MulNumber_Into(fs, any(x).([]float32), float32(y))
-	case kind == SERIES_TYPE_FLOAT32 && c == __k_calc_div:
+	case kind == reflect.Float32 && c == __k_calc_div:
 		fs := make([]float32, xLen)
 		d = num32.DivNumber_Into(fs, any(x).([]float32), float32(y))
 	default:
@@ -241,43 +241,43 @@ func __arithmetic_slice[T ~[]E, E Number, T2 ~[]E2, E2 Number](x T, y T2, c int,
 			num.Add_Into(es[:yLen], xs[:yLen], any(y).([]float64)[:yLen])
 		}
 		switch {
-		case xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_calc_add:
+		case xKind == reflect.Float64 && xKind == yKind && c == __k_calc_add:
 			num.Add_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		case xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_calc_sub:
+		case xKind == reflect.Float64 && xKind == yKind && c == __k_calc_sub:
 			num.Sub_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		case xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_calc_mul:
+		case xKind == reflect.Float64 && xKind == yKind && c == __k_calc_mul:
 			num.Mul_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		case xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_calc_div:
+		case xKind == reflect.Float64 && xKind == yKind && c == __k_calc_div:
 			num.Div_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		case xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_calc_add:
+		case xKind == reflect.Float32 && xKind == yKind && c == __k_calc_add:
 			num.Add_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		case xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_calc_sub:
+		case xKind == reflect.Float32 && xKind == yKind && c == __k_calc_sub:
 			num.Sub_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		case xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_calc_mul:
+		case xKind == reflect.Float32 && xKind == yKind && c == __k_calc_mul:
 			num.Mul_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		case xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_calc_div:
+		case xKind == reflect.Float32 && xKind == yKind && c == __k_calc_div:
 			num.Div_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
 		}
-		if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_calc_add {
+		if xKind == reflect.Float64 && xKind == yKind && c == __k_calc_add {
 			num.Gt_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_gte {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_gte {
 			es := make([]float64, xLen)
 			num.Gte_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_lt {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_lt {
 			es := make([]float64, xLen)
 			num.Lt_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_lte {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_lte {
 			es := make([]float64, xLen)
 			num.Lte_Into(es[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_gt {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_gt {
 			num32.Gt_Into(es[:yLen], any(x).([]float32)[:yLen], any(y).([]float32)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_gte {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_gte {
 			num32.Gte_Into(es[:yLen], any(x).([]float32)[:yLen], any(y).([]float32)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_lt {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_lt {
 			num32.Lt_Into(es[:yLen], any(x).([]float32)[:yLen], any(y).([]float32)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_lte {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_lte {
 			num32.Lte_Into(es[:yLen], any(x).([]float32)[:yLen], any(y).([]float32)[:yLen])
-		} else if xKind == SERIES_TYPE_BOOL && xKind == yKind && c == __k_compare_and {
+		} else if xKind == reflect.Bool && xKind == yKind && c == __k_compare_and {
 			num.And_Into(es[:yLen], any(x).([]bool)[:yLen], any(y).([]bool)[:yLen])
 		} else {
 			for i := 0; i < yLen; i++ {
@@ -293,23 +293,23 @@ func __arithmetic_slice[T ~[]E, E Number, T2 ~[]E2, E2 Number](x T, y T2, c int,
 		}
 	} else {
 		es = make([]bool, yLen)
-		if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_gt {
+		if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_gt {
 			num.Gt_Into(es[:xLen], any(x).([]float64)[:xLen], any(y).([]float64)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_gte {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_gte {
 			num.Gte_Into(es[:xLen], any(x).([]float64)[:xLen], any(y).([]float64)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_lt {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_lt {
 			num.Lt_Into(es[:xLen], any(x).([]float64)[:xLen], any(y).([]float64)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_lte {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_lte {
 			num.Lte_Into(es[:xLen], any(x).([]float64)[:xLen], any(y).([]float64)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_gt {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_gt {
 			num32.Gt_Into(es[:xLen], any(x).([]float32)[:xLen], any(y).([]float32)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_gte {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_gte {
 			num32.Gte_Into(es[:xLen], any(x).([]float32)[:xLen], any(y).([]float32)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_lt {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_lt {
 			num32.Lt_Into(es[:xLen], any(x).([]float32)[:xLen], any(y).([]float32)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_lte {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_lte {
 			num32.Lte_Into(es[:xLen], any(x).([]float32)[:xLen], any(y).([]float32)[:xLen])
-		} else if xKind == SERIES_TYPE_BOOL && xKind == yKind && c == __k_compare_and {
+		} else if xKind == reflect.Bool && xKind == yKind && c == __k_compare_and {
 			num.And_Into(es[:xLen], any(x).([]bool)[:xLen], any(y).([]bool)[:xLen])
 		} else {
 			for i := 0; i < xLen; i++ {

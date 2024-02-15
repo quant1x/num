@@ -7,16 +7,16 @@ import (
 
 // Shift 使用可选的时间频率按所需的周期数移动索引
 //
-//	param 支持前后移动
+//	N 支持前后移动
 func Shift[T BaseType](S []T, N any) []T {
-	if __y, ok := N.(DTypeArray); ok {
-		N = __y.DTypes()
-	}
+	//if __y, ok := N.(DTypeArray); ok {
+	//	N = __y.DTypes()
+	//}
 	length := len(S)
 	var _n []DType
 	switch v := N.(type) {
-	//case pandas.Series:
-	//	_n = v.DTypes()
+	case DTypeArray:
+		_n = v.DTypes()
 	case int:
 		if v == 0 {
 			return S

@@ -3,6 +3,7 @@ package num
 import (
 	"gitee.com/quant1x/num/x32"
 	"gitee.com/quant1x/num/x64"
+	"reflect"
 )
 
 func __compare[T ~[]E, E any](x T, y any, c int, comparator func(f1, f2 DType) bool) []bool {
@@ -58,21 +59,21 @@ func __compare_dtype[T ~[]E, E any](x T, y DType, c int, comparator func(f1, f2 
 	bs = make([]bool, xLen)
 
 	kind := CheckoutRawType(x)
-	if kind == SERIES_TYPE_FLOAT64 && c == __k_compare_gt {
+	if kind == reflect.Float64 && c == __k_compare_gt {
 		return x64.GtNumber_Into(bs, any(x).([]float64), y)
-	} else if kind == SERIES_TYPE_FLOAT64 && c == __k_compare_gte {
+	} else if kind == reflect.Float64 && c == __k_compare_gte {
 		return x64.GteNumber_Into(bs, any(x).([]float64), y)
-	} else if kind == SERIES_TYPE_FLOAT64 && c == __k_compare_lt {
+	} else if kind == reflect.Float64 && c == __k_compare_lt {
 		return x64.LtNumber_Into(bs, any(x).([]float64), y)
-	} else if kind == SERIES_TYPE_FLOAT64 && c == __k_compare_lte {
+	} else if kind == reflect.Float64 && c == __k_compare_lte {
 		return x64.LteNumber_Into(bs, any(x).([]float64), y)
-	} else if kind == SERIES_TYPE_FLOAT32 && c == __k_compare_gt {
+	} else if kind == reflect.Float32 && c == __k_compare_gt {
 		return x32.GtNumber_Into(bs, any(x).([]float32), float32(y))
-	} else if kind == SERIES_TYPE_FLOAT32 && c == __k_compare_gte {
+	} else if kind == reflect.Float32 && c == __k_compare_gte {
 		return x32.GteNumber_Into(bs, any(x).([]float32), float32(y))
-	} else if kind == SERIES_TYPE_FLOAT32 && c == __k_compare_lt {
+	} else if kind == reflect.Float32 && c == __k_compare_lt {
 		return x32.LtNumber_Into(bs, any(x).([]float32), float32(y))
-	} else if kind == SERIES_TYPE_FLOAT32 && c == __k_compare_lte {
+	} else if kind == reflect.Float32 && c == __k_compare_lte {
 		return x32.LteNumber_Into(bs, any(x).([]float32), float32(y))
 	} else {
 		b := y
@@ -94,25 +95,25 @@ func __compare_slice[T ~[]E, E any, T2 ~[]E2, E2 any](x T, y T2, c int, comparat
 
 	if xLen >= yLen {
 		bs = make([]bool, xLen)
-		if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_gt {
+		if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_gt {
 			x64.Gt_Into(bs[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_gte {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_gte {
 			x64.Gte_Into(bs[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_lt {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_lt {
 			x64.Lt_Into(bs[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_lte {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_lte {
 			x64.Lte_Into(bs[:yLen], any(x).([]float64)[:yLen], any(y).([]float64)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_gt {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_gt {
 			x32.Gt_Into(bs[:yLen], any(x).([]float32)[:yLen], any(y).([]float32)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_gte {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_gte {
 			x32.Gte_Into(bs[:yLen], any(x).([]float32)[:yLen], any(y).([]float32)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_lt {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_lt {
 			x32.Lt_Into(bs[:yLen], any(x).([]float32)[:yLen], any(y).([]float32)[:yLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_lte {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_lte {
 			x32.Lte_Into(bs[:yLen], any(x).([]float32)[:yLen], any(y).([]float32)[:yLen])
-		} else if xKind == SERIES_TYPE_BOOL && xKind == yKind && c == __k_compare_and {
+		} else if xKind == reflect.Bool && xKind == yKind && c == __k_compare_and {
 			x64.And_Into(bs[:yLen], any(x).([]bool)[:yLen], any(y).([]bool)[:yLen])
-		} else if xKind == SERIES_TYPE_BOOL && xKind == yKind && c == __k_compare_or {
+		} else if xKind == reflect.Bool && xKind == yKind && c == __k_compare_or {
 			x64.Or_Into(bs[:yLen], any(x).([]bool)[:yLen], any(y).([]bool)[:yLen])
 		} else {
 			for i := 0; i < yLen; i++ {
@@ -128,25 +129,25 @@ func __compare_slice[T ~[]E, E any, T2 ~[]E2, E2 any](x T, y T2, c int, comparat
 		}
 	} else {
 		bs = make([]bool, yLen)
-		if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_gt {
+		if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_gt {
 			x64.Gt_Into(bs[:xLen], any(x).([]float64)[:xLen], any(y).([]float64)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_gte {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_gte {
 			x64.Gte_Into(bs[:xLen], any(x).([]float64)[:xLen], any(y).([]float64)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_lt {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_lt {
 			x64.Lt_Into(bs[:xLen], any(x).([]float64)[:xLen], any(y).([]float64)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT64 && xKind == yKind && c == __k_compare_lte {
+		} else if xKind == reflect.Float64 && xKind == yKind && c == __k_compare_lte {
 			x64.Lte_Into(bs[:xLen], any(x).([]float64)[:xLen], any(y).([]float64)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_gt {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_gt {
 			x32.Gt_Into(bs[:xLen], any(x).([]float32)[:xLen], any(y).([]float32)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_gte {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_gte {
 			x32.Gte_Into(bs[:xLen], any(x).([]float32)[:xLen], any(y).([]float32)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_lt {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_lt {
 			x32.Lt_Into(bs[:xLen], any(x).([]float32)[:xLen], any(y).([]float32)[:xLen])
-		} else if xKind == SERIES_TYPE_FLOAT32 && xKind == yKind && c == __k_compare_lte {
+		} else if xKind == reflect.Float32 && xKind == yKind && c == __k_compare_lte {
 			x32.Lte_Into(bs[:xLen], any(x).([]float32)[:xLen], any(y).([]float32)[:xLen])
-		} else if xKind == SERIES_TYPE_BOOL && xKind == yKind && c == __k_compare_and {
+		} else if xKind == reflect.Bool && xKind == yKind && c == __k_compare_and {
 			x64.And_Into(bs[:xLen], any(x).([]bool)[:xLen], any(y).([]bool)[:xLen])
-		} else if xKind == SERIES_TYPE_BOOL && xKind == yKind && c == __k_compare_or {
+		} else if xKind == reflect.Bool && xKind == yKind && c == __k_compare_or {
 			x64.Or_Into(bs[:xLen], any(x).([]bool)[:xLen], any(y).([]bool)[:xLen])
 		} else {
 			for i := 0; i < xLen; i++ {
