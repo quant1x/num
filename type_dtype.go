@@ -2,9 +2,17 @@ package num
 
 import (
 	"gitee.com/quant1x/num/x64"
+	"math"
+	_ "unsafe"
 )
 
 type DType = float64
+
+var (
+	Nil2Float64 = math.NaN()
+	Nil2Float32 = float32(math.NaN())
+	DTypeNaN    = math.NaN()
+)
 
 // DTypeIsNaN 判断DType是否NaN
 func DTypeIsNaN(d DType) bool {
