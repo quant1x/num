@@ -5,21 +5,21 @@ import (
 )
 
 func Max_Go[T constraints.Float](x []T) T {
-	max := x[0]
+	maxValue := x[0]
 	for _, v := range x[1:] {
-		if v > max {
-			max = v
+		if v > maxValue {
+			maxValue = v
 		}
 	}
-	return max
+	return maxValue
 }
 
 func ArgMax_Go[T constraints.Float](x []T) int {
-	max := x[0]
+	maxValue := x[0]
 	idx := 0
 	for i, v := range x[1:] {
-		if v > max {
-			max = v
+		if v > maxValue {
+			maxValue = v
 			idx = 1 + i
 		}
 	}
