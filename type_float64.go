@@ -1,8 +1,6 @@
 package num
 
 import (
-	"fmt"
-	"gitee.com/quant1x/gox/exception"
 	"gitee.com/quant1x/gox/logger"
 	"gitee.com/quant1x/num/x64"
 	"math"
@@ -37,7 +35,8 @@ func Float64IsNaN(f float64) bool {
 	return math.IsNaN(f) || math.IsInf(f, 0)
 }
 
-func slice_any_to_float64[T Number](s []T) []float64 {
+// number类型切片转成float64切片
+func sliceNumberToFloat64[T Number](s []T) []float64 {
 	count := len(s)
 	if count == 0 {
 		return []float64{}
@@ -88,28 +87,27 @@ func AnyToFloat64(v any) float64 {
 
 // SliceToFloat64 any输入只能是一维slice或者数组
 func SliceToFloat64(v any) []float64 {
-	var vs []float64
 	switch values := v.(type) {
 	case []int8:
-		return slice_any_to_float64(values)
+		return sliceNumberToFloat64(values)
 	case []uint8:
-		return slice_any_to_float64(values)
+		return sliceNumberToFloat64(values)
 	case []int16:
-		return slice_any_to_float64(values)
+		return sliceNumberToFloat64(values)
 	case []uint16:
-		return slice_any_to_float64(values)
+		return sliceNumberToFloat64(values)
 	case []int32: // 加速
 		return x64.FromInt32(values)
 	case []uint32:
-		return slice_any_to_float64(values)
+		return sliceNumberToFloat64(values)
 	case []int64: // 加速
 		return x64.FromInt64(values)
 	case []uint64:
-		return slice_any_to_float64(values)
+		return sliceNumberToFloat64(values)
 	case []int:
-		return slice_any_to_float64(values)
+		return sliceNumberToFloat64(values)
 	case []uint:
-		return slice_any_to_float64(values)
+		return sliceNumberToFloat64(values)
 	case []float32: // 加速
 		return x64.FromFloat32(values)
 	case []float64: // 克隆
@@ -127,14 +125,13 @@ func SliceToFloat64(v any) []float64 {
 		if count == 0 {
 			return []float64{}
 		}
-		vs = make([]float64, count)
+		vs := make([]float64, count)
 		for idx, iv := range values {
 			vs[idx] = AnyToFloat64(iv)
 		}
+		return vs
 	default:
-		vv := reflect.ValueOf(v)
-		vk := vv.Kind()
-		panic(exception.New(errorFloat64Base+0, fmt.Sprintf("Unsupported type: %s", vk.String())))
+		panic(TypeError(values))
 	}
 	return []float64{}
 }
