@@ -3,6 +3,8 @@ package num
 import (
 	"fmt"
 	"gitee.com/quant1x/gox/logger"
+	"gitee.com/quant1x/num/x32"
+	"gitee.com/quant1x/num/x64"
 	"math"
 	"strconv"
 )
@@ -71,4 +73,16 @@ func AnyToInt64(v any) int64 {
 
 	f := valueToNumber[int64](v, Nil2Int64, BoolToInt64, ParseInt64)
 	return f
+}
+
+// SliceFloatToInt64 浮点转int64
+func SliceFloatToInt64[T Float](x []T) []int64 {
+	switch values := any(x).(type) {
+	case []float32:
+		return x32.ToInt64(values)
+	case []float64:
+		return x64.ToInt64(values)
+	}
+	// 不可能走到这里
+	return []int64{}
 }
