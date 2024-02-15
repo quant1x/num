@@ -16,15 +16,15 @@ func Abs[T BaseType](x []T) []T {
 	case []float64:
 		d = x64.Abs(xv)
 	case []int:
-		d = __abs_go(xv)
+		d = __go_abs(xv)
 	case []int8:
-		d = __abs_go(xv)
+		d = __go_abs(xv)
 	case []int16:
-		d = __abs_go(xv)
+		d = __go_abs(xv)
 	case []int32:
-		d = __abs_go(xv)
+		d = __go_abs(xv)
 	case []int64:
-		d = __abs_go(xv)
+		d = __go_abs(xv)
 	case []uint, []uint8, []uint16, []uint32, []uint64, []uintptr:
 		d = xv
 	default:
@@ -34,10 +34,10 @@ func Abs[T BaseType](x []T) []T {
 	return d.([]T)
 }
 
-func __abs_go[T Signed | Float](x []T) []T {
-	xlen := len(x)
-	d := make([]T, xlen)
-	for i := 0; i < xlen; i++ {
+func __go_abs[T Signed | Float](x []T) []T {
+	xLen := len(x)
+	d := make([]T, xLen)
+	for i := 0; i < xLen; i++ {
 		if x[i] < 0 {
 			d[i] = -x[i]
 		} else {
