@@ -9,7 +9,7 @@ import (
 //
 //	返回轴上最大值的索引
 func ArgMax[T Number](x []T) int {
-	ret := UnaryOperations2[T, int](x, x32.ArgMax, x64.ArgMax, __arg_max_go[T])
+	ret := UnaryOperations2[T, int](x, x32.ArgMax, x64.ArgMax, __go_arg_max[T])
 	return ret
 }
 
@@ -43,9 +43,9 @@ func ArgMax2[T BaseType](x []T) int {
 	case []uintptr:
 		d = ArgMax(vs)
 	case []string:
-		d = __arg_max_go(vs)
+		d = __go_arg_max(vs)
 	case []bool:
-		d = __arg_max_go_bool(vs)
+		d = __go_bool_arg_max(vs)
 	default:
 		// 其它类型原样返回
 		panic(TypeError(any(x)))
@@ -54,7 +54,7 @@ func ArgMax2[T BaseType](x []T) int {
 	return d
 }
 
-func __arg_max_go[T Ordered](x []T) int {
+func __go_arg_max[T Ordered](x []T) int {
 	maxValue := x[0]
 	idx := 0
 	for i, v := range x[1:] {
@@ -66,7 +66,7 @@ func __arg_max_go[T Ordered](x []T) int {
 	return idx
 }
 
-func __arg_max_go_bool(x []bool) int {
+func __go_bool_arg_max(x []bool) int {
 	maxValue := BoolToInt(x[0])
 	idx := 0
 	for i, v := range x[1:] {
