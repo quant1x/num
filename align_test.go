@@ -1,7 +1,11 @@
 package num
 
 import (
+	"fmt"
 	"gitee.com/quant1x/num/labs"
+	"math/rand"
+	"slices"
+	"sync"
 	"testing"
 )
 
@@ -91,5 +95,105 @@ func TestAlign(t *testing.T) {
 				t.Errorf("Align() = %v, want %v", got, tt.Want)
 			}
 		})
+	}
+}
+
+func Test_v8Align(t *testing.T) {
+	xl := 5
+	nl := xl + 10
+	x := make([]float64, xl)
+	for i := 0; i < xl; i++ {
+		x[i] = rand.Float64()
+	}
+	y := v4Align[float64](x, Nil2Float64, nl)
+	fmt.Println(y)
+}
+
+const (
+	benchAlignLength  = 5000
+	benchAlignInitNum = 100
+)
+
+var (
+	alignOnce   sync.Once
+	testFloat32 []float32
+	testFloat64 []float64
+)
+
+func initTestData() {
+	testFloat32 = make([]float32, benchAlignInitNum)
+	testFloat64 = make([]float64, benchAlignInitNum)
+	for i := 0; i < benchAlignInitNum; i++ {
+		testFloat32[i] = rand.Float32()
+		testFloat64[i] = rand.Float64()
+	}
+}
+
+func BenchmarkAlign_init(b *testing.B) {
+	alignOnce.Do(initTestData)
+}
+
+func BenchmarkAlign_release(b *testing.B) {
+	alignOnce.Do(initTestData)
+	length := benchAlignInitNum + benchAlignLength
+	x := slices.Clone(testFloat64)
+	for n := 0; n < b.N; n++ {
+		Align[float64](x, Nil2Float64, length)
+	}
+}
+
+func BenchmarkAlign_v1(b *testing.B) {
+	alignOnce.Do(initTestData)
+	length := benchAlignInitNum + benchAlignLength
+	x := slices.Clone(testFloat64)
+	for n := 0; n < b.N; n++ {
+		v1Align[float64](x, Nil2Float64, length)
+	}
+}
+
+func BenchmarkAlign_v2(b *testing.B) {
+	alignOnce.Do(initTestData)
+	length := benchAlignInitNum + benchAlignLength
+	x := slices.Clone(testFloat64)
+	for n := 0; n < b.N; n++ {
+		v2Align[float64](x, Nil2Float64, length)
+	}
+}
+
+func BenchmarkAlign_v3(b *testing.B) {
+	alignOnce.Do(initTestData)
+	length := benchAlignInitNum + benchAlignLength
+	x := slices.Clone(testFloat64)
+	for n := 0; n < b.N; n++ {
+		v3Align[float64](x, Nil2Float64, length)
+	}
+}
+
+func BenchmarkAlign_v3_avx2_float32(b *testing.B) {
+	alignOnce.Do(initTestData)
+	SetAvx2Enabled(true)
+	length := benchAlignInitNum + benchAlignLength
+	x := slices.Clone(testFloat32)
+	for n := 0; n < b.N; n++ {
+		v3Align[float32](x, Nil2Float32, length)
+	}
+}
+
+func BenchmarkAlign_v3_avx2_float64(b *testing.B) {
+	alignOnce.Do(initTestData)
+	SetAvx2Enabled(true)
+	length := benchAlignInitNum + benchAlignLength
+	x := slices.Clone(testFloat64)
+	for n := 0; n < b.N; n++ {
+		v3Align[float64](x, Nil2Float64, length)
+	}
+}
+
+func BenchmarkAlign_v4(b *testing.B) {
+	alignOnce.Do(initTestData)
+	length := benchAlignInitNum + benchAlignLength
+	x := slices.Clone(testFloat64)
+	for n := 0; n < b.N; n++ {
+		v4Align[float64](x, Nil2Float64, length)
 	}
 }
