@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.0] - 2024-02-18
+### Changed
+- 调整窗口源文件名.
+- 删除部分冗余的变量.
+- 优化Align函数.
+- 优化Repeat函数, 非avx2加速的类型使用递增2倍速的copy方法.
+- 调整Range函数的代码位置.
+- 取消加速开关函数的返回值.
+- 取消加速开关函数的返回值.
+- 新增Number参数结构体.
+- 新增向量repeat函数.
+- 删除废弃的代码.
+- 优化部分代码.
+- 剔除num项目内的SERIES字样.
+- 调整部分代码.
+- 修改abs非加速版本的函数名.
+- 删除废弃的代码.
+- 优化滑动窗口的分组函数.
+- 新增切片any转int切片.
+- 调整函数名.
+- 新增一组浮点转整型的功能性函数.
+- 优化部分函数.
+- 补充函数注释.
+- 调整兼容性私有函数名的前缀, 逐步统一成__go_function.
+- 初步补充README, 增加依赖和参考的工具库.
+- 修正局部变量max告警.
+- 新增abs其它类型的实现函数.
+- 调整vek工具库README源文件名.
+- 调整原vek/asm包路径.
+- 新增一个go:linkname的测试性代码.
+- 细化泛型类型推导的case.
+
 ## [0.0.9] - 2024-02-14
 ### Changed
 - 修订错误的测试用例.
@@ -55,8 +87,9 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.0.9...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.0...HEAD
 
+[0.1.0]: https://gitee.com/quant1x/num/compare/v0.0.9...v0.1.0
 [0.0.9]: https://gitee.com/quant1x/num/compare/v0.0.8...v0.0.9
 [0.0.8]: https://gitee.com/quant1x/num/compare/v0.0.7...v0.0.8
 [0.0.7]: https://gitee.com/quant1x/num/compare/v0.0.6...v0.0.7
