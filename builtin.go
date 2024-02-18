@@ -10,8 +10,8 @@ import (
 )
 
 // SetAvx2Enabled 设定AVX2加速开关, 非线程安全
-func SetAvx2Enabled(enabled bool) error {
-	return functions.SetAcceleration(enabled)
+func SetAvx2Enabled(enabled bool) {
+	functions.SetAcceleration(enabled)
 }
 
 // GetAvx2Enabled 获取avx2加速状态
