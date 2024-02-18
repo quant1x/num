@@ -18,22 +18,6 @@ func TestRepeat(t *testing.T) {
 	fmt.Println(fs64)
 }
 
-func TestSequence(t *testing.T) {
-	fmt.Println(Range[float32](5))
-	fmt.Println(Range[float64](5))
-	fmt.Println(Range[int8](5))
-	fmt.Println(Range[uint8](5))
-	fmt.Println(Range[int16](5))
-	fmt.Println(Range[uint16](5))
-	fmt.Println(Range[int32](5))
-	fmt.Println(Range[uint32](5))
-	fmt.Println(Range[int64](5))
-	fmt.Println(Range[uint64](5))
-	fmt.Println(Range[int](5))
-	fmt.Println(Range[uint](5))
-	fmt.Println(Range[uintptr](5))
-}
-
 func Test_v1Repeat_0(t *testing.T) {
 	count := 5
 	t1 := make([]byte, count)
@@ -51,15 +35,9 @@ func Test_v1Repeat_1(t *testing.T) {
 	fmt.Println(x)
 }
 
-func Test_v3Repeat(t *testing.T) {
-	f := 1.1
-	x := v4Repeat(f, 50)
-	fmt.Println(x)
-}
-
 func Test_v4Repeat(t *testing.T) {
 	f := 1.1
-	x := v5Repeat(f, 500)
+	x := v5Repeat(f, 5)
 	fmt.Println(x)
 }
 
@@ -73,39 +51,105 @@ func BenchmarkRepeat_release(b *testing.B) {
 	}
 }
 
-func BenchmarkRepeat_v1_avx2_float32(b *testing.B) {
+func BenchmarkRepeat_release_avx2_float32(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
 	SetAvx2Enabled(true)
+	defer SetAvx2Enabled(useAvx2)
+	for n := 0; n < b.N; n++ {
+		Repeat[float32](1.1, benchRepeatTimes)
+	}
+}
+func BenchmarkRepeat_release_avx2_float64(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
+	SetAvx2Enabled(true)
+	defer SetAvx2Enabled(useAvx2)
+	for n := 0; n < b.N; n++ {
+		Repeat[float64](1.1, benchRepeatTimes)
+	}
+}
+
+func BenchmarkRepeat_release_noavx2_float32(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
+	SetAvx2Enabled(false)
+	defer SetAvx2Enabled(useAvx2)
+	for n := 0; n < b.N; n++ {
+		Repeat[float32](1.1, benchRepeatTimes)
+	}
+}
+func BenchmarkRepeat_release_noavx2_float64(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
+	SetAvx2Enabled(false)
+	defer SetAvx2Enabled(useAvx2)
+	for n := 0; n < b.N; n++ {
+		Repeat[float64](1.1, benchRepeatTimes)
+	}
+}
+
+func BenchmarkRepeat_v1_avx2_float32(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
+	SetAvx2Enabled(true)
+	defer SetAvx2Enabled(useAvx2)
 	for n := 0; n < b.N; n++ {
 		v1Repeat[float32](1.1, benchRepeatTimes)
 	}
 }
 func BenchmarkRepeat_v1_avx2_float64(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
 	SetAvx2Enabled(true)
+	defer SetAvx2Enabled(useAvx2)
 	for n := 0; n < b.N; n++ {
 		v1Repeat[float64](1.1, benchRepeatTimes)
 	}
 }
 
 func BenchmarkRepeat_v1_noavx2_float32(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
 	SetAvx2Enabled(false)
+	defer SetAvx2Enabled(useAvx2)
 	for n := 0; n < b.N; n++ {
 		v1Repeat[float32](1.1, benchRepeatTimes)
 	}
 }
 func BenchmarkRepeat_v1_noavx2_float64(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
 	SetAvx2Enabled(false)
+	defer SetAvx2Enabled(useAvx2)
 	for n := 0; n < b.N; n++ {
 		v1Repeat[float64](1.1, benchRepeatTimes)
 	}
 }
 
-func BenchmarkRepeat_v2_float32(b *testing.B) {
+func BenchmarkRepeat_v2_noavx2_float32(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
+	SetAvx2Enabled(false)
+	defer SetAvx2Enabled(useAvx2)
 	for n := 0; n < b.N; n++ {
 		v2Repeat[float32](1.1, benchRepeatTimes)
 	}
 }
 
-func BenchmarkRepeat_v2_float64(b *testing.B) {
+func BenchmarkRepeat_v2_noavx2_float64(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
+	SetAvx2Enabled(false)
+	defer SetAvx2Enabled(useAvx2)
+	for n := 0; n < b.N; n++ {
+		v2Repeat[float64](1.1, benchRepeatTimes)
+	}
+}
+
+func BenchmarkRepeat_v2_float32_avx2(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
+	SetAvx2Enabled(true)
+	defer SetAvx2Enabled(useAvx2)
+	for n := 0; n < b.N; n++ {
+		v2Repeat[float32](1.1, benchRepeatTimes)
+	}
+}
+
+func BenchmarkRepeat_v2_float64_avx2(b *testing.B) {
+	useAvx2 := GetAvx2Enabled()
+	SetAvx2Enabled(true)
+	defer SetAvx2Enabled(useAvx2)
 	for n := 0; n < b.N; n++ {
 		v2Repeat[float64](1.1, benchRepeatTimes)
 	}

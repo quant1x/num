@@ -2,151 +2,89 @@ package num
 
 import (
 	"gitee.com/quant1x/num/binary"
+	"gitee.com/quant1x/num/internal/functions"
+	"gitee.com/quant1x/num/vectors"
 	"gitee.com/quant1x/num/x32"
 	"gitee.com/quant1x/num/x64"
-	"unsafe"
 )
 
-// Repeat 构造n长度的f的泛型切片
-func Repeat[T BaseType](x T, n int) []T {
+// Repeat 构造n长度的x的泛型切片
+func Repeat[E BaseType](x E, n int) []E {
 	if n < 1 {
-		return []T{}
+		return []E{}
 	}
-	return v5Repeat[T](x, n)
+	return v2Repeat[E](x, n)
 }
 
-func v1Repeat[T BaseType](f T, n int) []T {
+func v1Repeat[E BaseType](x E, n int) []E {
 	var d any
-	var s any = f
-	switch fs := s.(type) {
+	switch v := any(x).(type) {
 	case float32:
-		d = x32.Repeat(fs, n)
+		d = x32.Repeat(v, n)
 	case float64:
-		d = x64.Repeat(fs, n)
+		d = x64.Repeat(v, n)
 	default:
 		// 剩下非float32和float64, 循环吧
-		d = []T{}
-		m := make([]T, n)
+		d = []E{}
+		m := make([]E, n)
 		for i := 0; i < n; i++ {
-			m[i] = f
+			m[i] = x
 		}
 		d = m
 	}
-	return d.([]T)
+	return d.([]E)
 }
 
-func v2Repeat[T BaseType](x T, n int) []T {
+// 浮点加速, 其它类型使用2倍速copy
+func v2Repeat[E BaseType](x E, n int) []E {
+	var d any
+	ok := false
+	if functions.UseAVX2 {
+		switch v := any(x).(type) {
+		case float32:
+			d = x32.Repeat(v, n)
+			ok = true
+		case float64:
+			d = x64.Repeat(v, n)
+			ok = true
+		}
+	}
+	if !ok {
+		d = v5Repeat(x, n)
+	}
+	return d.([]E)
+}
+
+func v3Repeat[E BaseType](x E, n int) []E {
 	data := binary.ToBytes(x)
 	m := binary.Repeat(data, n)
-	return binary.ToSlice[T](m, n)
+	return binary.ToSlice[E](m, n)
 }
 
-func v3Repeat[T Number](f T, n int) []T {
-	x := make([]T, n)
+func v4Repeat[E Number](x E, n int) []E {
+	s := make([]E, n)
 	for i := 0; i < n; i++ {
-		x[i] = f
+		s[i] = x
 	}
-	return x
-}
-
-func memChunkMax[T BaseType](t T, count int) int {
-	elementSize := int(unsafe.Sizeof(t))
-	// 字节数最大限制 8K
-	const chunkLimit = 8 * 1024
-	chunkMax := count
-	if chunkMax*elementSize > chunkLimit {
-		chunkMax = chunkLimit / elementSize
-		if chunkMax == 0 {
-			chunkMax = 1
-		}
-	}
-	return chunkMax
-}
-
-// 加速版本复制元素
-func repeatSlice[E BaseType](s []E, pos, cap int) {
-	var a_ E
-	chunkMax := memChunkMax(a_, cap)
-	for pos < cap {
-		chunk := pos
-		if chunk > chunkMax {
-			chunk = chunkMax
-		}
-		//remain := cap - pos
-		//n := min(remain, pos)
-		//pos += copy(s[pos:pos+n], s[:n])
-		pos += copy(s[pos:], s[:chunk])
-	}
-}
-
-func v4Repeat[T BaseType](f T, n int) []T {
-	x := make([]T, n)
-	x[0] = f
-	pos := 1
-	repeatSlice(x, pos, n)
-	return x
+	return s
 }
 
 // see bytes.Repeat
-func v5Repeat[T BaseType](t T, count int) []T {
-	x := make([]T, count)
-	elementSize := int(unsafe.Sizeof(t))
-	//n := int(unsafe.Sizeof(x)) * count
-	// 字节数最大限制 8K
-	const chunkLimit = 8 * 1024
-	chunkMax := count
-	if chunkMax*elementSize > chunkLimit {
-		chunkMax = chunkLimit / elementSize
-		if chunkMax == 0 {
-			chunkMax = 1
-		}
-	}
-	low := copy(x[0:], []T{t})
-	for low < count {
-		chunk := low
-		if chunk > chunkMax {
-			chunk = chunkMax
-		}
-		low += copy(x[low:], x[:chunk])
-	}
-	return x
+func v5Repeat[E BaseType](x E, count int) []E {
+	s := make([]E, count)
+	vectors.Repeat(s, x, count)
+	return s
 }
 
-// RepeatInto 替换n长度的f的泛型切片
-func RepeatInto[T BaseType](s []T, f T, n int) []T {
+// RepeatInto 替换n长度的a的泛型切片
+func RepeatInto[E BaseType](s []E, a E, n int) []E {
 	switch fs := any(s).(type) {
 	case []float32:
-		x32.Repeat_Into(fs, any(f).(float32), n)
+		x32.Repeat_Into(fs, any(a).(float32), n)
 	case []float64:
-		x64.Repeat_Into(fs, any(f).(float64), n)
+		x64.Repeat_Into(fs, any(a).(float64), n)
 	default:
-		// 剩下非float32和float64, 循环吧
-		for i := 0; i < n; i++ {
-			s[i] = f
-		}
+		vectors.Repeat(s, a, n)
 	}
 	return s[:n]
-}
-
-// Range 产生从0到n-1的数组
-func Range[T Number](n int) []T {
-	var dest any
-
-	var start T = 0
-	var v any = start
-	switch a := v.(type) {
-	case float32:
-		dest = x32.Range(a, a+float32(n))
-	case float64:
-		dest = x64.Range(a, a+float64(n))
-	default:
-		// 其它类型
-		d := make([]T, n)
-		for i := 0; i < n; i++ {
-			d[i] = start
-			start += 1
-		}
-		dest = d
-	}
-	return dest.([]T)
 }
