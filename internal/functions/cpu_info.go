@@ -1,7 +1,6 @@
 package functions
 
 import (
-	"fmt"
 	"golang.org/x/sys/cpu"
 	"runtime"
 )
@@ -72,11 +71,11 @@ func Info() SystemInfo {
 }
 
 // SetAcceleration toggles simd acceleration. Not thread safe.
-func SetAcceleration(enabled bool) error {
+func SetAcceleration(enabled bool) {
 	if enabled && !(cpu.X86.HasAVX2 && cpu.X86.HasFMA) {
 		UseAVX2 = false
-		return fmt.Errorf("acceleration not supported on this platform")
+		//return fmt.Errorf("acceleration not supported on this platform")
+		return
 	}
 	UseAVX2 = enabled
-	return nil
 }
