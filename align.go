@@ -3,11 +3,11 @@ package num
 // Align data alignment
 //
 //	a 通常是默认值
-func Align[T BaseType](x []T, a T, n int) []T {
-	return v1Align[T](x, a, n)
+func Align[E BaseType](x []E, a E, n int) []E {
+	return v2Align[E](x, a, n)
 }
 
-func v1Align[T BaseType](x []T, a T, length int) []T {
+func v1Align[E BaseType](x []E, a E, length int) []E {
 	n := len(x)
 	if n == length {
 		return x
@@ -22,7 +22,7 @@ func v1Align[T BaseType](x []T, a T, length int) []T {
 		return d
 	}
 	// 扩展内存
-	d := make([]T, length)
+	d := make([]E, length)
 	m := copy(d, x)
 	// m 和 n 应该是相等
 	for i := m; i < length; i++ {
@@ -31,22 +31,7 @@ func v1Align[T BaseType](x []T, a T, length int) []T {
 	return d
 }
 
-func v2Align[T BaseType](x []T, a T, n int) []T {
-	m := len(x)
-	if n == m {
-		// 相等, 直接返回X
-		return x
-	}
-	if n < m {
-		// 截断
-		return x[:n]
-	}
-	// 扩容
-	y := Repeat[T](a, n-m)
-	return append(x, y...)
-}
-
-func v3Align[T BaseType](x []T, a T, n int) []T {
+func v2Align[E BaseType](x []E, a E, n int) []E {
 	m := len(x)
 	if m == n {
 		return x
@@ -56,25 +41,8 @@ func v3Align[T BaseType](x []T, a T, n int) []T {
 		return x[:n]
 	}
 	// 扩展内存
-	d := make([]T, n)
+	d := make([]E, n)
 	copy(d, x)
 	RepeatInto(d[m:], a, n-m)
-	return d
-}
-
-func v4Align[T BaseType](x []T, a T, n int) []T {
-	m := len(x)
-	if m == n {
-		return x
-	}
-	if m > n {
-		// 截断
-		return x[:n]
-	}
-	// 扩展内存
-	d := make([]T, n)
-	copy(d, x)
-	d[m] = a
-	repeatSlice(d[m:], 1, n-m)
 	return d
 }

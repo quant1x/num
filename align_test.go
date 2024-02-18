@@ -9,6 +9,17 @@ import (
 	"testing"
 )
 
+func Test_Align(t *testing.T) {
+	xl := 5
+	nl := xl + 10
+	x := make([]float64, xl)
+	for i := 0; i < xl; i++ {
+		x[i] = rand.Float64()
+	}
+	y := Align[float64](x, Nil2Float64, nl)
+	fmt.Println(y)
+}
+
 func TestAlign(t *testing.T) {
 	type args struct {
 		x any
@@ -39,10 +50,10 @@ func TestAlign(t *testing.T) {
 			Name: "string",
 			Args: args{
 				x: []string{"1", "2"},
-				a: "",
+				a: "x",
 				n: 5,
 			},
-			Want: []string{"1", "2", "", "", ""},
+			Want: []string{"1", "2", "x", "x", "x"},
 			TestFunc: func(v any) any {
 				vs := v.(args)
 				return Align(vs.x.([]string), vs.a.(string), vs.n)
@@ -66,22 +77,35 @@ func TestAlign(t *testing.T) {
 			Args: args{
 				x: []float64{-0.1, 1.0, -2.00, -3},
 				a: Float64NaN(),
-				n: 5,
+				n: 4,
 			},
-			Want: []float64{-0.1, 1.0, -2.00, -3, Float64NaN()},
+			Want: []float64{-0.1, 1.0, -2.00, -3},
 			TestFunc: func(v any) any {
 				vs := v.(args)
 				return Align(vs.x.([]float64), vs.a.(float64), vs.n)
 			},
 		},
 		{
-			Name: "float64-to-float32",
+			Name: "float64-cut",
 			Args: args{
 				x: []float64{-0.1, 1.0, -2.00, -3},
 				a: Float64NaN(),
-				n: 2,
+				n: 3,
 			},
-			Want: []float64{-0.1, 1.0},
+			Want: []float64{-0.1, 1.0, -2.00},
+			TestFunc: func(v any) any {
+				vs := v.(args)
+				return Align(vs.x.([]float64), vs.a.(float64), vs.n)
+			},
+		},
+		{
+			Name: "float64-fill",
+			Args: args{
+				x: []float64{-0.1, 1.0, -2.00, -3},
+				a: Float64NaN(),
+				n: 10,
+			},
+			Want: []float64{-0.1, 1.0, -2.00, -3, Float64NaN(), Float64NaN(), Float64NaN(), Float64NaN(), Float64NaN(), Float64NaN()},
 			TestFunc: func(v any) any {
 				vs := v.(args)
 				return Align(vs.x.([]float64), vs.a.(float64), vs.n)
@@ -96,17 +120,6 @@ func TestAlign(t *testing.T) {
 			}
 		})
 	}
-}
-
-func Test_v8Align(t *testing.T) {
-	xl := 5
-	nl := xl + 10
-	x := make([]float64, xl)
-	for i := 0; i < xl; i++ {
-		x[i] = rand.Float64()
-	}
-	y := v4Align[float64](x, Nil2Float64, nl)
-	fmt.Println(y)
 }
 
 const (
@@ -151,7 +164,16 @@ func BenchmarkAlign_v1(b *testing.B) {
 	}
 }
 
-func BenchmarkAlign_v2(b *testing.B) {
+func BenchmarkAlign_v2_float32(b *testing.B) {
+	alignOnce.Do(initTestData)
+	length := benchAlignInitNum + benchAlignLength
+	x := slices.Clone(testFloat32)
+	for n := 0; n < b.N; n++ {
+		v2Align[float32](x, Nil2Float32, length)
+	}
+}
+
+func BenchmarkAlign_v2_float64(b *testing.B) {
 	alignOnce.Do(initTestData)
 	length := benchAlignInitNum + benchAlignLength
 	x := slices.Clone(testFloat64)
@@ -160,40 +182,22 @@ func BenchmarkAlign_v2(b *testing.B) {
 	}
 }
 
-func BenchmarkAlign_v3(b *testing.B) {
-	alignOnce.Do(initTestData)
-	length := benchAlignInitNum + benchAlignLength
-	x := slices.Clone(testFloat64)
-	for n := 0; n < b.N; n++ {
-		v3Align[float64](x, Nil2Float64, length)
-	}
-}
-
-func BenchmarkAlign_v3_avx2_float32(b *testing.B) {
+func BenchmarkAlign_v2_avx2_float32(b *testing.B) {
 	alignOnce.Do(initTestData)
 	SetAvx2Enabled(true)
 	length := benchAlignInitNum + benchAlignLength
 	x := slices.Clone(testFloat32)
 	for n := 0; n < b.N; n++ {
-		v3Align[float32](x, Nil2Float32, length)
+		v2Align[float32](x, Nil2Float32, length)
 	}
 }
 
-func BenchmarkAlign_v3_avx2_float64(b *testing.B) {
+func BenchmarkAlign_v2_avx2_float64(b *testing.B) {
 	alignOnce.Do(initTestData)
 	SetAvx2Enabled(true)
 	length := benchAlignInitNum + benchAlignLength
 	x := slices.Clone(testFloat64)
 	for n := 0; n < b.N; n++ {
-		v3Align[float64](x, Nil2Float64, length)
-	}
-}
-
-func BenchmarkAlign_v4(b *testing.B) {
-	alignOnce.Do(initTestData)
-	length := benchAlignInitNum + benchAlignLength
-	x := slices.Clone(testFloat64)
-	for n := 0; n < b.N; n++ {
-		v4Align[float64](x, Nil2Float64, length)
+		v2Align[float64](x, Nil2Float64, length)
 	}
 }
