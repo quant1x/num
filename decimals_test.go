@@ -7,6 +7,26 @@ import (
 	"testing"
 )
 
+func roundFloat(val float64, precision uint) float64 {
+	ratio := math.Pow(10, float64(precision))
+	return math.Round(val*ratio) / ratio
+}
+
+func TestRound(t *testing.T) {
+	number := 12.3456789
+	fmt.Println(roundFloat(number, 2))
+	fmt.Println(roundFloat(number, 3))
+	fmt.Println(roundFloat(number, 4))
+	fmt.Println(roundFloat(number, 5))
+	number = -12.3456789
+	fmt.Println(roundFloat(number, 0))
+	fmt.Println(roundFloat(number, 1))
+	fmt.Println(roundFloat(number, 3))
+
+	fmt.Println("fix:", Decimal(number, 3))
+	fmt.Printf("%f\n", 9.825)
+}
+
 func TestDecimal0(t *testing.T) {
 	f := -0.116
 	fmt.Println(math.Signbit(f))

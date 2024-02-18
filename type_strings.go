@@ -57,7 +57,7 @@ func __anyToString(v any) string {
 	case uintptr:
 		return strconv.FormatUint(uint64(val), 10)
 	case float32:
-		return strconv.FormatFloat(float64(val), 'G', -1, 64)
+		return strconv.FormatFloat(float64(val), 'G', -1, 32)
 	case float64:
 		return strconv.FormatFloat(float64(val), 'G', -1, 64)
 	case bool:
@@ -97,8 +97,12 @@ func __printString(v any) string {
 		return strconv.FormatUint(uint64(val), 10)
 	case uintptr:
 		return strconv.FormatUint(uint64(val), 10)
-	case float32, float64:
-		return fmt.Sprintf("%.3f", val)
+	case float32: // python 8位, go 8位 ?
+		//return fmt.Sprintf("%.7f", val)
+		return strconv.FormatFloat(float64(val), 'G', -1, 32)
+	case float64: // python 16位, go 16位 ?
+		//return fmt.Sprintf("%.15f", val)
+		return strconv.FormatFloat(float64(val), 'G', -1, 64)
 	case bool:
 		return BoolToString(val)
 	case string:
