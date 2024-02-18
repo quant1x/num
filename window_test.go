@@ -6,7 +6,7 @@ import (
 
 func BenchmarkN_At(b *testing.B) {
 	alignOnce.Do(initTestData)
-	param := N[float64]{
+	param := Window[float64]{
 		V: testFloat64,
 		C: 1.23,
 	}
