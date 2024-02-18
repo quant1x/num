@@ -9,8 +9,7 @@ import (
 // Abs 泛型绝对值
 func Abs[T BaseType](x []T) []T {
 	var d any
-	var v any = x
-	switch xv := v.(type) {
+	switch xv := any(x).(type) {
 	case []float32:
 		d = x32.Abs(xv)
 	case []float64:
