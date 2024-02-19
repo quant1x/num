@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.2] - 2024-02-20
+### Changed
+- 增加遗漏的函数.
+
 ## [0.1.1] - 2024-02-18
 ### Changed
 - 调整浮点输出字符串的精度.
@@ -91,8 +95,9 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.1...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.2...HEAD
 
+[0.1.2]: https://gitee.com/quant1x/num/compare/v0.1.1...v0.1.2
 [0.1.1]: https://gitee.com/quant1x/num/compare/v0.1.0...v0.1.1
 [0.1.0]: https://gitee.com/quant1x/num/compare/v0.0.9...v0.1.0
 [0.0.9]: https://gitee.com/quant1x/num/compare/v0.0.8...v0.0.9
