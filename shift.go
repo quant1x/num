@@ -8,10 +8,11 @@ import (
 // Shift 使用可选的时间频率按所需的周期数移动索引
 //
 //	N 支持前后移动
-func Shift[T BaseType](S []T, N any) []T {
-	//if __y, ok := N.(DTypeArray); ok {
-	//	N = __y.DTypes()
-	//}
+func Shift[E BaseType](S []E, N any) []E {
+	return v1Shift[E](S, N)
+}
+
+func v1Shift[T BaseType](S []T, N any) []T {
 	length := len(S)
 	var _n []DType
 	switch v := N.(type) {
