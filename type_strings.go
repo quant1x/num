@@ -21,6 +21,15 @@ var (
 	PossibleNaOfString = []string{"NA", "NaN", "nan", "<nil>"}
 )
 
+// IsEmpty Code to test if string is empty
+func IsEmpty(s string) bool {
+	if strings.TrimSpace(s) == "" {
+		return true
+	} else {
+		return false
+	}
+}
+
 // StringIsNaN 判断字符串是否NaN
 func StringIsNaN(s string) bool {
 	s = strings.TrimSpace(s)

@@ -6,7 +6,6 @@ import (
 	"gitee.com/quant1x/num/internal/functions"
 	"reflect"
 	"runtime"
-	"strings"
 )
 
 // SetAvx2Enabled 设定AVX2加速开关, 非线程安全
@@ -35,15 +34,6 @@ func ExtractValueFromPointer(v any) (any, bool) {
 		return ve.Interface(), true
 	}
 	return v, false
-}
-
-// IsEmpty Code to test if string is empty
-func IsEmpty(s string) bool {
-	if strings.TrimSpace(s) == "" {
-		return true
-	} else {
-		return false
-	}
 }
 
 // Array 获取any类型切片数据
