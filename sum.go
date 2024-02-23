@@ -6,27 +6,25 @@ import (
 )
 
 // Sum 求和
-func Sum[T Number](f []T) T {
-	if len(f) == 0 {
-		return T(0)
+func Sum[E Number](x []E) E {
+	if len(x) == 0 {
+		return E(0)
 	}
 	var d any
-	var s any
-	s = f
-	switch fs := s.(type) {
+	switch fs := any(x).(type) {
 	case []float32:
 		d = x32.Sum(fs)
 	case []float64:
 		d = x64.Sum(fs)
 	default:
-		d = __sum(fs.([]T))
+		d = __go_sum(fs.([]E))
 	}
 
-	return d.(T)
+	return d.(E)
 }
 
-func __sum[T Number](x []T) T {
-	sum := T(0)
+func __go_sum[E Number](x []E) E {
+	sum := E(0)
 	for i := 0; i < len(x); i++ {
 		sum += x[i]
 	}
