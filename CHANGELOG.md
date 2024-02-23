@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.3] - 2024-02-23
+### Changed
+- 调整内部函数的签名格式__go作为前缀.
+- 调整cumsum函数.
+- 优雅和调整Diff函数.
+- 修订go.mod.
+- 优化非私有的repeat函数.
+- 微调sum函数.
+- Num新增NDArray封装, 私有.
+- 微调sum函数.
+- 调整DTypeNaN初始化.
+- Rolling优化及调整测试用例.
+- Shift优化及增加基准测试.
+- 调整测试数据, 统一泛型类型为E.
+- 新增inplace方式的sub函数 x = x - y.
+- 修订测试数据.
+- 新增int类型的绝对值函数.
+- IsEmpty函数从builtin迁移至type_strings.
+- 修订REAMDE, 新增2个plan9汇编相关的项目.
+- 新增https://github.com/minio/c2goasm.git引入，该项目目前停止维护。.
+- 新增https://github.com/minio/asm2plan9s.git引入，该项目目前停止维护。.
+- 增加c2goasm第一个demo, 执行完成后有一个异常`atal error: unexpected signal during runtime execution`需要处理.
+- 增加测试代码.
+
 ## [0.1.2] - 2024-02-20
 ### Changed
 - 增加遗漏的函数.
@@ -95,8 +119,9 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.2...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.3...HEAD
 
+[0.1.3]: https://gitee.com/quant1x/num/compare/v0.1.2...v0.1.3
 [0.1.2]: https://gitee.com/quant1x/num/compare/v0.1.1...v0.1.2
 [0.1.1]: https://gitee.com/quant1x/num/compare/v0.1.0...v0.1.1
 [0.1.0]: https://gitee.com/quant1x/num/compare/v0.0.9...v0.1.0
