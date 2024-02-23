@@ -2,28 +2,39 @@ package num
 
 // Rolling returns an array with elements that roll beyond the last position are re-introduced at the first.
 // 滑动窗口, 数据不足是用空数组占位
-func Rolling[T BaseType](S []T, N any) [][]T {
+func Rolling[E BaseType](S []E, N any) [][]E {
+	return v2Rolling[E](S, N)
+}
+
+func RollingV1[E BaseType](S []E, N any, apply func(N DType, values ...E) E) []E {
+	return v3Rolling[E](S, N, apply)
+}
+
+// 减少创建block, 增加一个回调函数
+func v3Rolling[E BaseType](S []E, N any, apply func(N DType, values ...E) E) []E {
 	sLength := len(S)
 	// 这样就具备了序列化滑动窗口的特性了
 	window := AnyToSlice[DType](N, sLength)
-	blocks := make([][]T, sLength)
+	array := make([]E, sLength)
+	defaultValue := TypeDefault[E]()
 	for i := 0; i < sLength; i++ {
 		n := window[i]
 		shift := int(n)
 		if DTypeIsNaN(n) || shift > i+1 {
-			blocks[i] = []T{}
+			array[i] = defaultValue
 			continue
 		}
 		offset := i + 1
 		start := offset - shift
 		end := offset
-		subSet := S[start:end]
-		blocks[i] = subSet
+		block := S[start:end]
+		result := apply(n, block...)
+		array[i] = result
 	}
-	return blocks
+	return array
 }
 
-func v1Rolling[T BaseType](S []T, N any) [][]T {
+func v1Rolling[E BaseType](S []E, N any) [][]E {
 	//if __y, ok := N.(DTypeArray); ok {
 	//	N = __y.DTypes()
 	//}
@@ -38,7 +49,7 @@ func v1Rolling[T BaseType](S []T, N any) [][]T {
 		window = Align[DType](_N, DTypeNaN, sLen)
 	case []DType:
 		window = Align(vn, DTypeNaN, sLen)
-	case []T: // 这块到不了, N和S不是同一个泛型类型
+	case []E: // 这块到不了, N和S不是同一个泛型类型
 		window = Slice2DType(vn)
 		window = Align[DType](window, DTypeNaN, sLen)
 	case DTypeArray:
@@ -46,16 +57,37 @@ func v1Rolling[T BaseType](S []T, N any) [][]T {
 	default:
 		panic(ErrInvalidWindow)
 	}
-	blocks := make([][]T, sLen)
+	blocks := make([][]E, sLen)
 	for i := 0; i < sLen; i++ {
 		n := window[i]
 		shift := int(n)
 		if DTypeIsNaN(n) || shift > i+1 {
-			blocks[i] = []T{}
+			blocks[i] = []E{}
 			continue
 		}
 		start := i + 1 - shift
 		end := i + 1
+		subSet := S[start:end]
+		blocks[i] = subSet
+	}
+	return blocks
+}
+
+func v2Rolling[E BaseType](S []E, N any) [][]E {
+	sLength := len(S)
+	// 这样就具备了序列化滑动窗口的特性了
+	window := AnyToSlice[DType](N, sLength)
+	blocks := make([][]E, sLength)
+	for i := 0; i < sLength; i++ {
+		n := window[i]
+		shift := int(n)
+		if DTypeIsNaN(n) || shift > i+1 {
+			blocks[i] = []E{}
+			continue
+		}
+		offset := i + 1
+		start := offset - shift
+		end := offset
 		subSet := S[start:end]
 		blocks[i] = subSet
 	}
