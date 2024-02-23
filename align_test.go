@@ -124,79 +124,79 @@ func TestAlign(t *testing.T) {
 
 const (
 	benchAlignLength  = 5000
-	benchAlignInitNum = 100
+	benchAlignInitNum = 1000
 )
 
 var (
-	alignOnce   sync.Once
-	testFloat32 []float32
-	testFloat64 []float64
+	testalignOnce   sync.Once
+	testDataFloat32 []float32
+	testDataFloat64 []float64
 )
 
 func initTestData() {
-	testFloat32 = make([]float32, benchAlignInitNum)
-	testFloat64 = make([]float64, benchAlignInitNum)
+	testDataFloat32 = make([]float32, benchAlignInitNum)
+	testDataFloat64 = make([]float64, benchAlignInitNum)
 	for i := 0; i < benchAlignInitNum; i++ {
-		testFloat32[i] = rand.Float32()
-		testFloat64[i] = rand.Float64()
+		testDataFloat32[i] = rand.Float32()
+		testDataFloat64[i] = rand.Float64()
 	}
 }
 
 func BenchmarkAlign_init(b *testing.B) {
-	alignOnce.Do(initTestData)
+	testalignOnce.Do(initTestData)
 }
 
 func BenchmarkAlign_release(b *testing.B) {
-	alignOnce.Do(initTestData)
+	testalignOnce.Do(initTestData)
 	length := benchAlignInitNum + benchAlignLength
-	x := slices.Clone(testFloat64)
+	x := slices.Clone(testDataFloat64)
 	for n := 0; n < b.N; n++ {
 		Align[float64](x, Nil2Float64, length)
 	}
 }
 
 func BenchmarkAlign_v1(b *testing.B) {
-	alignOnce.Do(initTestData)
+	testalignOnce.Do(initTestData)
 	length := benchAlignInitNum + benchAlignLength
-	x := slices.Clone(testFloat64)
+	x := slices.Clone(testDataFloat64)
 	for n := 0; n < b.N; n++ {
 		v1Align[float64](x, Nil2Float64, length)
 	}
 }
 
 func BenchmarkAlign_v2_float32(b *testing.B) {
-	alignOnce.Do(initTestData)
+	testalignOnce.Do(initTestData)
 	length := benchAlignInitNum + benchAlignLength
-	x := slices.Clone(testFloat32)
+	x := slices.Clone(testDataFloat32)
 	for n := 0; n < b.N; n++ {
 		v2Align[float32](x, Nil2Float32, length)
 	}
 }
 
 func BenchmarkAlign_v2_float64(b *testing.B) {
-	alignOnce.Do(initTestData)
+	testalignOnce.Do(initTestData)
 	length := benchAlignInitNum + benchAlignLength
-	x := slices.Clone(testFloat64)
+	x := slices.Clone(testDataFloat64)
 	for n := 0; n < b.N; n++ {
 		v2Align[float64](x, Nil2Float64, length)
 	}
 }
 
 func BenchmarkAlign_v2_avx2_float32(b *testing.B) {
-	alignOnce.Do(initTestData)
+	testalignOnce.Do(initTestData)
 	SetAvx2Enabled(true)
 	length := benchAlignInitNum + benchAlignLength
-	x := slices.Clone(testFloat32)
+	x := slices.Clone(testDataFloat32)
 	for n := 0; n < b.N; n++ {
 		v2Align[float32](x, Nil2Float32, length)
 	}
 }
 
 func BenchmarkAlign_v2_avx2_float64(b *testing.B) {
-	alignOnce.Do(initTestData)
+	testalignOnce.Do(initTestData)
 	SetAvx2Enabled(true)
 	length := benchAlignInitNum + benchAlignLength
-	x := slices.Clone(testFloat64)
+	x := slices.Clone(testDataFloat64)
 	for n := 0; n < b.N; n++ {
 		v2Align[float64](x, Nil2Float64, length)
 	}
