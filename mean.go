@@ -11,7 +11,7 @@ func Mean[T Number](x []T) T {
 }
 
 func __mean_go[T Number](x []T) T {
-	return __sum(x) / T(len(x))
+	return __go_sum(x) / T(len(x))
 }
 
 func Mean2[T BaseType](x []T) T {
