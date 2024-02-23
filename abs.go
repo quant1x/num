@@ -101,6 +101,12 @@ func AbsInt64(n int64) int64 {
 	return (n ^ shifted) - shifted
 }
 
+// AbsInt gets absolute value of int.
+func AbsInt(n int) int {
+	shifted := n >> 63
+	return (n ^ shifted) - shifted
+}
+
 func AbsFloat32(n float32) float32 {
 	return math.Float32frombits(math.Float32bits(n) &^ (1 << 31))
 }
