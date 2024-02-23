@@ -13,7 +13,6 @@ func Median[T Number](values []T) DType {
 	if len(values) == 0 {
 		return DTypeNaN
 	}
-
 	if len(values) == 1 {
 		return DType(0)
 	}
@@ -54,23 +53,23 @@ func __quantile_go[T Number](x []T, q T) T {
 		return x[0]
 	}
 	if q == T(0) {
-		return __min_go(x)
+		return __go_min(x)
 	}
 	if q == T(1) {
-		return __max_go(x)
+		return __go_max(x)
 	}
 	x = slices.Clone(x)
 	f := T(len(x)-1) * q
 	i := int(math.Floor(float64(f)))
 	if float64(q) < float64(0.5) {
 		partial.TopK(x, i+2)
-		a := __max_go(x[:i+1])
+		a := __go_max(x[:i+1])
 		b := x[i+1]
 		return a + (b-a)*(f-T(i))
 	} else {
 		partial.TopK(x, i+1)
 		a := x[i]
-		b := __min_go(x[i+1:])
+		b := __go_min(x[i+1:])
 		return a + (b-a)*(f-T(i))
 	}
 }

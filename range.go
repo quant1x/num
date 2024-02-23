@@ -26,12 +26,11 @@ func Arange[T Number](start T, end T, argv ...T) []T {
 func Range[E Number](n int) []E {
 	var dest any
 	var start E = 0
-	var v any = start
-	switch a := v.(type) {
+	switch v := any(start).(type) {
 	case float32:
-		dest = x32.Range(a, a+float32(n))
+		dest = x32.Range(v, v+float32(n))
 	case float64:
-		dest = x64.Range(a, a+float64(n))
+		dest = x64.Range(v, v+float64(n))
 	default:
 		// 其它类型
 		d := make([]E, n)

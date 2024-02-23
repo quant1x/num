@@ -23,13 +23,13 @@ func Sqrt[T Number](v []T) []T {
 	return d.([]T)
 }
 
-func __sqrt_go_f64(x []float64) {
+func __go_sqrt_f64(x []float64) {
 	for i := 0; i < len(x); i++ {
 		x[i] = math.Sqrt(x[i])
 	}
 }
 
-func __sqrt_go_f32(x []float32) {
+func __go_sqrt_f32(x []float32) {
 	for i := 0; i < len(x); i++ {
 		x[i] = math32.Sqrt(x[i])
 	}

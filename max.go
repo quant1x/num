@@ -7,10 +7,10 @@ import (
 
 // Max 纵向计算x最大值
 func Max[T Number](x []T) T {
-	return UnaryOperations1[T](x, x32.Max, x64.Max, __max_go[T])
+	return UnaryOperations1[T](x, x32.Max, x64.Max, __go_max[T])
 }
 
-func __max_go[T Number | ~string](x []T) T {
+func __go_max[T Number | ~string](x []T) T {
 	maxValue := x[0]
 	for _, v := range x[1:] {
 		if v > maxValue {
@@ -50,7 +50,7 @@ func Max2[T BaseType](x []T) T {
 	case []uintptr:
 		d = Max(vs)
 	case []string:
-		d = __max_go(vs)
+		d = __go_max(vs)
 	default:
 		// 其它类型原样返回
 		panic(TypeError(any(x)))

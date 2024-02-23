@@ -7,10 +7,10 @@ import (
 
 // Min 纵向计算x最小值
 func Min[T Number](x []T) T {
-	return UnaryOperations1[T](x, x32.Min, x64.Min, __min_go[T])
+	return UnaryOperations1[T](x, x32.Min, x64.Min, __go_min[T])
 }
 
-func __min_go[T Number | ~string](x []T) T {
+func __go_min[T Number | ~string](x []T) T {
 	minValue := x[0]
 	for _, v := range x[1:] {
 		if v < minValue {
@@ -50,7 +50,7 @@ func Min2[T BaseType](x []T) T {
 	case []uintptr:
 		d = Min(vs)
 	case []string:
-		d = __min_go(vs)
+		d = __go_min(vs)
 	default:
 		// 其它类型原样返回
 		panic(TypeError(any(x)))

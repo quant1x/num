@@ -8,18 +8,16 @@ import (
 )
 
 // Std 计算标准差
-func Std[T BaseType](f []T) T {
-	if len(f) == 0 {
+func Std[T BaseType](x []T) T {
+	if len(x) == 0 {
 		return TypeDefault[T]()
 	}
 	var d any
-	var s any
-	s = f
-	switch fs := s.(type) {
+	switch fs := any(x).(type) {
 	case []float32:
-		d = f32_std(fs)
+		d = __go_std_float32(fs)
 	case []float64:
-		d = f64_std(fs)
+		d = __go_std_float64(fs)
 	default:
 		// 应该不会走到这里
 		panic(ErrUnsupportedType)
@@ -28,7 +26,7 @@ func Std[T BaseType](f []T) T {
 	return d.(T)
 }
 
-func f64_std(f []float64) float64 {
+func __go_std_float64(f []float64) float64 {
 	values := slices.Clone(f)
 	// 求平均数
 	meam := x64.Mean(values)
@@ -43,7 +41,7 @@ func f64_std(f []float64) float64 {
 	return meam
 }
 
-func f32_std(f []float32) float32 {
+func __go_std_float32(f []float32) float32 {
 	values := slices.Clone(f)
 	// 求平均数
 	meam := x32.Mean(values)

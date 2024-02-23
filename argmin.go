@@ -9,7 +9,7 @@ import (
 //
 //	返回轴上最小值的索引
 func ArgMin[T Number](x []T) int {
-	ret := UnaryOperations2[T, int](x, x32.ArgMin, x64.ArgMin, __arg_min_go[T])
+	ret := UnaryOperations2[T, int](x, x32.ArgMin, x64.ArgMin, __go_arg_min[T])
 	return ret
 }
 
@@ -43,9 +43,9 @@ func ArgMin2[T BaseType](x []T) int {
 	case []uintptr:
 		d = ArgMin(vs)
 	case []string:
-		d = __arg_min_go(vs)
+		d = __go_arg_min(vs)
 	case []bool:
-		d = __arg_min_go_bool(vs)
+		d = __go_arg_min_bool(vs)
 	default:
 		// 其它类型原样返回
 		panic(TypeError(any(x)))
@@ -54,7 +54,7 @@ func ArgMin2[T BaseType](x []T) int {
 	return d
 }
 
-func __arg_min_go[T Ordered](x []T) int {
+func __go_arg_min[T Ordered](x []T) int {
 	minValue := x[0]
 	idx := 0
 	for i, v := range x[1:] {
@@ -66,7 +66,7 @@ func __arg_min_go[T Ordered](x []T) int {
 	return idx
 }
 
-func __arg_min_go_bool(x []bool) int {
+func __go_arg_min_bool(x []bool) int {
 	minValue := BoolToInt(x[0])
 	idx := 0
 	for i, v := range x[1:] {

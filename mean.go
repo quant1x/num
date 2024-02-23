@@ -7,10 +7,10 @@ import (
 
 // Mean 求均值
 func Mean[T Number](x []T) T {
-	return UnaryOperations1[T](x, x32.Mean, x64.Mean, __mean_go[T])
+	return UnaryOperations1[T](x, x32.Mean, x64.Mean, __go_mean[T])
 }
 
-func __mean_go[T Number](x []T) T {
+func __go_mean[T Number](x []T) T {
 	return __go_sum(x) / T(len(x))
 }
 
@@ -44,7 +44,7 @@ func Mean2[T BaseType](x []T) T {
 	case []uintptr:
 		d = Mean(vs)
 	//case []string:
-	//	d = __max_go(vs)
+	//	d = __go_max(vs)
 	default:
 		// 其它类型原样返回
 		panic(TypeError(any(x)))

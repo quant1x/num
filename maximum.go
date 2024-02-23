@@ -42,13 +42,13 @@ func Maximum[T Number](f1, f2 []T) []T {
 	default:
 		// 目前暂时走不到这里
 		f1 = slices.Clone(f1)
-		__maximum(f1, f2)
+		__go_maximum(f1, f2)
 		d = f1
 	}
 	return d.([]T)
 }
 
-func __maximum[T Number](x, y []T) {
+func __go_maximum[T Number](x, y []T) {
 	for i := 0; i < len(x); i++ {
 		if y[i] > x[i] {
 			x[i] = y[i]
