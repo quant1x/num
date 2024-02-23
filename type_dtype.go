@@ -11,7 +11,7 @@ type DType = float64
 var (
 	Nil2Float64 = math.NaN()
 	Nil2Float32 = float32(math.NaN())
-	DTypeNaN    = math.NaN()
+	DTypeNaN    = Float64NaN()
 )
 
 // DTypeIsNaN 判断DType是否NaN
