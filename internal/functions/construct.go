@@ -1,6 +1,9 @@
 package functions
 
-import "gitee.com/quant1x/num/internal/constraints"
+import (
+	"gitee.com/quant1x/num/internal/constraints"
+	"gitee.com/quant1x/num/vectors"
+)
 
 type Number interface {
 	constraints.Float | constraints.Integer
@@ -15,6 +18,10 @@ func Ones_Go[T constraints.Float](x []T, n int) {
 }
 
 func Repeat_Go[T constraints.Float](x []T, a T, n int) {
+	vectors.Repeat(x, a, n)
+}
+
+func v1Repeat_Go[T constraints.Float](x []T, a T, n int) {
 	for i := 0; i < n; i++ {
 		x[i] = a
 	}
