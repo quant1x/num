@@ -128,10 +128,6 @@ func v8Diff[E Number](S []E, n int) []E {
 			val = defaultValue
 		} else {
 			newIndex := i - int(period)
-			//if period > 0 {
-			//	newIndex += length
-			//}
-			//newIndex = newIndex % length
 			if newIndex < 0 || newIndex >= length {
 				val = defaultValue
 			} else {
