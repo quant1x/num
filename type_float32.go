@@ -21,6 +21,10 @@ const (
 	StringFalse2Float32 float32 = float32(0)                           // 字符串false转float32
 )
 
+var (
+	__nilToFloat32 = float32(math.NaN())
+)
+
 func Float32NaN() float32 {
 	return float32(NaN())
 }
@@ -108,7 +112,7 @@ func ParseFloat32(s string, v any) float32 {
 
 	if IsEmpty(s) {
 		// TODO:NaN是针对64位, 这样直接转换应该有问题, 需要进一步确认
-		return Nil2Float32
+		return __nilToFloat32
 	}
 	if StringIsTrue(s) {
 		return StringTrue2Float32
@@ -121,10 +125,10 @@ func ParseFloat32(s string, v any) float32 {
 		return float32(f)
 	}
 	if IgnoreParseExceptions {
-		return Nil2Float32
+		return __nilToFloat32
 	}
 	_ = v.(float32) // Intentionally panic
-	return Nil2Float32
+	return __nilToFloat32
 }
 
 func AnyToFloat32(v any) float32 {
@@ -132,6 +136,6 @@ func AnyToFloat32(v any) float32 {
 		v = vv
 	}
 
-	f := valueToNumber(v, Nil2Float32, BoolToFloat32, ParseFloat32)
+	f := valueToNumber(v, __nilToFloat32, BoolToFloat32, ParseFloat32)
 	return f
 }

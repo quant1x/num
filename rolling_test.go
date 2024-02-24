@@ -59,7 +59,7 @@ func Test_v3Rolling(t *testing.T) {
 					return Sum(values) / N
 				},
 			},
-			want: []float64{DTypeNaN, DTypeNaN, DTypeNaN, DTypeNaN, 3, 4, 5, 6, 7, 8},
+			want: []float64{Float64NaN(), Float64NaN(), Float64NaN(), Float64NaN(), 3, 4, 5, 6, 7, 8},
 		},
 	}
 	for _, tt := range tests {

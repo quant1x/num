@@ -46,12 +46,12 @@ func v1Rolling[E BaseType](S []E, N any) [][]E {
 		window = Repeat(DType(vn), sLen)
 	case []int:
 		_N := Slice2DType(vn)
-		window = Align[DType](_N, DTypeNaN, sLen)
+		window = Align[DType](_N, NaN(), sLen)
 	case []DType:
-		window = Align(vn, DTypeNaN, sLen)
+		window = Align(vn, NaN(), sLen)
 	case []E: // 这块到不了, N和S不是同一个泛型类型
 		window = Slice2DType(vn)
-		window = Align[DType](window, DTypeNaN, sLen)
+		window = Align[DType](window, NaN(), sLen)
 	case DTypeArray:
 		window = vn.DTypes()
 	default:

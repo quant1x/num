@@ -16,7 +16,7 @@ func Test_Align(t *testing.T) {
 	for i := 0; i < xl; i++ {
 		x[i] = rand.Float64()
 	}
-	y := Align[float64](x, Nil2Float64, nl)
+	y := Align[float64](x, __nilToFloat64, nl)
 	fmt.Println(y)
 }
 
@@ -151,7 +151,7 @@ func BenchmarkAlign_release(b *testing.B) {
 	length := benchAlignInitNum + benchAlignLength
 	x := slices.Clone(testDataFloat64)
 	for n := 0; n < b.N; n++ {
-		Align[float64](x, Nil2Float64, length)
+		Align[float64](x, __nilToFloat64, length)
 	}
 }
 
@@ -160,7 +160,7 @@ func BenchmarkAlign_v1(b *testing.B) {
 	length := benchAlignInitNum + benchAlignLength
 	x := slices.Clone(testDataFloat64)
 	for n := 0; n < b.N; n++ {
-		v1Align[float64](x, Nil2Float64, length)
+		v1Align[float64](x, __nilToFloat64, length)
 	}
 }
 
@@ -169,7 +169,7 @@ func BenchmarkAlign_v2_float32(b *testing.B) {
 	length := benchAlignInitNum + benchAlignLength
 	x := slices.Clone(testDataFloat32)
 	for n := 0; n < b.N; n++ {
-		v2Align[float32](x, Nil2Float32, length)
+		v2Align[float32](x, __nilToFloat32, length)
 	}
 }
 
@@ -178,7 +178,7 @@ func BenchmarkAlign_v2_float64(b *testing.B) {
 	length := benchAlignInitNum + benchAlignLength
 	x := slices.Clone(testDataFloat64)
 	for n := 0; n < b.N; n++ {
-		v2Align[float64](x, Nil2Float64, length)
+		v2Align[float64](x, __nilToFloat64, length)
 	}
 }
 
@@ -188,7 +188,7 @@ func BenchmarkAlign_v2_avx2_float32(b *testing.B) {
 	length := benchAlignInitNum + benchAlignLength
 	x := slices.Clone(testDataFloat32)
 	for n := 0; n < b.N; n++ {
-		v2Align[float32](x, Nil2Float32, length)
+		v2Align[float32](x, __nilToFloat32, length)
 	}
 }
 
@@ -198,6 +198,6 @@ func BenchmarkAlign_v2_avx2_float64(b *testing.B) {
 	length := benchAlignInitNum + benchAlignLength
 	x := slices.Clone(testDataFloat64)
 	for n := 0; n < b.N; n++ {
-		v2Align[float64](x, Nil2Float64, length)
+		v2Align[float64](x, __nilToFloat64, length)
 	}
 }

@@ -11,7 +11,7 @@ import (
 // TODO:未加验证, 未加速
 func Median[T Number](values []T) DType {
 	if len(values) == 0 {
-		return DTypeNaN
+		return NaN()
 	}
 	if len(values) == 1 {
 		return DType(0)

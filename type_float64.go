@@ -21,11 +21,11 @@ const (
 	StringFalse2Float64 float64 = float64(0)                           // 字符串false转float64
 )
 
-// NaN returns an IEEE 754 “not-a-number” value.
-func NaN() float64 {
-	return Float64NaN()
-}
+var (
+	__nilToFloat64 = math.NaN()
+)
 
+// Float64NaN returns an IEEE 754 “not-a-number” value.
 func Float64NaN() float64 {
 	return math.NaN()
 }
@@ -58,7 +58,7 @@ func ParseFloat64(s string, v any) float64 {
 		}
 	}()
 	if IsEmpty(s) {
-		return Nil2Float64
+		return __nilToFloat64
 	}
 	if StringIsTrue(s) {
 		return StringTrue2Float64
@@ -70,10 +70,10 @@ func ParseFloat64(s string, v any) float64 {
 		return f
 	}
 	if IgnoreParseExceptions {
-		return Nil2Float64
+		return __nilToFloat64
 	}
 	_ = v.(float64) // Intentionally panic
-	return Nil2Float64
+	return __nilToFloat64
 }
 
 func AnyToFloat64(v any) float64 {
@@ -81,7 +81,7 @@ func AnyToFloat64(v any) float64 {
 		v = vv
 	}
 
-	f := valueToNumber(v, Nil2Float64, BoolToFloat64, ParseFloat64)
+	f := valueToNumber(v, __nilToFloat64, BoolToFloat64, ParseFloat64)
 	return f
 }
 

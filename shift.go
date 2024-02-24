@@ -30,9 +30,9 @@ func v1Shift[T BaseType](S []T, N any) []T {
 		_n = Repeat[DType](DType(v), length)
 	case []int:
 		_n = Slice2DType(v)
-		_n = Align(_n, DTypeNaN, length)
+		_n = Align(_n, NaN(), length)
 	case []DType:
-		_n = Align(v, DTypeNaN, length)
+		_n = Align(v, NaN(), length)
 	default:
 		panic(ErrInvalidWindow)
 	}

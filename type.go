@@ -111,16 +111,19 @@ type Number interface {
 func TypeDefault[T BaseType]() T {
 	var d any
 	var t T
-	var v any = t
-	switch v.(type) {
-	case int8, uint8, int16, uint16, int32, uint32, int64, uint64, int, uint, uintptr:
+	switch any(t).(type) {
+	case int8, uint8, int16, uint16, uint32, uint64, int, uint, uintptr:
 		d = t
+	case int32:
+		d = Int32NaN
+	case int64:
+		d = Int64NaN
 	case float32:
-		d = Nil2Float32
+		d = __nilToFloat32
 	case float64:
-		d = Nil2Float64
+		d = __nilToFloat64
 	case bool:
-		d = false
+		d = BoolNaN
 	case string:
 		d = StringNaN
 	default:

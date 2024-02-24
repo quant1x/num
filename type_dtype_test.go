@@ -187,7 +187,7 @@ func Test_point_to_float32(t *testing.T) {
 			args: args{
 				pStr1,
 			},
-			want: Nil2Float32,
+			want: __nilToFloat32,
 		},
 		{
 			name: "T16: str2",
@@ -352,7 +352,7 @@ func Test_value_to_float32(t *testing.T) {
 			args: args{
 				vStr1,
 			},
-			want: Nil2Float32,
+			want: __nilToFloat32,
 		},
 		{
 			name: "T16: str2",
