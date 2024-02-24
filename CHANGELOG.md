@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.4] - 2024-02-24
+### Changed
+- 优化平行线的计算方法.
+- 新增波浪计算方法.
+- 删除废弃的代码.
+
 ## [0.1.3] - 2024-02-23
 ### Changed
 - 调整内部函数的签名格式__go作为前缀.
@@ -119,8 +125,9 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.3...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.4...HEAD
 
+[0.1.4]: https://gitee.com/quant1x/num/compare/v0.1.3...v0.1.4
 [0.1.3]: https://gitee.com/quant1x/num/compare/v0.1.2...v0.1.3
 [0.1.2]: https://gitee.com/quant1x/num/compare/v0.1.1...v0.1.2
 [0.1.1]: https://gitee.com/quant1x/num/compare/v0.1.0...v0.1.1
