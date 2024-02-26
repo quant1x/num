@@ -6,6 +6,9 @@ func Rolling[E BaseType](S []E, N any) [][]E {
 	return v2Rolling[E](S, N)
 }
 
+// RollingV1 泛型滑动窗口
+//
+//	滑动窗口参数N必须是数
 func RollingV1[E BaseType](S []E, N any, apply func(N DType, values ...E) E) []E {
 	return v3Rolling[E](S, N, apply)
 }
@@ -13,17 +16,27 @@ func RollingV1[E BaseType](S []E, N any, apply func(N DType, values ...E) E) []E
 // 减少创建block, 增加一个回调函数
 func v3Rolling[E BaseType](S []E, N any, apply func(N DType, values ...E) E) []E {
 	sLength := len(S)
-	// 这样就具备了序列化滑动窗口的特性了
-	window := AnyToSlice[DType](N, sLength)
+	// 设定窗口
+	var periods Periods
+	switch win := N.(type) {
+	case Window[DType]:
+		periods.Array = win.V
+		periods.N = win.C
+	case Periods:
+		periods = win
+	default:
+		periods = AnyToPeriod(win)
+	}
+
 	array := make([]E, sLength)
 	defaultValue := TypeDefault[E]()
 	for i := 0; i < sLength; i++ {
-		n := window[i]
-		shift := int(n)
-		if DTypeIsNaN(n) || shift > i+1 {
+		n, ok := periods.At(i)
+		if !ok {
 			array[i] = defaultValue
 			continue
 		}
+		shift := int(n)
 		offset := i + 1
 		start := offset - shift
 		end := offset
@@ -34,10 +47,8 @@ func v3Rolling[E BaseType](S []E, N any, apply func(N DType, values ...E) E) []E
 	return array
 }
 
+// N 对齐成DType切片
 func v1Rolling[E BaseType](S []E, N any) [][]E {
-	//if __y, ok := N.(DTypeArray); ok {
-	//	N = __y.DTypes()
-	//}
 	sLen := len(S)
 	// 这样就具备了序列化滑动窗口的特性了
 	var window []DType
