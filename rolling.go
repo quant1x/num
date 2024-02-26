@@ -15,7 +15,7 @@ func RollingV1[E BaseType](S []E, N any, apply func(N DType, values ...E) E) []E
 
 // 减少创建block, 增加一个回调函数
 func v3Rolling[E BaseType](S []E, N any, apply func(N DType, values ...E) E) []E {
-	sLength := len(S)
+	length := len(S)
 	// 设定窗口
 	var periods Periods
 	switch win := N.(type) {
@@ -28,9 +28,9 @@ func v3Rolling[E BaseType](S []E, N any, apply func(N DType, values ...E) E) []E
 		periods = AnyToPeriod(win)
 	}
 
-	array := make([]E, sLength)
+	array := make([]E, length)
 	defaultValue := TypeDefault[E]()
-	for i := 0; i < sLength; i++ {
+	for i := 0; i < length; i++ {
 		n, ok := periods.At(i)
 		if !ok {
 			array[i] = defaultValue
