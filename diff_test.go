@@ -36,7 +36,7 @@ func BenchmarkDiff_release(b *testing.B) {
 	testalignOnce.Do(initTestData)
 	f64s := slices.Clone(testDataFloat64)
 	for i := 0; i < b.N; i++ {
-		v1Diff(f64s, 1)
+		Diff(f64s, 1)
 	}
 }
 
