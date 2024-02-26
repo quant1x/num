@@ -1,14 +1,14 @@
 package num
 
-// Period 周期
-type Period struct {
+// Periods 周期
+type Periods struct {
 	Array []DType
 	N     DType
 }
 
 // At 获取下标为i的元素
 // 如果i超过切片V的长度, 则直接返回常量C
-func (this Period) At(i int) DType {
+func (this Periods) At(i int) DType {
 	if i < len(this.Array) {
 		return this.Array[i]
 	}
@@ -16,14 +16,17 @@ func (this Period) At(i int) DType {
 }
 
 // IsConst 是否全部常量
-func (this Period) IsConst() bool {
+func (this Periods) IsConst() bool {
 	return len(this.Array) == 0 && this.N != 0
 }
 
-func AnyToPeriod(n any) Period {
+// AnyToPeriod any转周期
+func AnyToPeriod(n any) Periods {
 	var constant DType
 	var array []DType
 	switch m := n.(type) {
+	case Periods:
+		return m
 	case float32:
 		constant = DType(m)
 	case float64:
@@ -80,5 +83,5 @@ func AnyToPeriod(n any) Period {
 		tmp := m.DTypes()
 		array = AnyToSlice[DType](tmp, len(tmp))
 	}
-	return Period{Array: array, N: constant}
+	return Periods{Array: array, N: constant}
 }
