@@ -2,7 +2,6 @@ package num
 
 import (
 	"gitee.com/quant1x/num/binary"
-	"gitee.com/quant1x/num/internal/functions"
 	"gitee.com/quant1x/num/vectors"
 	"gitee.com/quant1x/num/x32"
 	"gitee.com/quant1x/num/x64"
@@ -38,18 +37,12 @@ func v1Repeat[E BaseType](x E, n int) []E {
 // 浮点加速, 其它类型使用2倍速copy
 func v2Repeat[E BaseType](x E, n int) []E {
 	var d any
-	ok := false
-	if functions.UseAVX2 {
-		switch v := any(x).(type) {
-		case float32:
-			d = x32.Repeat(v, n)
-			ok = true
-		case float64:
-			d = x64.Repeat(v, n)
-			ok = true
-		}
-	}
-	if !ok {
+	switch v := any(x).(type) {
+	case float32:
+		d = x32.Repeat(v, n)
+	case float64:
+		d = x64.Repeat(v, n)
+	default:
 		d = v5Repeat(x, n)
 	}
 	return d.([]E)
