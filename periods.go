@@ -7,12 +7,23 @@ type Periods struct {
 }
 
 // At 获取下标为i的元素
-// 如果i超过切片V的长度, 则直接返回常量C
-func (this Periods) At(i int) DType {
+//
+//	如果i超过切片V的长度, 则直接返回常量C
+//	附带越界检查 boundaryExceeded
+func (this Periods) At(i int) (n DType, good bool) {
+	n = NaN()
 	if i < len(this.Array) {
-		return this.Array[i]
+		n = this.Array[i]
+	} else {
+		n = this.N
 	}
-	return this.N
+	offset := int(n)
+	if DTypeIsNaN(n) || offset > i+1 || offset < 0 {
+		good = false
+	} else {
+		good = true
+	}
+	return n, good
 }
 
 // IsConst 是否全部常量
