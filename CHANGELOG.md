@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.6] - 2024-02-26
+### Changed
+- 简化局部变量名.
+- 调整v2版本的Repeat函数.
+- 优化滑动窗口机制.
+- 修复Diff基准测试函数引用错误的bug.
+- 新增构建Point的函数.
+- 优化周期Periods的At函数, 增加返回值是否越界.
+- 优化window的类型匹配.
+- 调整周期结构名.
+- 新增周期结构体, 只支持DType类型.
+
 ## [0.1.5] - 2024-02-24
 ### Changed
 - NaN类值使用函数调用, 防止全局变量被篡改.
@@ -129,8 +141,9 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.5...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.6...HEAD
 
+[0.1.6]: https://gitee.com/quant1x/num/compare/v0.1.5...v0.1.6
 [0.1.5]: https://gitee.com/quant1x/num/compare/v0.1.4...v0.1.5
 [0.1.4]: https://gitee.com/quant1x/num/compare/v0.1.3...v0.1.4
 [0.1.3]: https://gitee.com/quant1x/num/compare/v0.1.2...v0.1.3
