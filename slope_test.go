@@ -108,7 +108,7 @@ func TestLine_Distance(t *testing.T) {
 			name:   "d1",
 			fields: fields{slope: -1, intercept: -2},
 			args:   args{p: Point{4, 5}},
-			want:   7.7781745930520225,
+			want:   -7.7781745930520225,
 		},
 		{
 			name:   "d2",

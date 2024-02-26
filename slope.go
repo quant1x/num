@@ -55,6 +55,14 @@ type Point struct {
 	Y float64 // y 轴
 }
 
+func NewPoint[T1 Number, T2 Number](x T1, y T2) Point {
+	return Point{X: float64(x), Y: float64(y)}
+}
+
+func (this Point) Add(p Point) Point {
+	return Point{X: this.X + p.X, Y: this.Y + p.Y}
+}
+
 // Line LineEquation 线性方程式
 //
 //	① Ax + By + C = 0
@@ -85,9 +93,9 @@ func (this Line) Degrees() float64 {
 
 // Equation 返回方程式 A, B, C
 func (this Line) Equation() (A, B, C float64) {
-	A = -this.slope
-	B = 1.0
-	C = -this.intercept
+	A = this.slope
+	B = -1.0
+	C = this.intercept
 	return
 }
 
@@ -97,16 +105,23 @@ func (this Line) Equation() (A, B, C float64) {
 //	公式 |(Ax0 + By0 + C)| / √(A^2 + B^2)
 func (this Line) Distance(p Point) float64 {
 	A, B, C := this.Equation()
-	numerator := math.Abs(A*p.X + B*p.Y + C)
+	numerator := A*p.X + B*p.Y + C
+	//numerator = math.Abs(numerator)
 	denominator := math.Sqrt(A*A + B*B)
 	distance := numerator / denominator
 	return distance
 }
 
-// ParallelLine 通过 一个点的x轴坐标计算一个新的平行线
-func (this Line) ParallelLine(x float64) Line {
-	intercept := this.intercept - this.slope*x
-	return Line{slope: this.slope, intercept: intercept}
+// ParallelLine 通过 一个点的y轴坐标计算一个新的平行线
+func (this Line) ParallelLine(p Point) Line {
+	newIntercept := p.Y - this.slope*p.X
+	return Line{slope: this.slope, intercept: newIntercept}
+}
+
+// Y 通过 x 轴坐标计算 y轴坐标
+func (this Line) Y(x float64) float64 {
+	y := this.slope*x + this.intercept
+	return y
 }
 
 //// 计算 斜边
@@ -120,18 +135,25 @@ func (this Line) SymmetricParallelLine(p Point) Line {
 	distance := this.Distance(p)
 	// 2. 规划直角三角形
 	// 2.1 斜边 Hypotenuse
-	hypotenuse := 2 * distance
+	hypotenuse := distance
 	// 2.2 计算 斜边于底边的角度
 	lineDegrees := this.Degrees()
-	d1 := 180 - lineDegrees
-	degrees := 90 - d1
-	radian := degreesToRadian(degrees)
-	// 2.3 底边 Opposite side
-	opposite := hypotenuse * math.Cos(radian)
-	// 2.4 邻边 Adjacent side
-	adjacent := hypotenuse * math.Sin(radian)
+	alpha := 180 - lineDegrees
+	//alpha = lineDegrees
+	//if alpha > 90 {
+	//	alpha -= 90
+	//}
+
+	radian := degreesToRadian(alpha)
+	// 2.3 底边 x, Opposite side
+	opposite := hypotenuse * math.Sin(radian)
+	// 2.4 邻边 y, Adjacent side
+	adjacent := hypotenuse * math.Cos(radian)
 	// 3. 计算新的平行线
-	line := this.ParallelLine(opposite)
-	_ = adjacent
-	return line
+	newPoint := p.Add(Point{X: opposite, Y: adjacent})
+	newLine := this.ParallelLine(newPoint)
+	// 验证2x距离
+	d := this.Distance(newPoint)
+	_ = d
+	return newLine
 }
