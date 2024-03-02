@@ -20,7 +20,7 @@ func TestFloats(t *testing.T) {
 	ptrA := unsafe.Pointer(&a[0])
 	ptrB := unsafe.Pointer(&b[0])
 	ptrC := unsafe.Pointer(&c[0])
-	ptrN := unsafe.Pointer(&n)
-	__mm256_mul_to(ptrA, ptrB, ptrC, ptrN)
+	ptrN := unsafe.Pointer(uintptr(n))
+	___mm256_mul_to(ptrA, ptrB, ptrC, ptrN)
 	fmt.Println(c)
 }
