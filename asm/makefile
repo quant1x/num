@@ -3,7 +3,8 @@ OBJS_AVX2 = $(SRC_AVX2:.c=.asm)
 SRC_AVX512 = src/floats_avx512.c
 OBJS_AVX512 = $(SRC_AVX512:.c=.asm)
 
-SOURCES = src/floats_avx.c src/floats_avx512.c
+#SOURCES = src/floats_avx.c src/floats_avx512.c
+SOURCES = src/floats_avx.c
 OBJS_ASM = $(SOURCES:.c=.asm)
 OBJS_ASM1 = $(notdir $(OBJS_ASM))
 OBJS_PLAN9 = $(OBJS_ASM1:.asm=_amd64.s)
@@ -15,7 +16,7 @@ X86_AVX512_FLAGS = $(X86_FLAGS) -DENABLE_AVX512 -mavx -mavx512f -mavx512dq
 .PHONY : all
 all: asm plan9
 
-asm: $(OBJS_AVX2) $(OBJS_AVX512)
+asm: $(OBJS_AVX2) #$(OBJS_AVX512)
 	@echo "asm..."
 
 plan9:$(OBJS_PLAN9)
@@ -24,12 +25,12 @@ plan9:$(OBJS_PLAN9)
 	@echo "success"
 
 $(OBJS_AVX2):%.asm : %.c
-	@echo "clang..."
+	@echo "clang avx2..."
 	clang $(X86_AVX2_FLAGS) $< -o $@
 
-$(OBJS_AVX512):%.asm : %.c
-	@echo "clang..."
-	clang $(X86_AVX512_FLAGS) $< -o $@
+#$(OBJS_AVX512):%.asm : %.c
+#	@echo "clang avx512..."
+#	clang $(X86_AVX512_FLAGS) $< -o $@
 
 $(OBJS_PLAN9):$(OBJS_ASM)
 	@echo "c2goasm..."
