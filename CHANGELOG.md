@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.7] - 2024-03-09
+### Changed
+- 清理废弃的代码.
+- 补充v1版本的基准测试.
+- 新增加法计算基准测试代码.
+- Makefile文件屏蔽avx512的代码.
+- 调整avx2部分测试代码.
+- C2goasm不支持avx512.
+- 增加makefile文件.
+- 增加简易的demo.
+
 ## [0.1.6] - 2024-02-26
 ### Changed
 - 简化局部变量名.
@@ -141,8 +152,9 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.6...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.7...HEAD
 
+[0.1.7]: https://gitee.com/quant1x/num/compare/v0.1.6...v0.1.7
 [0.1.6]: https://gitee.com/quant1x/num/compare/v0.1.5...v0.1.6
 [0.1.5]: https://gitee.com/quant1x/num/compare/v0.1.4...v0.1.5
 [0.1.4]: https://gitee.com/quant1x/num/compare/v0.1.3...v0.1.4
