@@ -2,6 +2,7 @@ package num
 
 import (
 	"gitee.com/quant1x/num/labs"
+	"slices"
 	"testing"
 )
 
@@ -97,5 +98,19 @@ func TestAdd(t *testing.T) {
 				t.Errorf("Add() = %v, want %v", got, tt.Want)
 			}
 		})
+	}
+}
+
+func BenchmarkAdd_init(b *testing.B) {
+	testalignOnce.Do(initTestData)
+}
+
+func BenchmarkAdd_release(b *testing.B) {
+	testalignOnce.Do(initTestData)
+	//length := benchAlignInitNum + benchAlignLength
+	x := slices.Clone(testDataFloat64)
+	y := slices.Clone(testDataFloat64y)
+	for n := 0; n < b.N; n++ {
+		_ = Add(x, y)
 	}
 }
