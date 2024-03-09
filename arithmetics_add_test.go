@@ -114,3 +114,13 @@ func BenchmarkAdd_release(b *testing.B) {
 		_ = Add(x, y)
 	}
 }
+
+func BenchmarkAdd_v1(b *testing.B) {
+	testalignOnce.Do(initTestData)
+	//length := benchAlignInitNum + benchAlignLength
+	x := slices.Clone(testDataFloat64)
+	y := slices.Clone(testDataFloat64y)
+	for n := 0; n < b.N; n++ {
+		_ = v1Add(x, y)
+	}
+}
