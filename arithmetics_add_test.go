@@ -107,7 +107,6 @@ func BenchmarkAdd_init(b *testing.B) {
 
 func BenchmarkAdd_release(b *testing.B) {
 	testalignOnce.Do(initTestData)
-	//length := benchAlignInitNum + benchAlignLength
 	x := slices.Clone(testDataFloat64)
 	y := slices.Clone(testDataFloat64y)
 	for n := 0; n < b.N; n++ {
@@ -117,7 +116,6 @@ func BenchmarkAdd_release(b *testing.B) {
 
 func BenchmarkAdd_v1(b *testing.B) {
 	testalignOnce.Do(initTestData)
-	//length := benchAlignInitNum + benchAlignLength
 	x := slices.Clone(testDataFloat64)
 	y := slices.Clone(testDataFloat64y)
 	for n := 0; n < b.N; n++ {
