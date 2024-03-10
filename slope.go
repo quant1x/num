@@ -240,3 +240,21 @@ func (this Line) Extend(data []float64, digits int) (X, Y []float64, tendency in
 	}
 	return
 }
+
+// Analyse 分析线性趋势
+func (this Line) Analyse(data []float64, digits int) (X, Y []float64, tendency []LinerTrend) {
+	offset := int(this.offset)
+	count := len(data)
+	length := count - offset
+	x := make([]float64, length)
+	y := make([]float64, length)
+	for i := 0; i < length; i++ {
+		x[i] = float64(i + offset)
+		y[i] = this.Y(x[i])
+		y[i] = Decimal(y[i], digits)
+	}
+	X = x
+	Y = y
+	tendency = Cross(data, y)
+	return
+}
