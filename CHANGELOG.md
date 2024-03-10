@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.8] - 2024-03-10
+### Changed
+- 更新其它golang.org/x/依赖库版本.
+- 更新gox版本.
+- 优化Line的部分代码, 新增水平和垂直方向距离的计算方法.
+- 新增cross方法, 返回趋势改变的状态切片.
+
 ## [0.1.7] - 2024-03-09
 ### Changed
 - 清理废弃的代码.
@@ -152,8 +159,9 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.7...HEAD
+[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.8...HEAD
 
+[0.1.8]: https://gitee.com/quant1x/num/compare/v0.1.7...v0.1.8
 [0.1.7]: https://gitee.com/quant1x/num/compare/v0.1.6...v0.1.7
 [0.1.6]: https://gitee.com/quant1x/num/compare/v0.1.5...v0.1.6
 [0.1.5]: https://gitee.com/quant1x/num/compare/v0.1.4...v0.1.5
