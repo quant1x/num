@@ -1,11 +1,16 @@
 # Changelog
-
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.9] - 2024-03-11
+### Changed
+- Update changelog.
+- Line新增分析方法cross.
+
 ## [0.1.8] - 2024-03-10
 ### Changed
+- Update changelog.
 - 更新其它golang.org/x/依赖库版本.
 - 更新gox版本.
 - 优化Line的部分代码, 新增水平和垂直方向距离的计算方法.
@@ -13,6 +18,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.7] - 2024-03-09
 ### Changed
+- Update changelog.
 - 清理废弃的代码.
 - 补充v1版本的基准测试.
 - 新增加法计算基准测试代码.
@@ -24,6 +30,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.6] - 2024-02-26
 ### Changed
+- Update changelog.
 - 简化局部变量名.
 - 调整v2版本的Repeat函数.
 - 优化滑动窗口机制.
@@ -36,16 +43,19 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.5] - 2024-02-24
 ### Changed
+- Update changelog.
 - NaN类值使用函数调用, 防止全局变量被篡改.
 
 ## [0.1.4] - 2024-02-24
 ### Changed
+- Update changelog.
 - 优化平行线的计算方法.
 - 新增波浪计算方法.
 - 删除废弃的代码.
 
 ## [0.1.3] - 2024-02-23
 ### Changed
+- Update changelog.
 - 调整内部函数的签名格式__go作为前缀.
 - 调整cumsum函数.
 - 优雅和调整Diff函数.
@@ -70,14 +80,17 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.2] - 2024-02-20
 ### Changed
+- Update changelog.
 - 增加遗漏的函数.
 
-## [0.1.1] - 2024-02-18
+## [0.1.1] - 2024-02-19
 ### Changed
+- Update changelog.
 - 调整浮点输出字符串的精度.
 
 ## [0.1.0] - 2024-02-18
 ### Changed
+- Update changelog.
 - 调整窗口源文件名.
 - 删除部分冗余的变量.
 - 优化Align函数.
@@ -110,6 +123,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.0.9] - 2024-02-14
 ### Changed
+- Update changelog.
 - 修订错误的测试用例.
 - 删除废弃的代码.
 - 更新gox依赖库版本到1.20.1.
@@ -118,32 +132,39 @@ All notable changes to this project will be documented in this file.
 
 ## [0.0.8] - 2024-02-12
 ### Changed
+- Update changelog.
 - 删除废弃的切片反转函数.
 
 ## [0.0.7] - 2024-02-12
 ### Changed
+- Update changelog.
 - 修订参数是sereis的情况, 提取一个接口来转换.
 - 新增切片克隆反转函数.
 - 调整z-table常量名.
 
 ## [0.0.6] - 2024-02-12
 ### Changed
+- Update changelog.
 - 优化单元测试.
 
 ## [0.0.5] - 2024-02-12
 ### Changed
+- Update changelog.
 - 调整string转bool的函数, if改switch.
 
 ## [0.0.4] - 2024-02-12
 ### Changed
+- Update changelog.
 - 修订错误引用已废弃的gox/num包的问题.
 
 ## [0.0.3] - 2024-02-12
 ### Changed
+- Update changelog.
 - 调整统一处理类型错误的函数名.
 
 ## [0.0.2] - 2024-02-12
 ### Changed
+- Update changelog.
 - 调整package.
 - 调整代码结构.
 - 删除arm64冗余代码.
@@ -153,14 +174,12 @@ All notable changes to this project will be documented in this file.
 - First commit.
 
 ## [0.0.1] - 2023-12-30
-
 ### Changed
-
+- 初始化Changelog.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/go-num/compare/v0.1.9...HEAD
-
+[Unreleased]: https://gitee.com/quant1x/num/compare/v0.1.9...HEAD
 [0.1.9]: https://gitee.com/quant1x/num/compare/v0.1.8...v0.1.9
 [0.1.8]: https://gitee.com/quant1x/num/compare/v0.1.7...v0.1.8
 [0.1.7]: https://gitee.com/quant1x/num/compare/v0.1.6...v0.1.7
@@ -179,4 +198,4 @@ All notable changes to this project will be documented in this file.
 [0.0.4]: https://gitee.com/quant1x/num/compare/v0.0.3...v0.0.4
 [0.0.3]: https://gitee.com/quant1x/num/compare/v0.0.2...v0.0.3
 [0.0.2]: https://gitee.com/quant1x/num/compare/v0.0.1...v0.0.2
-[0.0.1]: https://gitee.com/quant1x/go-num/releases/tag/v0.0.1
+[0.0.1]: https://gitee.com/quant1x/num/releases/tag/v0.0.1
