@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.1] - 2024-03-11
+### Changed
+- 更新gox版本.
+
 ## [0.2.0] - 2024-03-11
 ### Changed
 - 修复趋势检测的条件错误的bug.
@@ -183,7 +187,8 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.0...HEAD
+[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.1...HEAD
+[0.2.1]: https://gitee.com/quant1x/num/compare/v0.2.0...v0.2.1
 [0.2.0]: https://gitee.com/quant1x/num/compare/v0.1.9...v0.2.0
 [0.1.9]: https://gitee.com/quant1x/num/compare/v0.1.8...v0.1.9
 [0.1.8]: https://gitee.com/quant1x/num/compare/v0.1.7...v0.1.8
