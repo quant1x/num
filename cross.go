@@ -27,7 +27,7 @@ func Cross[E Number](a, b []E) []LinerTrend {
 			// a 上穿 b
 			list[count] = LinerTrend{X: current, State: BreakThrough}
 			count++
-		} else if a[front] < b[front] && a[current] > b[current] {
+		} else if a[front] > b[front] && a[current] < b[current] {
 			// a 下穿 b
 			list[count] = LinerTrend{X: current, State: FallDrastically}
 			count++

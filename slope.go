@@ -255,6 +255,6 @@ func (this Line) Analyse(data []float64, digits int) (X, Y []float64, tendency [
 	}
 	X = x
 	Y = y
-	tendency = Cross(data, y)
+	tendency = Cross(data[offset:], y)
 	return
 }
