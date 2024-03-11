@@ -63,6 +63,20 @@ func (this Point) Add(p Point) Point {
 	return Point{X: this.X + p.X, Y: this.Y + p.Y}
 }
 
+func (this Point) ToDataPoint() DataPoint {
+	return DataPoint{X: int(this.X), Y: this.Y}
+}
+
+// DataPoint 数据点, X轴为时间类切片的索引, Y轴为具体数值
+type DataPoint struct {
+	X int
+	Y float64
+}
+
+func (this DataPoint) ToPoint() Point {
+	return Point{X: float64(this.X), Y: this.Y}
+}
+
 // Line LineEquation 线性方程式
 //
 //	① Ax + By + C = 0
