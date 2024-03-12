@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.3] - 2024-03-12
+### Changed
+- 更新go版本.
+
 ## [0.2.2] - 2024-03-12
 ### Changed
 - 新增数据点DataPoint结构体.
@@ -192,7 +196,8 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.2...HEAD
+[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.3...HEAD
+[0.2.3]: https://gitee.com/quant1x/num/compare/v0.2.2...v0.2.3
 [0.2.2]: https://gitee.com/quant1x/num/compare/v0.2.1...v0.2.2
 [0.2.1]: https://gitee.com/quant1x/num/compare/v0.2.0...v0.2.1
 [0.2.0]: https://gitee.com/quant1x/num/compare/v0.1.9...v0.2.0
