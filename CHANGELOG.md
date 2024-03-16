@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.4] - 2024-03-17
+### Changed
+- 更新依赖库版本.
+
 ## [0.2.3] - 2024-03-12
 ### Changed
 - 更新go版本.
@@ -196,7 +200,8 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.3...HEAD
+[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.4...HEAD
+[0.2.4]: https://gitee.com/quant1x/num/compare/v0.2.3...v0.2.4
 [0.2.3]: https://gitee.com/quant1x/num/compare/v0.2.2...v0.2.3
 [0.2.2]: https://gitee.com/quant1x/num/compare/v0.2.1...v0.2.2
 [0.2.1]: https://gitee.com/quant1x/num/compare/v0.2.0...v0.2.1
