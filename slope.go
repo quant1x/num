@@ -104,7 +104,37 @@ func (this Line) Radian() float64 {
 
 // Degrees 计算角度
 func (this Line) Degrees() float64 {
-	return math.Atan(this.slope) * 180 / math.Pi
+	return this.Radian() * degreesPreRadian
+}
+
+// Angle 计算两条直线之间的角度
+func (this Line) Angle(other Line) float64 {
+	return this.v3Angle(other)
+}
+
+func (this Line) v1Angle(other Line) float64 {
+	theta := math.Atan(other.slope-this.slope) * degreesPreRadian
+	return theta
+}
+
+func (this Line) v2Angle(other Line) float64 {
+	m := other.slope * this.slope
+	if m == -1 {
+		if other.slope < 0 {
+			return -90
+		} else {
+			return 90
+		}
+	}
+	theta := math.Atan((other.slope-this.slope)/(1+m)) * degreesPreRadian
+	return theta
+}
+
+func (this Line) v3Angle(other Line) float64 {
+	angle1 := other.Degrees()
+	angle2 := this.Degrees()
+	theta := angle1 - angle2
+	return theta
 }
 
 // Equation 返回方程式 A, B, C
@@ -255,8 +285,8 @@ func (this Line) Extend(data []float64, digits int) (X, Y []float64, tendency in
 	return
 }
 
-// Analyse 分析线性趋势
-func (this Line) Analyse(data []float64, digits int) (X, Y []float64, tendency []LinerTrend) {
+// Analyze 分析线性趋势
+func (this Line) Analyze(data []float64, digits int) (X, Y []float64, tendency []LinerTrend) {
 	offset := int(this.offset)
 	count := len(data)
 	length := count - offset

@@ -192,3 +192,51 @@ func TestDegreesToSlope(t *testing.T) {
 		})
 	}
 }
+
+func TestLine_Angle(t *testing.T) {
+	type fields struct {
+		slope     float64
+		intercept float64
+		offset    float64
+	}
+	type args struct {
+		other Line
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   float64
+	}{
+		{
+			name:   "t1",
+			fields: fields{slope: 0},
+			args:   args{other: Line{slope: 1}},
+			want:   45.00,
+		},
+		{
+			name:   "t2",
+			fields: fields{slope: 1},
+			args:   args{other: Line{slope: 0}},
+			want:   -45,
+		},
+		{
+			name:   "t0",
+			fields: fields{slope: 1},
+			args:   args{other: Line{slope: -1}},
+			want:   0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			this := Line{
+				slope:     tt.fields.slope,
+				intercept: tt.fields.intercept,
+				offset:    tt.fields.offset,
+			}
+			if got := this.Angle(tt.args.other); got != tt.want {
+				t.Errorf("Angle() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
