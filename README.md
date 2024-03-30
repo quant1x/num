@@ -1,6 +1,14 @@
 num
 ===
 
+[![Sourcegraph](https://sourcegraph.com/github.com/quant1x/num/-/badge.svg)](https://sourcegraph.com/github.com/quant1x/num?badge)
+[![Build Status](https://api.travis-ci.com/repos/quant1x/num.png)](https://travis-ci.com/quant1x/num)
+[![codecov](https://codecov.io/gh/quant1x/num/branch/master/graph/badge.svg)](https://codecov.io/gh/quant1x/num)
+![Golang 1.21.8+](https://img.shields.io/badge/Golang-1.21+-orange.svg?style=flat)
+![tag](https://img.shields.io/github/tag/quant1x/num.svg?style=flat)
+![license](https://img.shields.io/github/license/quant1x/num.svg)
+
+
 # 1. 介绍
 
 num 是go语言实现的类似numpy的工具包
