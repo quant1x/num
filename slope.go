@@ -69,8 +69,8 @@ func (this Point) ToDataPoint() DataPoint {
 
 // DataPoint 数据点, X轴为时间类切片的索引, Y轴为具体数值
 type DataPoint struct {
-	X int
-	Y float64
+	X int     // Y切片的索引
+	Y float64 // 值
 }
 
 func (this DataPoint) ToPoint() Point {
