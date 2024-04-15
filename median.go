@@ -8,7 +8,9 @@ import (
 
 // Median returns median value of series.
 // Linear interpolation is used for odd length.
-// TODO:未加验证, 未加速
+//
+//	中间值
+//	TODO:未加验证,
 func Median[T Number](values []T) DType {
 	if len(values) == 0 {
 		return NaN()
