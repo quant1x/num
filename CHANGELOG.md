@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.7] - 2024-04-16
+### Changed
+- 新增协方差, 方差函数.
+- Median增加注释.
+- 修订std变量名拼写的错误.
+- 修订DataPoint结构的属性描述.
+- 更新依赖库版本.
+- README新增徽章展示.
+
 ## [0.2.6] - 2024-03-28
 ### Changed
 - Line新增两条Line之间夹角的方法.
@@ -208,7 +217,8 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.6...HEAD
+[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.7...HEAD
+[0.2.7]: https://gitee.com/quant1x/num/compare/v0.2.6...v0.2.7
 [0.2.6]: https://gitee.com/quant1x/num/compare/v0.2.5...v0.2.6
 [0.2.5]: https://gitee.com/quant1x/num/compare/v0.2.4...v0.2.5
 [0.2.4]: https://gitee.com/quant1x/num/compare/v0.2.3...v0.2.4
