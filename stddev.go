@@ -29,29 +29,29 @@ func Std[T BaseType](x []T) T {
 func __go_std_float64(f []float64) float64 {
 	values := slices.Clone(f)
 	// 求平均数
-	meam := x64.Mean(values)
+	mean := x64.Mean(values)
 	// 减去 平均数
-	x64.SubNumber_Inplace(values, meam)
+	x64.SubNumber_Inplace(values, mean)
 	// 计算方差
 	y := x64.Repeat(2.00, len(f))
 	x64.Pow_Inplace(values, y)
 	// 再求方差平均数
-	meam = x64.Mean(values)
-	meam = math.Sqrt(meam)
-	return meam
+	mean = x64.Mean(values)
+	mean = math.Sqrt(mean)
+	return mean
 }
 
 func __go_std_float32(f []float32) float32 {
 	values := slices.Clone(f)
 	// 求平均数
-	meam := x32.Mean(values)
+	mean := x32.Mean(values)
 	// 减去 平均数
-	x32.SubNumber_Inplace(values, meam)
+	x32.SubNumber_Inplace(values, mean)
 	// 计算方差
 	y := x32.Repeat(2.00, len(f))
 	x32.Pow_Inplace(values, y)
 	// 再求方差平均数
-	meam = x32.Mean(values)
-	meam = float32(math.Sqrt(float64(meam)))
-	return meam
+	mean = x32.Mean(values)
+	mean = float32(math.Sqrt(float64(mean)))
+	return mean
 }
