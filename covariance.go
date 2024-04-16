@@ -6,7 +6,10 @@ import (
 
 // Covariance 协方差
 func Covariance(x, y []float64) float64 {
-	if len(x) != len(y) {
+	lx := len(x)
+	ly := len(y)
+
+	if lx != ly || lx == 0 {
 		return 0 // 数据集长度必须相同
 	}
 
