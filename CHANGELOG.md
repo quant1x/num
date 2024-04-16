@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.8] - 2024-04-16
+### Changed
+- 优化数据集长度对比.
+
 ## [0.2.7] - 2024-04-16
 ### Changed
 - 新增协方差, 方差函数.
@@ -217,7 +221,8 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.7...HEAD
+[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.8...HEAD
+[0.2.8]: https://gitee.com/quant1x/num/compare/v0.2.7...v0.2.8
 [0.2.7]: https://gitee.com/quant1x/num/compare/v0.2.6...v0.2.7
 [0.2.6]: https://gitee.com/quant1x/num/compare/v0.2.5...v0.2.6
 [0.2.5]: https://gitee.com/quant1x/num/compare/v0.2.4...v0.2.5
