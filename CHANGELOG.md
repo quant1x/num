@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.9] - 2024-04-16
+### Changed
+- 更新依赖库版本golang.org/x/sys到0.19.0.
+
 ## [0.2.8] - 2024-04-16
 ### Changed
 - 优化数据集长度对比.
@@ -221,7 +225,8 @@ All notable changes to this project will be documented in this file.
 - 初始化go module.
 - Initial commit.
 
-[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.8...HEAD
+[Unreleased]: https://gitee.com/quant1x/num/compare/v0.2.9...HEAD
+[0.2.9]: https://gitee.com/quant1x/num/compare/v0.2.8...v0.2.9
 [0.2.8]: https://gitee.com/quant1x/num/compare/v0.2.7...v0.2.8
 [0.2.7]: https://gitee.com/quant1x/num/compare/v0.2.6...v0.2.7
 [0.2.6]: https://gitee.com/quant1x/num/compare/v0.2.5...v0.2.6
