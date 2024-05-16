@@ -3,7 +3,7 @@ module gitee.com/quant1x/num
 go 1.21.8
 
 require (
-	gitee.com/quant1x/gox v1.21.1
+	gitee.com/quant1x/gox v1.21.2
 	gitee.com/quant1x/pkg v0.2.8
 	golang.org/x/sys v0.20.0
 )
