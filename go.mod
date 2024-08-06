@@ -1,14 +1,9 @@
 module gitee.com/quant1x/num
 
-go 1.21.8
+go 1.21.12
 
 require (
-	gitee.com/quant1x/gox v1.21.5
-	gitee.com/quant1x/pkg v0.2.10
-	golang.org/x/sys v0.22.0
-)
-
-require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
+	gitee.com/quant1x/gox v1.21.9
+	gitee.com/quant1x/pkg v0.3.1
+	golang.org/x/sys v0.23.0
 )
