@@ -2,7 +2,7 @@ package x64
 
 import (
 	"gitee.com/quant1x/num/internal/functions"
-	"gitee.com/quant1x/pkg/testify/require"
+	"github.com/stretchr/testify/require"
 	"math"
 	"slices"
 	"testing"

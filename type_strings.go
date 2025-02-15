@@ -1,7 +1,6 @@
 package num
 
 import (
-	"fmt"
 	"gitee.com/quant1x/gox/exception"
 	"gitee.com/quant1x/gox/logger"
 	"reflect"
@@ -188,7 +187,7 @@ func SliceToString(v any) []string {
 	default:
 		vv := reflect.ValueOf(v)
 		vk := vv.Kind()
-		panic(exception.New(errorFloat64Base+0, fmt.Sprintf("Unsupported type: %s", vk.String())))
+		panic(exception.New(errorFloat64Base+0, "Unsupported type: %s", vk.String()))
 	}
 	return []string{}
 }

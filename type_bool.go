@@ -243,7 +243,8 @@ func SliceToBool(v any) []bool {
 	default:
 		vv := reflect.ValueOf(v)
 		vk := vv.Kind()
-		panic(exception.New(errorFloat64Base+0, fmt.Sprintf("Unsupported type: %s", vk.String())))
+		err := exception.New(errorFloat64Base+0, "Unsupported type: %s", vk.String())
+		panic(err)
 	}
 	return []bool{}
 }

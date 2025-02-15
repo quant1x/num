@@ -224,7 +224,7 @@ func TestLine_Angle(t *testing.T) {
 			name:   "t0",
 			fields: fields{slope: 1},
 			args:   args{other: Line{slope: -1}},
-			want:   0,
+			want:   -90,
 		},
 	}
 	for _, tt := range tests {

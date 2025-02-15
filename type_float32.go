@@ -1,7 +1,6 @@
 package num
 
 import (
-	"fmt"
 	"gitee.com/quant1x/gox/exception"
 	"gitee.com/quant1x/gox/logger"
 	"gitee.com/quant1x/num/x32"
@@ -96,7 +95,7 @@ func SliceToFloat32(v any) []float32 {
 	default:
 		vv := reflect.ValueOf(v)
 		vk := vv.Kind()
-		panic(exception.New(errorFloat32Base+0, fmt.Sprintf("Unsupported type: %s", vk.String())))
+		panic(exception.New(errorFloat32Base+0, "Unsupported type: %s", vk.String()))
 	}
 	return []float32{}
 }

@@ -20,5 +20,5 @@ var (
 // TypeError 类型错误
 func TypeError(tv any) error {
 	typeName := reflect.TypeOf(tv).String()
-	return fmt.Errorf("unsupported type: " + typeName)
+	return fmt.Errorf("unsupported type: %s", typeName)
 }

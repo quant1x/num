@@ -3,7 +3,7 @@ package functions
 import (
 	"fmt"
 	"gitee.com/quant1x/num/internal/rand"
-	"gitee.com/quant1x/pkg/testify/require"
+	"github.com/stretchr/testify/require"
 	"slices"
 	"testing"
 )
