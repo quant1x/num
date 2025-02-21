@@ -3,9 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.1] - 2025-02-21
+### Changed
+- 修复34423.125保留2位小数点返回34423.12的错误
+
 ## [0.4.0] - 2025-02-15
 ### Changed
 - 更新依赖库gox版本到1.22.0
+- update changelog
 
 ## [0.3.6] - 2024-08-06
 ### Changed
@@ -276,7 +281,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.4.0...HEAD
+[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.4.1...HEAD
+[0.4.1]: https://gitee.com/quant1x/num.git/compare/v0.4.0...v0.4.1
 [0.4.0]: https://gitee.com/quant1x/num.git/compare/v0.3.6...v0.4.0
 [0.3.6]: https://gitee.com/quant1x/num.git/compare/v0.3.5...v0.3.6
 [0.3.5]: https://gitee.com/quant1x/num.git/compare/v0.3.4...v0.3.5
