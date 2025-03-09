@@ -6,6 +6,7 @@ import (
 	"reflect"
 )
 
+// 通用的逻辑方法入口
 func __compare[T ~[]E, E any](x T, y any, c int, comparator func(f1, f2 DType) bool) []bool {
 	if __y, ok := y.(Array); ok {
 		y = __y.Values()
