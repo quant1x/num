@@ -3,15 +3,15 @@ module gitee.com/quant1x/num
 go 1.24
 
 require (
-	gitee.com/quant1x/gox v1.22.0
+	gitee.com/quant1x/gox v1.22.8
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/sys v0.30.0
+	golang.org/x/sys v0.31.0
 )
 
 require (
-	gitee.com/quant1x/pkg v0.4.0 // indirect
+	gitee.com/quant1x/pkg v0.5.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/petermattis/goid v0.0.0-20250211185408-f2b9d978cd7a // indirect
+	github.com/petermattis/goid v0.0.0-20250303134427-723919f7f203 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
