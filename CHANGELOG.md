@@ -3,10 +3,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.4] - 2025-03-10
+### Changed
+- 更新gox版本到1.22.9
+
 ## [0.4.3] - 2025-03-10
 ### Changed
 - 补充泛型比较函数注释
 - 新增计算波浪极值的函数
+- update changelog
 
 ## [0.4.2] - 2025-03-10
 ### Changed
@@ -292,7 +297,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.4.3...HEAD
+[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.4.4...HEAD
+[0.4.4]: https://gitee.com/quant1x/num.git/compare/v0.4.3...v0.4.4
 [0.4.3]: https://gitee.com/quant1x/num.git/compare/v0.4.2...v0.4.3
 [0.4.2]: https://gitee.com/quant1x/num.git/compare/v0.4.1...v0.4.2
 [0.4.1]: https://gitee.com/quant1x/num.git/compare/v0.4.0...v0.4.1
