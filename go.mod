@@ -3,7 +3,7 @@ module gitee.com/quant1x/num
 go 1.24
 
 require (
-	gitee.com/quant1x/gox v1.22.8
+	gitee.com/quant1x/gox v1.22.9
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/sys v0.31.0
 )
