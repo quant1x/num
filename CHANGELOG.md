@@ -3,9 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.5.0] - 2025-06-25
+### Changed
+- 更新库版本
+
 ## [0.4.6] - 2025-03-10
 ### Changed
 - 更新gox版本到1.22.11
+- update changelog
 
 ## [0.4.5] - 2025-03-10
 ### Changed
@@ -307,7 +312,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.4.6...HEAD
+[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.5.0...HEAD
+[0.5.0]: https://gitee.com/quant1x/num.git/compare/v0.4.6...v0.5.0
 [0.4.6]: https://gitee.com/quant1x/num.git/compare/v0.4.5...v0.4.6
 [0.4.5]: https://gitee.com/quant1x/num.git/compare/v0.4.4...v0.4.5
 [0.4.4]: https://gitee.com/quant1x/num.git/compare/v0.4.3...v0.4.4
