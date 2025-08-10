@@ -1,7 +1,7 @@
-gitee.com/quant1x/gox v1.22.12 h1:mH3yFbkEkhejeLFqUHLKAsZTIKJh3gXjN8OFFrKjrqQ=
-gitee.com/quant1x/gox v1.22.12/go.mod h1:8S8rbZPBIIwnNF5moZS5UDKNaNgZJEDbmDM63ZufH4o=
-gitee.com/quant1x/pkg v0.5.2 h1:YmeMGEVx9u7SbZ4MbnpW3YsWE4lVmJMpeIWSgNY3APo=
-gitee.com/quant1x/pkg v0.5.2/go.mod h1:hfqTJMbvomDWX6gZSsrC1trIbDEvxr7UgJWsjZx/Ecg=
+gitee.com/quant1x/gox v1.22.13 h1:OPvRz2OPOt4YRNDXRzwup+zOBjc7LtM/+010ICMsWFA=
+gitee.com/quant1x/gox v1.22.13/go.mod h1:nbwZDIL/sfRs1twfh068gzPWvjkGKryvvuiu6uSmLbE=
+gitee.com/quant1x/pkg v0.6.0 h1:Zj7xLRvl+jIL3vNNAKc6geb/qEeAeAsoqWnqUGJ/bcY=
+gitee.com/quant1x/pkg v0.6.0/go.mod h1:72b41Xi4HFR2sp769Fd/YgKTcqwAqFR5WF39q5hwhdQ=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
