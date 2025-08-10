@@ -1,9 +1,10 @@
 package functions
 
 import (
+	"math"
+
 	"gitee.com/quant1x/num/internal/constraints"
 	"gitee.com/quant1x/num/math32"
-	"math"
 )
 
 func Dot_Go[T constraints.Float](x, y []T) T {

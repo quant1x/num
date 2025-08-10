@@ -1,11 +1,12 @@
 package x32
 
 import (
+	"slices"
+	"unsafe"
+
 	"gitee.com/quant1x/num/internal/constraints"
 	"gitee.com/quant1x/num/internal/functions"
 	"gitee.com/quant1x/num/math32"
-	"slices"
-	"unsafe"
 )
 
 // Arithmetic

@@ -1,11 +1,12 @@
 package x64
 
 import (
-	"gitee.com/quant1x/num/internal/functions"
-	"github.com/stretchr/testify/require"
 	"math"
 	"slices"
 	"testing"
+
+	"gitee.com/quant1x/num/internal/functions"
+	"github.com/stretchr/testify/require"
 )
 
 // Edge cases. See internal/functions for random float tests.

@@ -1,11 +1,12 @@
 package x64
 
 import (
-	"gitee.com/quant1x/num/internal/constraints"
-	"gitee.com/quant1x/num/internal/functions"
 	"math"
 	"slices"
 	"unsafe"
+
+	"gitee.com/quant1x/num/internal/constraints"
+	"gitee.com/quant1x/num/internal/functions"
 )
 
 // Arithmetic

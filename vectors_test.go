@@ -2,10 +2,11 @@ package num
 
 import (
 	"fmt"
-	"gitee.com/quant1x/num/labs"
 	"reflect"
 	"testing"
 	"unsafe"
+
+	"gitee.com/quant1x/num/labs"
 )
 
 //func Float64bits(f float64) uint64 {

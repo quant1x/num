@@ -1,10 +1,11 @@
 package x32
 
 import (
+	"testing"
+
 	"gitee.com/quant1x/num/internal/functions"
 	"gitee.com/quant1x/num/math32"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 const d = 0.001

@@ -1,9 +1,10 @@
 package num
 
 import (
+	"slices"
+
 	"gitee.com/quant1x/num/x32"
 	"gitee.com/quant1x/num/x64"
-	"slices"
 )
 
 // Div arithmetics 除法

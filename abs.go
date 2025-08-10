@@ -1,9 +1,10 @@
 package num
 
 import (
+	"math"
+
 	"gitee.com/quant1x/num/x32"
 	"gitee.com/quant1x/num/x64"
-	"math"
 )
 
 // Abs 泛型绝对值

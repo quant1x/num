@@ -2,10 +2,11 @@ package functions
 
 import (
 	"fmt"
-	"gitee.com/quant1x/num/internal/rand"
-	"github.com/stretchr/testify/require"
 	"slices"
 	"testing"
+
+	"gitee.com/quant1x/num/internal/rand"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAdd(t *testing.T) {

@@ -1,10 +1,11 @@
 package functions
 
 import (
-	"gitee.com/quant1x/num/internal/constraints"
-	"gitee.com/quant1x/num/internal/partial"
 	"math"
 	"slices"
+
+	"gitee.com/quant1x/num/internal/constraints"
+	"gitee.com/quant1x/num/internal/partial"
 )
 
 func Sum_Go[T constraints.Float](x []T) T {

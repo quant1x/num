@@ -1,8 +1,9 @@
 package num
 
 import (
-	"gitee.com/quant1x/num/labs"
 	"testing"
+
+	"gitee.com/quant1x/num/labs"
 )
 
 func TestMul(t *testing.T) {

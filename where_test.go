@@ -1,9 +1,10 @@
 package num
 
 import (
-	"gitee.com/quant1x/num/labs"
 	"math"
 	"testing"
+
+	"gitee.com/quant1x/num/labs"
 )
 
 func TestWhere(t *testing.T) {

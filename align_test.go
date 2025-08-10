@@ -2,11 +2,12 @@ package num
 
 import (
 	"fmt"
-	"gitee.com/quant1x/num/labs"
 	"math/rand"
 	"slices"
 	"sync"
 	"testing"
+
+	"gitee.com/quant1x/num/labs"
 )
 
 func Test_Align(t *testing.T) {

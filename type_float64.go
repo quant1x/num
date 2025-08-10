@@ -1,11 +1,12 @@
 package num
 
 import (
-	"gitee.com/quant1x/gox/logger"
-	"gitee.com/quant1x/num/x64"
 	"math"
 	"reflect"
 	"strconv"
+
+	"gitee.com/quant1x/gox/logger"
+	"gitee.com/quant1x/num/x64"
 )
 
 const (

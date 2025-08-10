@@ -3,9 +3,10 @@ package num
 import (
 	"bytes"
 	"fmt"
-	"gitee.com/quant1x/num/internal/functions"
 	"reflect"
 	"runtime"
+
+	"gitee.com/quant1x/num/internal/functions"
 )
 
 // SetAvx2Enabled 设定AVX2加速开关, 非线程安全

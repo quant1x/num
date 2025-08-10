@@ -1,9 +1,10 @@
 package num
 
 import (
-	"gitee.com/quant1x/num/internal/partial"
 	"math"
 	"slices"
+
+	"gitee.com/quant1x/num/internal/partial"
 )
 
 // Median returns median value of series.

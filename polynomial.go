@@ -1,8 +1,9 @@
 package num
 
 import (
-	"gitee.com/quant1x/num/x64"
 	"math"
+
+	"gitee.com/quant1x/num/x64"
 )
 
 // PolyFit

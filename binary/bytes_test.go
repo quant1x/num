@@ -2,9 +2,10 @@ package binary
 
 import (
 	"fmt"
-	"gitee.com/quant1x/num/labs"
 	"testing"
 	"unsafe"
+
+	"gitee.com/quant1x/num/labs"
 )
 
 func TestSizeOf(t *testing.T) {

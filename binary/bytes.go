@@ -1,10 +1,11 @@
 package binary
 
 import (
-	"gitee.com/quant1x/num/kind"
 	"math"
 	"unsafe"
 	_ "unsafe"
+
+	"gitee.com/quant1x/num/kind"
 )
 
 //go:linkname Repeat bytes.Repeat

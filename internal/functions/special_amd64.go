@@ -1,8 +1,9 @@
 package functions
 
 import (
-	"gitee.com/quant1x/num/math32"
 	"math"
+
+	"gitee.com/quant1x/num/math32"
 )
 
 func Pow_AVX2_F64(x, y []float64) {

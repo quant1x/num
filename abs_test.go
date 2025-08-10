@@ -2,9 +2,10 @@ package num
 
 import (
 	"fmt"
-	"gitee.com/quant1x/num/labs"
 	"reflect"
 	"testing"
+
+	"gitee.com/quant1x/num/labs"
 )
 
 func TestAbs(t *testing.T) {

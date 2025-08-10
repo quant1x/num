@@ -1,9 +1,10 @@
 package num
 
 import (
-	"gitee.com/quant1x/num/labs"
 	"reflect"
 	"testing"
+
+	"gitee.com/quant1x/num/labs"
 )
 
 func TestRolling(t *testing.T) {

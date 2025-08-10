@@ -1,9 +1,10 @@
 package functions
 
 import (
-	"gitee.com/quant1x/num/internal/constraints"
 	"runtime"
 	"sync"
+
+	"gitee.com/quant1x/num/internal/constraints"
 )
 
 var numCPU int = runtime.NumCPU()

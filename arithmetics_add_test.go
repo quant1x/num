@@ -1,9 +1,10 @@
 package num
 
 import (
-	"gitee.com/quant1x/num/labs"
 	"slices"
 	"testing"
+
+	"gitee.com/quant1x/num/labs"
 )
 
 func TestAdd(t *testing.T) {

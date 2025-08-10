@@ -1,9 +1,10 @@
 package functions
 
 import (
-	"gitee.com/quant1x/num/internal/partial"
 	"math"
 	"slices"
+
+	"gitee.com/quant1x/num/internal/partial"
 )
 
 func Mean_AVX2_F64(x []float64) float64 {

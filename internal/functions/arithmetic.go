@@ -1,8 +1,9 @@
 package functions
 
 import (
-	"gitee.com/quant1x/num/internal/constraints"
 	"math"
+
+	"gitee.com/quant1x/num/internal/constraints"
 )
 
 func Add_Go[T constraints.Float](x, y []T) {

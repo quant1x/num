@@ -3,10 +3,11 @@ package functions
 import (
 	"bytes"
 	"fmt"
-	"gitee.com/quant1x/num/internal/rand"
-	"github.com/stretchr/testify/require"
 	"math"
 	"testing"
+
+	"gitee.com/quant1x/num/internal/rand"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRepeat(t *testing.T) {

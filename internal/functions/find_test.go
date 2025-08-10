@@ -2,9 +2,10 @@ package functions
 
 import (
 	"fmt"
+	"testing"
+
 	"gitee.com/quant1x/num/internal/rand"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestFind(t *testing.T) {

@@ -1,8 +1,9 @@
 package functions
 
 import (
-	"golang.org/x/sys/cpu"
 	"runtime"
+
+	"golang.org/x/sys/cpu"
 )
 
 var cpuFeatures = map[string]bool{

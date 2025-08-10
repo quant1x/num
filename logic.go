@@ -1,9 +1,10 @@
 package num
 
 import (
+	"reflect"
+
 	"gitee.com/quant1x/num/x32"
 	"gitee.com/quant1x/num/x64"
-	"reflect"
 )
 
 // 通用的逻辑方法入口
