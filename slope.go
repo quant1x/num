@@ -323,3 +323,63 @@ func (this Line) Intersect(other Line) (Point, bool) {
 
 	return Point{X: x, Y: y}, true
 }
+
+// FitLine 使用最小二乘法对给定的数据点 (x, y) 进行线性回归拟合，得到一条直线
+//
+// 返回值：
+//
+//	Line: 拟合的直线（slope: 斜率, intercept: 截距, offset: 第一个x值）
+//	bool: 是否成功拟合（false 表示数据无效或无法确定唯一直线，如垂直线趋势）
+//
+// 数学模型：y = slope * x + intercept
+//
+// 条件：
+//   - len(x) == len(y) 且 ≥ 2
+//   - x 的值不能全部相同（否则斜率无定义，退化为垂直线，无法用斜截式表示）
+func FitLine(x, y []float64) (Line, bool) {
+	n := len(x)
+
+	// 检查长度一致性
+	if n == 0 || len(y) != n {
+		return Line{}, false
+	}
+
+	// 至少需要两个点才能定义一条直线
+	if n < 2 {
+		// 单点情况：无法确定斜率，返回水平线（可选策略），但标记为不成功
+		return Line{slope: 0, intercept: y[0], offset: x[0]}, false
+	}
+
+	// 累加项
+	var sumX, sumY, sumXY, sumXX float64
+	for i := 0; i < n; i++ {
+		sumX += x[i]
+		sumY += y[i]
+		sumXY += x[i] * y[i]
+		sumXX += x[i] * x[i]
+	}
+
+	nf := float64(n)
+	denom := nf*sumXX - sumX*sumX // 分母：nΣx² - (Σx)²
+
+	// 判断是否所有 x 几乎相同（趋近于垂直线）
+	const epsilon = 1e-10
+	if math.Abs(denom) < epsilon {
+		return Line{}, false // 无法确定斜率（垂直线趋势），返回失败
+	}
+
+	// 计算斜率 k 和截距 b
+	slope := (nf*sumXY - sumX*sumY) / denom
+	intercept := (sumY - slope*sumX) / nf
+
+	// offset 设为第一个 x 值，便于后续 Extend / Incr 使用
+	offset := x[0]
+
+	line := Line{
+		slope:     slope,
+		intercept: intercept,
+		offset:    offset,
+	}
+
+	return line, true
+}
