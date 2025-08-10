@@ -302,3 +302,24 @@ func (this Line) Analyze(data []float64, digits int) (X, Y []float64, tendency [
 	tendency = Cross(data[offset:], y)
 	return
 }
+
+// Intersect 计算当前直线与另一条直线的交点。
+//
+//	如果两直线平行（包括重合），则返回 (0, 0) 和 false。
+//	否则返回交点坐标和 true。
+func (this Line) Intersect(other Line) (Point, bool) {
+	m1, b1 := this.slope, this.intercept
+	m2, b2 := other.slope, other.intercept
+
+	// 判断是否平行：斜率相等
+	if m1 == m2 {
+		return Point{}, false // 无唯一交点
+	}
+
+	// 解方程：x = (b2 - b1) / (m1 - m2)
+	x := (b2 - b1) / (m1 - m2)
+	// 代入第一条直线求 y
+	y := m1*x + b1
+
+	return Point{X: x, Y: y}, true
+}
