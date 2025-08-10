@@ -3,9 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.5.1] - 2025-08-10
+### Changed
+- Line新增两条直线相交的方法
+
 ## [0.5.0] - 2025-06-25
 ### Changed
 - 更新库版本
+- update changelog
 
 ## [0.4.6] - 2025-03-10
 ### Changed
@@ -312,7 +317,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.5.0...HEAD
+[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.5.1...HEAD
+[0.5.1]: https://gitee.com/quant1x/num.git/compare/v0.5.0...v0.5.1
 [0.5.0]: https://gitee.com/quant1x/num.git/compare/v0.4.6...v0.5.0
 [0.4.6]: https://gitee.com/quant1x/num.git/compare/v0.4.5...v0.4.6
 [0.4.5]: https://gitee.com/quant1x/num.git/compare/v0.4.4...v0.4.5
