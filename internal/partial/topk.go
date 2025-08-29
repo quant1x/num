@@ -48,7 +48,7 @@ func floydRivest[E cmp.Ordered](x []E, left, right, k int) {
 			var kf = float64(k)
 			var newLeft = __max(left, int(math.Floor(kf-i*s/n+sd)))
 			var newRight = __min(right, int(math.Floor(kf+(n-i)*s/n+sd)))
-			floydRivest(x, newLeft, newRight, k)
+			floydRivest[E](x, newLeft, newRight, k)
 		}
 		// partition the elements between left and right around t
 		var t = x[k]
@@ -104,7 +104,7 @@ func floydRivestFunc[E any](x []E, left, right, k int, cmp func(E, E) int) {
 			var kf = float64(k)
 			var newLeft = __max(left, int(math.Floor(kf-i*s/n+sd)))
 			var newRight = __min(right, int(math.Floor(kf+(n-i)*s/n+sd)))
-			floydRivestFunc(x, newLeft, newRight, k, cmp)
+			floydRivestFunc[E](x, newLeft, newRight, k, cmp)
 		}
 		// partition the elements between left and right around t
 		var t = x[k]
