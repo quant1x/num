@@ -42,3 +42,26 @@ func Range[E Number](n int) []E {
 	}
 	return dest.([]E)
 }
+
+// Linspace 生成 [start, end] 之间 n 个等距数
+//
+//	如果 endpoint 为 true, 包含 stop, 否则不包含
+func Linspace[E Number](start, end E, n int, endpoint ...bool) []E {
+	if n <= 0 {
+		return []E{}
+	}
+	if n == 1 {
+		return []E{start}
+	}
+	num := n - 1
+	if len(endpoint) > 0 && !endpoint[0] {
+		num = n
+	}
+	step := (end - start) / E(num)
+
+	x := make([]E, n)
+	for i := 0; i < n; i++ {
+		x[i] = start + E(i)*step
+	}
+	return x
+}
