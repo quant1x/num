@@ -3,9 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.6.3] - 2025-09-01
+### Changed
+- 新增Log1p和Expm1两个函数
+
 ## [0.6.2] - 2025-08-30
 ### Changed
 - 新增Linspace函数对标numpy.linspace
+- update changelog
 
 ## [0.6.1] - 2025-08-30
 ### Changed
@@ -355,7 +360,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.6.2...HEAD
+[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.6.3...HEAD
+[0.6.3]: https://gitee.com/quant1x/num.git/compare/v0.6.2...v0.6.3
 [0.6.2]: https://gitee.com/quant1x/num.git/compare/v0.6.1...v0.6.2
 [0.6.1]: https://gitee.com/quant1x/num.git/compare/v0.6.0...v0.6.1
 [0.6.0]: https://gitee.com/quant1x/num.git/compare/v0.5.5...v0.6.0
