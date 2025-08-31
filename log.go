@@ -44,6 +44,38 @@ func Log1p[T Number](x []T) ([]float64, error) {
 	return ret, nil
 }
 
+func Log1pUnrolled(x []float64) ([]float64, error) {
+	n := len(x)
+	y := make([]float64, n)
+	i := 0
+
+	// 主循环：每次处理 4 个元素（AVX 可处理 4 个 float64）
+	for i < n-3 {
+		x0, x1, x2, x3 := x[i], x[i+1], x[i+2], x[i+3]
+
+		// 检查 1 + x > 0
+		if 1.0+x0 <= 0 || 1.0+x1 <= 0 || 1.0+x2 <= 0 || 1.0+x3 <= 0 {
+			return nil, fmt.Errorf("Log1p undefined for elements starting at index %d", i)
+		}
+
+		y[i] = math.Log1p(x0)
+		y[i+1] = math.Log1p(x1)
+		y[i+2] = math.Log1p(x2)
+		y[i+3] = math.Log1p(x3)
+		i += 4
+	}
+
+	// 处理剩余元素
+	for ; i < n; i++ {
+		if 1.0+x[i] <= 0 {
+			return nil, fmt.Errorf("Log1p undefined for x[%d]=%v", i, x[i])
+		}
+		y[i] = math.Log1p(x[i])
+	}
+
+	return y, nil
+}
+
 // Expm1 计算输入切片中每个元素的指数减一，即：
 //
 //	Expm1(x) = e^x - 1
@@ -81,4 +113,24 @@ func Expm1[T Number](x []T) []float64 {
 		ret[i] = math.Expm1(val)
 	}
 	return ret
+}
+
+func Expm1Unrolled(x []float64) []float64 {
+	y := make([]float64, len(x))
+	n := len(x)
+	i := 0
+
+	// Loop unrolling: 处理 4 个元素一次
+	for i < n-3 {
+		y[i] = math.Expm1(x[i])
+		y[i+1] = math.Expm1(x[i+1])
+		y[i+2] = math.Expm1(x[i+2])
+		y[i+3] = math.Expm1(x[i+3])
+		i += 4
+	}
+	// 剩余元素
+	for ; i < n; i++ {
+		y[i] = math.Expm1(x[i])
+	}
+	return y
 }
