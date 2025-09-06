@@ -3,9 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.6.5] - 2025-09-06
+### Changed
+- 新增频率功能
+
 ## [0.6.4] - 2025-09-01
 ### Changed
 - 新增循环展开版本
+- update changelog
 
 ## [0.6.3] - 2025-09-01
 ### Changed
@@ -365,7 +370,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.6.4...HEAD
+[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.6.5...HEAD
+[0.6.5]: https://gitee.com/quant1x/num.git/compare/v0.6.4...v0.6.5
 [0.6.4]: https://gitee.com/quant1x/num.git/compare/v0.6.3...v0.6.4
 [0.6.3]: https://gitee.com/quant1x/num.git/compare/v0.6.2...v0.6.3
 [0.6.2]: https://gitee.com/quant1x/num.git/compare/v0.6.1...v0.6.2
