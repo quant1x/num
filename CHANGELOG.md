@@ -3,9 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.1] - 2025-09-14
+### Changed
+- 更新依赖库版本
+
 ## [0.7.0] - 2025-09-14
 ### Changed
 - num(go)更换仓库到github
+- update changelog
 
 ## [0.6.5] - 2025-09-06
 ### Changed
@@ -375,7 +380,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.7.0...HEAD
+[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.7.1...HEAD
+[0.7.1]: https://gitee.com/quant1x/num.git/compare/v0.7.0...v0.7.1
 [0.7.0]: https://gitee.com/quant1x/num.git/compare/v0.6.5...v0.7.0
 [0.6.5]: https://gitee.com/quant1x/num.git/compare/v0.6.4...v0.6.5
 [0.6.4]: https://gitee.com/quant1x/num.git/compare/v0.6.3...v0.6.4
