@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"gitee.com/quant1x/gox/exception"
-	"gitee.com/quant1x/gox/logger"
+	"github.com/quant1x/x/exception"
+	"github.com/quant1x/x/logger"
 )
 
 const (

@@ -3,8 +3,8 @@ package num
 import (
 	"slices"
 
-	"gitee.com/quant1x/num/x32"
-	"gitee.com/quant1x/num/x64"
+	"github.com/quant1x/num/x32"
+	"github.com/quant1x/num/x64"
 )
 
 // Sub arithmetics 减法 z = x - y

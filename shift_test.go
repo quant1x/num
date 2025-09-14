@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	"gitee.com/quant1x/num/labs"
+	"github.com/quant1x/num/labs"
 )
 
 func TestShift(t *testing.T) {

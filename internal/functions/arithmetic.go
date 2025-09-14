@@ -3,7 +3,7 @@ package functions
 import (
 	"math"
 
-	"gitee.com/quant1x/num/internal/constraints"
+	"github.com/quant1x/num/internal/constraints"
 )
 
 func Add_Go[T constraints.Float](x, y []T) {

@@ -3,7 +3,7 @@ package num
 import (
 	"math"
 
-	"gitee.com/quant1x/num/x64"
+	"github.com/quant1x/num/x64"
 )
 
 // PolyFit

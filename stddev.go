@@ -4,8 +4,8 @@ import (
 	"math"
 	"slices"
 
-	"gitee.com/quant1x/num/x32"
-	"gitee.com/quant1x/num/x64"
+	"github.com/quant1x/num/x32"
+	"github.com/quant1x/num/x64"
 )
 
 // Std 计算标准差

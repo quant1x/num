@@ -1,6 +1,6 @@
 package functions
 
-import "gitee.com/quant1x/num/internal/constraints"
+import "github.com/quant1x/num/internal/constraints"
 
 func Not_Go(x []bool) {
 	for i := 0; i < len(x); i++ {

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"gitee.com/quant1x/num/labs"
+	"github.com/quant1x/num/labs"
 )
 
 func TestRolling(t *testing.T) {

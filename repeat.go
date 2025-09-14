@@ -1,10 +1,10 @@
 package num
 
 import (
-	"gitee.com/quant1x/num/binary"
-	"gitee.com/quant1x/num/vectors"
-	"gitee.com/quant1x/num/x32"
-	"gitee.com/quant1x/num/x64"
+	"github.com/quant1x/num/binary"
+	"github.com/quant1x/num/vectors"
+	"github.com/quant1x/num/x32"
+	"github.com/quant1x/num/x64"
 )
 
 // Repeat 构造n长度的x的泛型切片

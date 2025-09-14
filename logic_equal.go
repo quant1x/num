@@ -1,8 +1,8 @@
 package num
 
 import (
-	"gitee.com/quant1x/num/x32"
-	"gitee.com/quant1x/num/x64"
+	"github.com/quant1x/num/x32"
+	"github.com/quant1x/num/x64"
 )
 
 // Equal 比较相等
