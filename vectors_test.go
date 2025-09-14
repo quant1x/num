@@ -9,18 +9,6 @@ import (
 	"github.com/quant1x/num/labs"
 )
 
-//func Float64bits(f float64) uint64 {
-//	return *(*uint64)(unsafe.Pointer(&f))
-//}
-//
-//func Uint(i int) uint {
-//	return *(*uint)(unsafe.Pointer(&i))
-//}
-//
-//func Uint1(i any) uint {
-//	return *(*uint)(unsafe.Pointer(&i))
-//}
-
 func TestAnyPointer(t *testing.T) {
 	a := 1
 	var b any
