@@ -3,9 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.7] - 2025-09-14
+### Changed
+- 更新依赖库版本
+
 ## [0.7.6] - 2025-09-14
 ### Changed
 - 用gox替换x
+- update changelog
 
 ## [0.7.5] - 2025-09-14
 ### Changed
@@ -405,7 +410,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.7.6...HEAD
+[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.7.7...HEAD
+[0.7.7]: https://gitee.com/quant1x/num.git/compare/v0.7.6...v0.7.7
 [0.7.6]: https://gitee.com/quant1x/num.git/compare/v0.7.5...v0.7.6
 [0.7.5]: https://gitee.com/quant1x/num.git/compare/v0.7.4...v0.7.5
 [0.7.4]: https://gitee.com/quant1x/num.git/compare/v0.7.3...v0.7.4
