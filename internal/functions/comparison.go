@@ -1,7 +1,7 @@
 package functions
 
 import (
-	"github.com/quant1x/num/internal/constraints"
+	"gitee.com/quant1x/num/internal/constraints"
 )
 
 func Lt_Go[T constraints.Float](dst []bool, x, y []T) {

@@ -1,7 +1,7 @@
 package num
 
 import (
-	"github.com/quant1x/num/x64"
+	"gitee.com/quant1x/num/x64"
 )
 
 // All 全部为真

@@ -1,8 +1,8 @@
 package num
 
 import (
-	"github.com/quant1x/num/x32"
-	"github.com/quant1x/num/x64"
+	"gitee.com/quant1x/num/x32"
+	"gitee.com/quant1x/num/x64"
 )
 
 // Min 纵向计算x最小值

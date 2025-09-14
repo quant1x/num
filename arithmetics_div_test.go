@@ -3,7 +3,7 @@ package num
 import (
 	"testing"
 
-	"github.com/quant1x/num/labs"
+	"gitee.com/quant1x/num/labs"
 )
 
 func TestDiv(t *testing.T) {

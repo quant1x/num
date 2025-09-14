@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/quant1x/num/labs"
+	"gitee.com/quant1x/num/labs"
 )
 
 func TestWhere(t *testing.T) {

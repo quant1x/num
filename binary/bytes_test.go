@@ -5,7 +5,7 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/quant1x/num/labs"
+	"gitee.com/quant1x/num/labs"
 )
 
 func TestSizeOf(t *testing.T) {

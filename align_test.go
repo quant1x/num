@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/quant1x/num/labs"
+	"gitee.com/quant1x/num/labs"
 )
 
 func Test_Align(t *testing.T) {

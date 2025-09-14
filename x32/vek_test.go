@@ -3,8 +3,8 @@ package x32
 import (
 	"testing"
 
-	"github.com/quant1x/num/internal/functions"
-	"github.com/quant1x/num/math32"
+	"gitee.com/quant1x/num/internal/functions"
+	"gitee.com/quant1x/num/math32"
 	"github.com/stretchr/testify/require"
 )
 

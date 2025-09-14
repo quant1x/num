@@ -3,9 +3,9 @@ package num
 import (
 	"math"
 
-	"github.com/quant1x/num/math32"
-	"github.com/quant1x/num/x32"
-	"github.com/quant1x/num/x64"
+	"gitee.com/quant1x/num/math32"
+	"gitee.com/quant1x/num/x32"
+	"gitee.com/quant1x/num/x64"
 )
 
 // Sqrt 求平方根

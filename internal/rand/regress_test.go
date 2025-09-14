@@ -18,7 +18,7 @@ import (
 	"reflect"
 	"testing"
 
-	. "github.com/quant1x/num/internal/rand"
+	. "gitee.com/quant1x/num/internal/rand"
 )
 
 var printgolden = flag.Bool("printgolden", false, "print golden results for regression test")

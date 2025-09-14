@@ -3,7 +3,7 @@ package functions
 import (
 	"math"
 
-	"github.com/quant1x/num/math32"
+	"gitee.com/quant1x/num/math32"
 )
 
 func Pow_AVX2_F64(x, y []float64) {

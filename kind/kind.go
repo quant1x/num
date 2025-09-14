@@ -1,6 +1,6 @@
 package kind
 
-import "github.com/quant1x/num/internal/constraints"
+import "gitee.com/quant1x/num/internal/constraints"
 
 // Number 包括整型和浮点
 type Number interface {

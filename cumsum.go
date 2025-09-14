@@ -3,8 +3,8 @@ package num
 import (
 	"slices"
 
-	"github.com/quant1x/num/x32"
-	"github.com/quant1x/num/x64"
+	"gitee.com/quant1x/num/x32"
+	"gitee.com/quant1x/num/x64"
 )
 
 // CumSum 计算累和

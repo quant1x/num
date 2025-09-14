@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/quant1x/gox/logger"
-	"github.com/quant1x/num/x64"
+	"gitee.com/quant1x/gox/logger"
+	"gitee.com/quant1x/num/x64"
 )
 
 const (

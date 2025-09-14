@@ -3,7 +3,7 @@ package functions
 import (
 	"math"
 
-	"github.com/quant1x/num/math32"
+	"gitee.com/quant1x/num/math32"
 )
 
 func Sqrt_Go_F64(x []float64) {

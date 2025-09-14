@@ -1,7 +1,7 @@
 package functions
 
 import (
-	"github.com/quant1x/num/internal/constraints"
+	"gitee.com/quant1x/num/internal/constraints"
 )
 
 func Min_Go[T constraints.Float](x []T) T {
