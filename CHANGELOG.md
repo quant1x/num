@@ -3,29 +3,35 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.10] - 2025-09-26
+### Changed
+- !1 feat(rolling): unify rolling implementation and add min_period docs/tests
+* feat(rolling): unify rolling implementation and add min_period docs/tests
+* update changelog
+* 更新依赖库版本
+* update changelog
+* 更新依赖库版本
+* update changelog
+* 更新依赖库版本
+* update changelog
+* 用gox替换x
+- 修复测试用例的错误
+
 ## [0.7.9] - 2025-09-22
 ### Changed
-- 更新依赖库版本
 
 ## [0.7.8] - 2025-09-14
 ### Changed
-- 更新依赖库版本
-- update changelog
 
 ## [0.7.7] - 2025-09-14
 ### Changed
-- 更新依赖库版本
-- update changelog
 
 ## [0.7.6] - 2025-09-14
 ### Changed
-- 用gox替换x
-- update changelog
 
 ## [0.7.5] - 2025-09-14
 ### Changed
 - 删除废弃的测试代码
-- update changelog
 
 ## [0.7.4] - 2025-09-14
 ### Changed
@@ -420,7 +426,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.7.9...HEAD
+[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.7.10...HEAD
+[0.7.10]: https://gitee.com/quant1x/num.git/compare/v0.7.9...v0.7.10
 [0.7.9]: https://gitee.com/quant1x/num.git/compare/v0.7.8...v0.7.9
 [0.7.8]: https://gitee.com/quant1x/num.git/compare/v0.7.7...v0.7.8
 [0.7.7]: https://gitee.com/quant1x/num.git/compare/v0.7.6...v0.7.7
