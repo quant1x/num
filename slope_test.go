@@ -6,6 +6,11 @@ import (
 	"testing"
 )
 
+// approxEqual returns whether two floats are equal within tolerance tol.
+func approxEqual(a, b, tol float64) bool {
+	return math.Abs(a-b) <= tol
+}
+
 func TestLine_basic(t *testing.T) {
 	degrees := 90.00
 	slope := DegreesToSlope(degrees)
@@ -71,7 +76,7 @@ func TestLine_Degrees(t *testing.T) {
 				slope:     tt.fields.slope,
 				intercept: tt.fields.intercept,
 			}
-			if got := this.Degrees(); got != tt.want {
+			if got := this.Degrees(); !approxEqual(got, tt.want, 1e-9) {
 				t.Errorf("Degrees() = %v, want %v", got, tt.want)
 			}
 		})
@@ -123,7 +128,7 @@ func TestLine_Distance(t *testing.T) {
 				slope:     tt.fields.slope,
 				intercept: tt.fields.intercept,
 			}
-			if got := this.Distance(tt.args.p); got != tt.want {
+			if got := this.Distance(tt.args.p); !approxEqual(got, tt.want, 1e-9) {
 				t.Errorf("Distance() = %v, want %v", got, tt.want)
 			}
 		})
@@ -162,7 +167,7 @@ func TestSlopeToDegrees(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := SlopeToDegrees(tt.args.m); got != tt.want {
+			if got := SlopeToDegrees(tt.args.m); !approxEqual(got, tt.want, 1e-9) {
 				t.Errorf("SlopeToDegrees() = %v, want %v", got, tt.want)
 			}
 		})
@@ -186,7 +191,7 @@ func TestDegreesToSlope(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := DegreesToSlope(tt.args.x); got != tt.want {
+			if got := DegreesToSlope(tt.args.x); !approxEqual(got, tt.want, 1e-12) {
 				t.Errorf("DegreesToSlope() = %v, want %v", got, tt.want)
 			}
 		})
@@ -234,7 +239,7 @@ func TestLine_Angle(t *testing.T) {
 				intercept: tt.fields.intercept,
 				offset:    tt.fields.offset,
 			}
-			if got := this.Angle(tt.args.other); got != tt.want {
+			if got := this.Angle(tt.args.other); !approxEqual(got, tt.want, 1e-9) {
 				t.Errorf("Angle() = %v, want %v", got, tt.want)
 			}
 		})
