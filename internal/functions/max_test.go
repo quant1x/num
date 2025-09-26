@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/quant1x/num/internal/rand"
+	"gitee.com/quant1x/num/internal/rand"
 	"github.com/stretchr/testify/require"
 )
 

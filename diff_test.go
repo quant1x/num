@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/quant1x/num/labs"
+	"gitee.com/quant1x/num/labs"
 )
 
 func TestDiff1(t *testing.T) {

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/quant1x/num/internal/rand"
+	"gitee.com/quant1x/num/internal/rand"
 )
 
 // These tests serve as an example but also make sure we don't change

@@ -4,7 +4,7 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/quant1x/num/internal/constraints"
+	"gitee.com/quant1x/num/internal/constraints"
 )
 
 var numCPU int = runtime.NumCPU()

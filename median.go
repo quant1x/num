@@ -4,7 +4,7 @@ import (
 	"math"
 	"slices"
 
-	"github.com/quant1x/num/internal/partial"
+	"gitee.com/quant1x/num/internal/partial"
 )
 
 // Median returns median value of series.

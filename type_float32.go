@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/quant1x/num/x32"
-	"github.com/quant1x/x/exception"
-	"github.com/quant1x/x/logger"
+	"gitee.com/quant1x/gox/exception"
+	"gitee.com/quant1x/gox/logger"
+	"gitee.com/quant1x/num/x32"
 )
 
 const (
