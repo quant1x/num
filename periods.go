@@ -23,6 +23,30 @@ type Periods struct {
 //	如果i超过切片V的长度, 则直接返回常量C
 //	附带越界检查 boundaryExceeded
 func (this Periods) At(i int) (n DType, good bool) {
+	return this.v0At(i)
+}
+
+func (this Periods) v0At(i int) (n DType, good bool) {
+	n = NaN()
+	if i < len(this.Array) {
+		n = this.Array[i]
+	} else {
+		n = this.N
+	}
+	offset := int(n)
+	if DTypeIsNaN(n) || offset > i+1 || offset < 0 {
+		good = false
+	} else {
+		good = true
+	}
+	return n, good
+}
+
+// At 获取下标为i的元素
+//
+//	如果i超过切片V的长度, 则直接返回常量C
+//	附带越界检查 boundaryExceeded
+func (this Periods) v1At(i int) (n DType, good bool) {
 	// 获取原始窗口长度
 	var orig DType
 	if i < len(this.Array) {
