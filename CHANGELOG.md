@@ -3,10 +3,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.14] - 2025-10-29
+### Changed
+- 更新gox版本到1.25.2
+
 ## [0.7.13] - 2025-10-29
 ### Changed
 - 修复滑动窗口的bug
 - 修复测试代码
+- update changelog
 
 ## [0.7.12] - 2025-09-26
 ### Changed
@@ -454,7 +459,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.7.13...HEAD
+[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.7.14...HEAD
+[0.7.14]: https://gitee.com/quant1x/num.git/compare/v0.7.13...v0.7.14
 [0.7.13]: https://gitee.com/quant1x/num.git/compare/v0.7.12...v0.7.13
 [0.7.12]: https://gitee.com/quant1x/num.git/compare/v0.7.11...v0.7.12
 [0.7.11]: https://gitee.com/quant1x/num.git/compare/v0.7.10...v0.7.11
