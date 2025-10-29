@@ -5,6 +5,13 @@ import (
 	"reflect"
 )
 
+type u8 uint8
+type u16 uint16
+type u32 uint32
+type u64 uint64
+type f32 float32
+type f64 float64
+
 // Signed is a constraint that permits any signed integer type.
 // If future releases of Go add new predeclared signed integer types,
 // this constraint will be modified to include them.
