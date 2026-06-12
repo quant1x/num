@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"testing"
 
-	. "gitee.com/quant1x/num/math32"
+	. "github.com/quant1x/num/math32"
 )
 
 var vf = []float32{

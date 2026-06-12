@@ -5,7 +5,7 @@ import (
 	"unsafe"
 	_ "unsafe"
 
-	"gitee.com/quant1x/num/kind"
+	"github.com/quant1x/num/kind"
 )
 
 //go:linkname Repeat bytes.Repeat

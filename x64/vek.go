@@ -5,8 +5,8 @@ import (
 	"slices"
 	"unsafe"
 
-	"gitee.com/quant1x/num/internal/constraints"
-	"gitee.com/quant1x/num/internal/functions"
+	"github.com/quant1x/num/internal/constraints"
+	"github.com/quant1x/num/internal/functions"
 )
 
 // Arithmetic

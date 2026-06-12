@@ -4,8 +4,8 @@ import (
 	"math"
 	"slices"
 
-	"gitee.com/quant1x/num/internal/constraints"
-	"gitee.com/quant1x/num/internal/partial"
+	"github.com/quant1x/num/internal/constraints"
+	"github.com/quant1x/num/internal/partial"
 )
 
 func Sum_Go[T constraints.Float](x []T) T {

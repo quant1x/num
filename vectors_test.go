@@ -6,7 +6,7 @@ import (
 	"testing"
 	"unsafe"
 
-	"gitee.com/quant1x/num/labs"
+	"github.com/quant1x/num/labs"
 )
 
 func TestAnyPointer(t *testing.T) {

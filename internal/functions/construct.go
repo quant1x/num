@@ -1,8 +1,8 @@
 package functions
 
 import (
-	"gitee.com/quant1x/num/internal/constraints"
-	"gitee.com/quant1x/num/vectors"
+	"github.com/quant1x/num/internal/constraints"
+	"github.com/quant1x/num/vectors"
 )
 
 type Number interface {

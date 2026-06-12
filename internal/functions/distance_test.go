@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"gitee.com/quant1x/num/internal/rand"
+	"github.com/quant1x/num/internal/rand"
 	"github.com/stretchr/testify/require"
 )
 

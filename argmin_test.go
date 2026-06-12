@@ -3,7 +3,7 @@ package num
 import (
 	"testing"
 
-	"gitee.com/quant1x/num/labs"
+	"github.com/quant1x/num/labs"
 )
 
 func TestArgMin(t *testing.T) {
