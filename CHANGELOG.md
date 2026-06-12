@@ -3,9 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-06-12
+### Changed
+- 调整包版本
+
 ## [0.8.0] - 2026-06-12
 ### Changed
 - 调整包仓库地址
+- update changelog
 
 ## [0.7.15] - 2025-10-29
 ### Changed
@@ -469,7 +474,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.8.0...HEAD
+[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.8.1...HEAD
+[0.8.1]: https://gitee.com/quant1x/num.git/compare/v0.8.0...v0.8.1
 [0.8.0]: https://gitee.com/quant1x/num.git/compare/v0.7.15...v0.8.0
 [0.7.15]: https://gitee.com/quant1x/num.git/compare/v0.7.14...v0.7.15
 [0.7.14]: https://gitee.com/quant1x/num.git/compare/v0.7.13...v0.7.14
