@@ -9,9 +9,9 @@ require (
 )
 
 require (
-	github.com/quant1x/pkg v0.9.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/petermattis/goid v0.0.0-20250904145737-900bdf8bb490 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/quant1x/pkg v0.10.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
