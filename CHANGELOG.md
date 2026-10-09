@@ -3,9 +3,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-10-09
+### Changed
+- 调整go版本到1.27.2
+- release version 0.8.2
+
 ## [0.8.1] - 2026-06-12
 ### Changed
 - 调整包版本
+- update changelog
 
 ## [0.8.0] - 2026-06-12
 ### Changed
@@ -36,23 +42,22 @@ All notable changes to this project will be documented in this file.
 ## [0.7.11] - 2025-09-26
 ### Changed
 - Merge branch 'master' into 0.7.x
-
-# Conflicts:
-#	CHANGELOG.md
+  # Conflicts:
+  #	CHANGELOG.md
 - update changelog
 
 ## [0.7.10] - 2025-09-26
 ### Changed
 - !1 feat(rolling): unify rolling implementation and add min_period docs/tests
-* feat(rolling): unify rolling implementation and add min_period docs/tests
-* update changelog
-* 更新依赖库版本
-* update changelog
-* 更新依赖库版本
-* update changelog
-* 更新依赖库版本
-* update changelog
-* 用gox替换x
+  * feat(rolling): unify rolling implementation and add min_period docs/tests
+  * update changelog
+  * 更新依赖库版本
+  * update changelog
+  * 更新依赖库版本
+  * update changelog
+  * 更新依赖库版本
+  * update changelog
+  * 用gox替换x
 - 修复测试用例的错误
 - update changelog
 
@@ -474,78 +479,79 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num.git/compare/v0.8.1...HEAD
-[0.8.1]: https://gitee.com/quant1x/num.git/compare/v0.8.0...v0.8.1
-[0.8.0]: https://gitee.com/quant1x/num.git/compare/v0.7.15...v0.8.0
-[0.7.15]: https://gitee.com/quant1x/num.git/compare/v0.7.14...v0.7.15
-[0.7.14]: https://gitee.com/quant1x/num.git/compare/v0.7.13...v0.7.14
-[0.7.13]: https://gitee.com/quant1x/num.git/compare/v0.7.12...v0.7.13
-[0.7.12]: https://gitee.com/quant1x/num.git/compare/v0.7.11...v0.7.12
-[0.7.11]: https://gitee.com/quant1x/num.git/compare/v0.7.10...v0.7.11
-[0.7.10]: https://gitee.com/quant1x/num.git/compare/v0.7.9...v0.7.10
-[0.7.9]: https://gitee.com/quant1x/num.git/compare/v0.7.8...v0.7.9
-[0.7.8]: https://gitee.com/quant1x/num.git/compare/v0.7.7...v0.7.8
-[0.7.7]: https://gitee.com/quant1x/num.git/compare/v0.7.6...v0.7.7
-[0.7.6]: https://gitee.com/quant1x/num.git/compare/v0.7.5...v0.7.6
-[0.7.5]: https://gitee.com/quant1x/num.git/compare/v0.7.4...v0.7.5
-[0.7.4]: https://gitee.com/quant1x/num.git/compare/v0.7.3...v0.7.4
-[0.7.3]: https://gitee.com/quant1x/num.git/compare/v0.7.2...v0.7.3
-[0.7.2]: https://gitee.com/quant1x/num.git/compare/v0.7.1...v0.7.2
-[0.7.1]: https://gitee.com/quant1x/num.git/compare/v0.7.0...v0.7.1
-[0.7.0]: https://gitee.com/quant1x/num.git/compare/v0.6.5...v0.7.0
-[0.6.5]: https://gitee.com/quant1x/num.git/compare/v0.6.4...v0.6.5
-[0.6.4]: https://gitee.com/quant1x/num.git/compare/v0.6.3...v0.6.4
-[0.6.3]: https://gitee.com/quant1x/num.git/compare/v0.6.2...v0.6.3
-[0.6.2]: https://gitee.com/quant1x/num.git/compare/v0.6.1...v0.6.2
-[0.6.1]: https://gitee.com/quant1x/num.git/compare/v0.6.0...v0.6.1
-[0.6.0]: https://gitee.com/quant1x/num.git/compare/v0.5.5...v0.6.0
-[0.5.5]: https://gitee.com/quant1x/num.git/compare/v0.5.4...v0.5.5
-[0.5.4]: https://gitee.com/quant1x/num.git/compare/v0.5.3...v0.5.4
-[0.5.3]: https://gitee.com/quant1x/num.git/compare/v0.5.2...v0.5.3
-[0.5.2]: https://gitee.com/quant1x/num.git/compare/v0.5.1...v0.5.2
-[0.5.1]: https://gitee.com/quant1x/num.git/compare/v0.5.0...v0.5.1
-[0.5.0]: https://gitee.com/quant1x/num.git/compare/v0.4.6...v0.5.0
-[0.4.6]: https://gitee.com/quant1x/num.git/compare/v0.4.5...v0.4.6
-[0.4.5]: https://gitee.com/quant1x/num.git/compare/v0.4.4...v0.4.5
-[0.4.4]: https://gitee.com/quant1x/num.git/compare/v0.4.3...v0.4.4
-[0.4.3]: https://gitee.com/quant1x/num.git/compare/v0.4.2...v0.4.3
-[0.4.2]: https://gitee.com/quant1x/num.git/compare/v0.4.1...v0.4.2
-[0.4.1]: https://gitee.com/quant1x/num.git/compare/v0.4.0...v0.4.1
-[0.4.0]: https://gitee.com/quant1x/num.git/compare/v0.3.6...v0.4.0
-[0.3.6]: https://gitee.com/quant1x/num.git/compare/v0.3.5...v0.3.6
-[0.3.5]: https://gitee.com/quant1x/num.git/compare/v0.3.4...v0.3.5
-[0.3.4]: https://gitee.com/quant1x/num.git/compare/v0.3.3...v0.3.4
-[0.3.3]: https://gitee.com/quant1x/num.git/compare/v0.3.2...v0.3.3
-[0.3.2]: https://gitee.com/quant1x/num.git/compare/v0.3.1...v0.3.2
-[0.3.1]: https://gitee.com/quant1x/num.git/compare/v0.3.0...v0.3.1
-[0.3.0]: https://gitee.com/quant1x/num.git/compare/v0.2.9...v0.3.0
-[0.2.9]: https://gitee.com/quant1x/num.git/compare/v0.2.8...v0.2.9
-[0.2.8]: https://gitee.com/quant1x/num.git/compare/v0.2.7...v0.2.8
-[0.2.7]: https://gitee.com/quant1x/num.git/compare/v0.2.6...v0.2.7
-[0.2.6]: https://gitee.com/quant1x/num.git/compare/v0.2.5...v0.2.6
-[0.2.5]: https://gitee.com/quant1x/num.git/compare/v0.2.4...v0.2.5
-[0.2.4]: https://gitee.com/quant1x/num.git/compare/v0.2.3...v0.2.4
-[0.2.3]: https://gitee.com/quant1x/num.git/compare/v0.2.2...v0.2.3
-[0.2.2]: https://gitee.com/quant1x/num.git/compare/v0.2.1...v0.2.2
-[0.2.1]: https://gitee.com/quant1x/num.git/compare/v0.2.0...v0.2.1
-[0.2.0]: https://gitee.com/quant1x/num.git/compare/v0.1.9...v0.2.0
-[0.1.9]: https://gitee.com/quant1x/num.git/compare/v0.1.8...v0.1.9
-[0.1.8]: https://gitee.com/quant1x/num.git/compare/v0.1.7...v0.1.8
-[0.1.7]: https://gitee.com/quant1x/num.git/compare/v0.1.6...v0.1.7
-[0.1.6]: https://gitee.com/quant1x/num.git/compare/v0.1.5...v0.1.6
-[0.1.5]: https://gitee.com/quant1x/num.git/compare/v0.1.4...v0.1.5
-[0.1.4]: https://gitee.com/quant1x/num.git/compare/v0.1.3...v0.1.4
-[0.1.3]: https://gitee.com/quant1x/num.git/compare/v0.1.2...v0.1.3
-[0.1.2]: https://gitee.com/quant1x/num.git/compare/v0.1.1...v0.1.2
-[0.1.1]: https://gitee.com/quant1x/num.git/compare/v0.1.0...v0.1.1
-[0.1.0]: https://gitee.com/quant1x/num.git/compare/v0.0.9...v0.1.0
-[0.0.9]: https://gitee.com/quant1x/num.git/compare/v0.0.8...v0.0.9
-[0.0.8]: https://gitee.com/quant1x/num.git/compare/v0.0.7...v0.0.8
-[0.0.7]: https://gitee.com/quant1x/num.git/compare/v0.0.6...v0.0.7
-[0.0.6]: https://gitee.com/quant1x/num.git/compare/v0.0.5...v0.0.6
-[0.0.5]: https://gitee.com/quant1x/num.git/compare/v0.0.4...v0.0.5
-[0.0.4]: https://gitee.com/quant1x/num.git/compare/v0.0.3...v0.0.4
-[0.0.3]: https://gitee.com/quant1x/num.git/compare/v0.0.2...v0.0.3
-[0.0.2]: https://gitee.com/quant1x/num.git/compare/v0.0.1...v0.0.2
+[Unreleased]: https://gitee.com/quant1x/num/compare/v0.8.2...HEAD
+[0.8.2]: https://gitee.com/quant1x/num/compare/v0.8.1...v0.8.2
+[0.8.1]: https://gitee.com/quant1x/num/compare/v0.8.0...v0.8.1
+[0.8.0]: https://gitee.com/quant1x/num/compare/v0.7.15...v0.8.0
+[0.7.15]: https://gitee.com/quant1x/num/compare/v0.7.14...v0.7.15
+[0.7.14]: https://gitee.com/quant1x/num/compare/v0.7.13...v0.7.14
+[0.7.13]: https://gitee.com/quant1x/num/compare/v0.7.12...v0.7.13
+[0.7.12]: https://gitee.com/quant1x/num/compare/v0.7.11...v0.7.12
+[0.7.11]: https://gitee.com/quant1x/num/compare/v0.7.10...v0.7.11
+[0.7.10]: https://gitee.com/quant1x/num/compare/v0.7.9...v0.7.10
+[0.7.9]: https://gitee.com/quant1x/num/compare/v0.7.8...v0.7.9
+[0.7.8]: https://gitee.com/quant1x/num/compare/v0.7.7...v0.7.8
+[0.7.7]: https://gitee.com/quant1x/num/compare/v0.7.6...v0.7.7
+[0.7.6]: https://gitee.com/quant1x/num/compare/v0.7.5...v0.7.6
+[0.7.5]: https://gitee.com/quant1x/num/compare/v0.7.4...v0.7.5
+[0.7.4]: https://gitee.com/quant1x/num/compare/v0.7.3...v0.7.4
+[0.7.3]: https://gitee.com/quant1x/num/compare/v0.7.2...v0.7.3
+[0.7.2]: https://gitee.com/quant1x/num/compare/v0.7.1...v0.7.2
+[0.7.1]: https://gitee.com/quant1x/num/compare/v0.7.0...v0.7.1
+[0.7.0]: https://gitee.com/quant1x/num/compare/v0.6.5...v0.7.0
+[0.6.5]: https://gitee.com/quant1x/num/compare/v0.6.4...v0.6.5
+[0.6.4]: https://gitee.com/quant1x/num/compare/v0.6.3...v0.6.4
+[0.6.3]: https://gitee.com/quant1x/num/compare/v0.6.2...v0.6.3
+[0.6.2]: https://gitee.com/quant1x/num/compare/v0.6.1...v0.6.2
+[0.6.1]: https://gitee.com/quant1x/num/compare/v0.6.0...v0.6.1
+[0.6.0]: https://gitee.com/quant1x/num/compare/v0.5.5...v0.6.0
+[0.5.5]: https://gitee.com/quant1x/num/compare/v0.5.4...v0.5.5
+[0.5.4]: https://gitee.com/quant1x/num/compare/v0.5.3...v0.5.4
+[0.5.3]: https://gitee.com/quant1x/num/compare/v0.5.2...v0.5.3
+[0.5.2]: https://gitee.com/quant1x/num/compare/v0.5.1...v0.5.2
+[0.5.1]: https://gitee.com/quant1x/num/compare/v0.5.0...v0.5.1
+[0.5.0]: https://gitee.com/quant1x/num/compare/v0.4.6...v0.5.0
+[0.4.6]: https://gitee.com/quant1x/num/compare/v0.4.5...v0.4.6
+[0.4.5]: https://gitee.com/quant1x/num/compare/v0.4.4...v0.4.5
+[0.4.4]: https://gitee.com/quant1x/num/compare/v0.4.3...v0.4.4
+[0.4.3]: https://gitee.com/quant1x/num/compare/v0.4.2...v0.4.3
+[0.4.2]: https://gitee.com/quant1x/num/compare/v0.4.1...v0.4.2
+[0.4.1]: https://gitee.com/quant1x/num/compare/v0.4.0...v0.4.1
+[0.4.0]: https://gitee.com/quant1x/num/compare/v0.3.6...v0.4.0
+[0.3.6]: https://gitee.com/quant1x/num/compare/v0.3.5...v0.3.6
+[0.3.5]: https://gitee.com/quant1x/num/compare/v0.3.4...v0.3.5
+[0.3.4]: https://gitee.com/quant1x/num/compare/v0.3.3...v0.3.4
+[0.3.3]: https://gitee.com/quant1x/num/compare/v0.3.2...v0.3.3
+[0.3.2]: https://gitee.com/quant1x/num/compare/v0.3.1...v0.3.2
+[0.3.1]: https://gitee.com/quant1x/num/compare/v0.3.0...v0.3.1
+[0.3.0]: https://gitee.com/quant1x/num/compare/v0.2.9...v0.3.0
+[0.2.9]: https://gitee.com/quant1x/num/compare/v0.2.8...v0.2.9
+[0.2.8]: https://gitee.com/quant1x/num/compare/v0.2.7...v0.2.8
+[0.2.7]: https://gitee.com/quant1x/num/compare/v0.2.6...v0.2.7
+[0.2.6]: https://gitee.com/quant1x/num/compare/v0.2.5...v0.2.6
+[0.2.5]: https://gitee.com/quant1x/num/compare/v0.2.4...v0.2.5
+[0.2.4]: https://gitee.com/quant1x/num/compare/v0.2.3...v0.2.4
+[0.2.3]: https://gitee.com/quant1x/num/compare/v0.2.2...v0.2.3
+[0.2.2]: https://gitee.com/quant1x/num/compare/v0.2.1...v0.2.2
+[0.2.1]: https://gitee.com/quant1x/num/compare/v0.2.0...v0.2.1
+[0.2.0]: https://gitee.com/quant1x/num/compare/v0.1.9...v0.2.0
+[0.1.9]: https://gitee.com/quant1x/num/compare/v0.1.8...v0.1.9
+[0.1.8]: https://gitee.com/quant1x/num/compare/v0.1.7...v0.1.8
+[0.1.7]: https://gitee.com/quant1x/num/compare/v0.1.6...v0.1.7
+[0.1.6]: https://gitee.com/quant1x/num/compare/v0.1.5...v0.1.6
+[0.1.5]: https://gitee.com/quant1x/num/compare/v0.1.4...v0.1.5
+[0.1.4]: https://gitee.com/quant1x/num/compare/v0.1.3...v0.1.4
+[0.1.3]: https://gitee.com/quant1x/num/compare/v0.1.2...v0.1.3
+[0.1.2]: https://gitee.com/quant1x/num/compare/v0.1.1...v0.1.2
+[0.1.1]: https://gitee.com/quant1x/num/compare/v0.1.0...v0.1.1
+[0.1.0]: https://gitee.com/quant1x/num/compare/v0.0.9...v0.1.0
+[0.0.9]: https://gitee.com/quant1x/num/compare/v0.0.8...v0.0.9
+[0.0.8]: https://gitee.com/quant1x/num/compare/v0.0.7...v0.0.8
+[0.0.7]: https://gitee.com/quant1x/num/compare/v0.0.6...v0.0.7
+[0.0.6]: https://gitee.com/quant1x/num/compare/v0.0.5...v0.0.6
+[0.0.5]: https://gitee.com/quant1x/num/compare/v0.0.4...v0.0.5
+[0.0.4]: https://gitee.com/quant1x/num/compare/v0.0.3...v0.0.4
+[0.0.3]: https://gitee.com/quant1x/num/compare/v0.0.2...v0.0.3
+[0.0.2]: https://gitee.com/quant1x/num/compare/v0.0.1...v0.0.2
 
-[0.0.1]: https://gitee.com/quant1x/num.git/releases/tag/v0.0.1
+[0.0.1]: https://gitee.com/quant1x/num/releases/tag/v0.0.1
