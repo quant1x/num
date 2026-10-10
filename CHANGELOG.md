@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.3] - 2026-10-10
+### Changed
+- 更新依赖库版本
+- release version 0.8.3
+
 ## [0.8.2] - 2026-10-09
 ### Changed
 - 调整go版本到1.27.2
@@ -479,7 +484,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://gitee.com/quant1x/num/compare/v0.8.2...HEAD
+[Unreleased]: https://gitee.com/quant1x/num/compare/v0.8.3...HEAD
+[0.8.3]: https://gitee.com/quant1x/num/compare/v0.8.2...v0.8.3
 [0.8.2]: https://gitee.com/quant1x/num/compare/v0.8.1...v0.8.2
 [0.8.1]: https://gitee.com/quant1x/num/compare/v0.8.0...v0.8.1
 [0.8.0]: https://gitee.com/quant1x/num/compare/v0.7.15...v0.8.0
