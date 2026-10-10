@@ -3,7 +3,7 @@ module github.com/quant1x/num
 go 1.27.2
 
 require (
-	github.com/quant1x/gox v1.27.0
+	github.com/quant1x/gox v1.27.1
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/sys v0.49.0
 )
