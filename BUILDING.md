@@ -1,0 +1,371 @@
+# num 构建指南
+
+本文说明 num 仓库的依赖、构建、测试、跨架构验证与产物位置。
+
+num 是**多语言平行实现**的数值计算库：Python / C++ / Rust / Go 各自独立构建、独立运行，**不存在
+FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构建链路，互不依赖；跨语言之间只通过同名接口、
+统一的数据契约和同一组黄金测试向量保持一致。
+
+**现阶段只有 Go 落地**，本文 §2 ~ §5 是可执行的部分；其余语言章节保留骨架，命令随落地补齐。
+
+| 构建单元 | 构建入口 | 产物 | 当前状态 |
+| --- | --- | --- | --- |
+| Go | `go.mod` | 库（无命令行入口） | **已落地** |
+| 汇编内核（amd64 / arm64） | 随 Go 包编译 | `.s` 编进库 | **已落地** |
+| Python | `pyproject.toml`（未建） | 包 | 未落地 |
+| C/C++ | `CMakeLists.txt`（未建） | 静态库 | 未落地 |
+| Rust | `Cargo.toml`（未建） | 库 | 未落地 |
+| Zig / Java | 无清单文件 | — | 未落地（扩展语言） |
+
+---
+
+## 1. 通用前置条件
+
+### 1.1 版本要求
+
+| 语言 | 版本来源文件 | 当前要求 |
+| --- | --- | --- |
+| Go | `go.mod` | **1.27.3**（以 `go` 指令为准） |
+| Python | `pyproject.toml`（未建） | 落地后以 `requires-python` 为准（与 quant1x 同口径：3.8+，建议 3.12+） |
+| C/C++ | CMake 配置（未建） | 落地后按 C17 / C++20；Windows 用 MSVC v143，Linux 用 GCC 13+ |
+| Rust | `rust-toolchain.toml`（未建） | 落地后按 1.100.0 / Edition 2024 |
+| Zig | 无清单文件 | 落地后按 0.17+ |
+| Java | `pom.xml`（未建） | 落地后按 Java 8 字节码目标 |
+
+- `README.md` 的徽章可能滞后（当前写 1.21.8+），**一律以 `go.mod` 为准**；升级 Go 版本时同步
+  `go.mod`、[CONTRIBUTING.md](CONTRIBUTING.md) §2.1 与 README。
+
+### 1.2 目录与产物约定
+
+| 路径 | 性质 | 说明 |
+| --- | --- | --- |
+| `temp/` | 临时产物 | 验证脚本、交叉编译二进制（`*.test`）、导出数据；层级复刻源码结构，不入库 |
+| `coverage.txt` / `coverage.out` | 覆盖率产物 | `go.test.sh` 生成，已在 `.gitignore` |
+| `*.test` | 测试二进制 | `go test -c` 的产物，已在 `.gitignore`；不要留在包目录 |
+| Go build cache / `GOMODCACHE` | 工具缓存 | 由工具管理，不手工清理挪动 |
+
+临时验证脚本与一次性产物**放 `temp/`**，不要污染源码树；产物与产生它的脚本同目录。
+
+---
+
+## 2. Go 构建
+
+### 2.1 模块与依赖
+
+- 模块路径 `github.com/quant1x/num`（`go.mod`）。
+- 运行时依赖只有两个：`github.com/stretchr/testify`（用例断言）与 `golang.org/x/sys/cpu`
+  （运行时指令集探测，`cpu_info.go`）。其余为它们的间接依赖。
+- **不提交 `vendor/`**；依赖升级用 `go get <module>@<version>` + `go mod tidy`，并在提交信息里写明原因。
+
+### 2.2 构建
+
+```bash
+# 编译全部包（含 internal/*、x32、x64、math32、asm/* 样例）
+go build ./...
+
+# 只编译公开包
+go build . ./x32/ ./x64/ ./math32/ ./math64/ ./binary/ ./kind/ ./vectors/
+```
+
+本库不产出命令行程序；需要试算时写临时用例（`temp/` 下）或用 `go test -run`。
+
+平台与架构：
+
+```bash
+# 交叉编译（示例：linux/arm64）
+GOOS=linux GOARCH=arm64 go build ./...
+```
+
+- 加速路径由**手写汇编**承担，不依赖编译器自动向量化，因此**不需要**设置 `GOAMD64=v3`；
+  保持默认 `GOAMD64=v1` 即可，运行时按 CPU 特性选路（见 §5.1）。
+- 汇编内核按架构分文件（`*_amd64.s` / `*_arm64.s`），交叉编译时只会编进目标架构的那一份。
+
+### 2.3 依赖代理
+
+网络受限时可通过环境变量配置：
+
+```bash
+go env -w GOPROXY=https://goproxy.cn,direct
+go env -w GOPRIVATE=github.com/quant1x
+```
+
+---
+
+## 3. 包清单与新增包
+
+### 3.1 公开包
+
+| 包 | 路径 | 职责 |
+| --- | --- | --- |
+| `num` | 仓库根 | NumPy 风格门面 API（`Sum` / `Dot` / `Matrix` / `Rolling` / `Repeat` / `Where` …），按 `DType` 分派 |
+| `x32` / `x64` | `x32/` `x64/` | `float32` / `float64` 强类型 API：校验 + `Op` / `Op_Inplace` / `Op_Into` 三种形态，按 `UseAVX2` 选路 |
+| `math32` | `math32/` | `float32` 标量数学（含 `exp_amd64.s` / `exp_arm64.s` / `sqrt_*.s` 等） |
+| `math64` | `math64/` | `float64` 位级与指针工具 |
+| `binary` | `binary/` | 切片头与内存视图（`SliceHeader` / endian） |
+| `kind` | `kind/` | 类型判别与默认值 |
+| `vectors` | `vectors/` | 小工具集 |
+| `labs` | `labs/` | 用例辅助（testify 适配） |
+
+### 3.2 内部包
+
+| 包 | 路径 | 职责 |
+| --- | --- | --- |
+| `functions` | `internal/functions/` | 内核层：`Xxx_Go` 参考实现、`Xxx_AVX2_*` 加速实现、`accel_*` 探测与声明、汇编内核 |
+| `partial` | `internal/partial/` | TopK / 部分排序 |
+| `constraints` | `internal/constraints/` | 泛型约束 |
+| `rand` | `internal/rand/` | 可复现随机数（用例专用） |
+
+### 3.3 实验目录
+
+`asm/`（`asm2plan9` / `c2goasm` 的 fork、`demo`、`src` 与生成样例）**不属于支持面**，见
+[CONTRIBUTING.md §3.7](CONTRIBUTING.md#37-asm实验目录)。
+
+### 3.4 新增包的登记
+
+新增一个包时，同一次提交里改三处：
+
+1. 本节 §3.1 / §3.2 加一行（路径 + 职责 + 边界）；
+2. 该目录补 `README.md`（[CONTRIBUTING.md §6.1](CONTRIBUTING.md#61-每个目录必须有-readme-md)）；
+3. 若它属于新的一层（如将来的 `tests/`、`docs/`），同步 [CONTRIBUTING.md §3.1](CONTRIBUTING.md#31-仓库根与实现根)。
+
+---
+
+## 4. 测试与回归判定
+
+### 4.1 跑法（回归判定的准绳）
+
+```bash
+# 核心包：日常回归用这一组，必须全绿
+go test ./internal/functions/ ./internal/partial/ ./x32/ ./x64/ ./vectors/ ./kind/ ./binary/ . 
+
+# 单条用例
+go test ./internal/functions/ -run TestSumProd -v
+
+# 静态检查（核心包）
+go vet ./internal/functions/ ./x32/ ./x64/ ./vectors/ ./kind/
+gofmt -l .
+```
+
+**不要用 `go test ./...` 的失败项下结论**：`asm/` 是实验目录，它的用例本来就是红的（见 §4.2）。
+判断是否回归，只能看上面这组明确包列表。
+
+### 4.2 已知失败与存量告警
+
+`asm/` 实验目录的既有问题（**不是回归**，也不许顺手修）：
+
+| 位置 | 现象 |
+| --- | --- |
+| `asm/c2goasm/cgocmp` | `undefined: CgoMultiplyAndAdd`（用例引用了未导出的 C 侧符号），包级 `go test` 直接 build failed |
+| `asm/c2goasm/test` | `*_test.go` 引用未定义符号；`clib_amd64.s` 报 `wrong argument size` |
+| `asm/asm2plan9` | `TestLongInstruction` 等断言与当前反汇编输出不一致 |
+| `asm/floats_avx_test.go` | `undefined: ___mm256_mul_to`；`go vet` 报 `possible misuse of unsafe.Pointer` |
+
+`go vet ./...` 的存量告警（与上表同性质，只对自己新增的负责）：
+
+| 包 | 告警 |
+| --- | --- |
+| 根包 | `type.go` / `type_float64.go` / `type_integer.go` / `type_strings.go` 共 5 处 `unreachable code` |
+| `binary` | `bytes.go` 3 处 `possible misuse of github.com/quant1x/num/binary.SliceHeader` |
+| `math32` | `exp.go` `unreachable code`；**arm64 目标下** `exp_arm64.s` / `Exp2` 报 `wrong argument size` |
+
+`gofmt -l .` 目前无输出 —— 出现输出就是新引入的问题，提交前修掉。
+
+### 4.3 覆盖率
+
+```bash
+bash go.test.sh     # Linux / WSL / Git Bash；逐包 -race -coverprofile，汇总到 coverage.txt / coverage.out
+```
+
+Windows PowerShell 下若没有 bash，用等价命令：
+
+```powershell
+go test -race -coverprofile=coverage.out -covermode=atomic ./internal/functions/ ./x32/ ./x64/ .
+go tool cover -func=coverage.out
+```
+
+汇编内核是覆盖率盲区（`.s` 不计入行覆盖），内核的正确性靠 [§4.1](#41-跑法回归判定的准绳) 的对拍用例
+与 [§5.6](#56-跨架构验证) 的跨架构执行保证，不要用覆盖率当内核的验收指标。
+
+### 4.4 基准
+
+```bash
+go test -bench . -benchmem ./internal/functions
+go test -bench BenchmarkSumProd -benchmem ./internal/functions
+```
+
+`internal/functions` 的基准覆盖 `sizes = {10, 100, 1_000, 10_000, 100_000}`。约定：
+
+- 基线对比只允许**同口径实现**之间进行（`go_*` vs `avx2_*`），不要把自己临时改的变体混进仓库基准；
+- 汇编改动要给出改动前后的同一命令输出（含 `-benchmem`），否则无法判断是真实收益还是噪声；
+- 基准在目标架构上跑，`arm64` 的结果必须注明运行方式（真机 / qemu ——qemu 的绝对耗时不可信，
+  只看相对趋势）。
+
+---
+
+## 5. 汇编内核与架构
+
+### 5.1 架构矩阵与运行时选路
+
+| 架构 | 加速实现 | 判定条件 | 落点 |
+| --- | --- | --- | --- |
+| `amd64` | AVX2 + FMA | `cpu.X86.HasAVX2 && cpu.X86.HasFMA && runtime.GOOS != "darwin"` | `accel_amd64.go` |
+| `arm64` | NEON（ASIMD） | `cpu.ARM64.HasASIMD` | `accel_arm64.go` |
+| 其余 | 无 | 恒为 `false` | `accel_noasm.go`（`//go:build !amd64 && !arm64`） |
+
+- `UseAVX2` 是包级布尔值，**非线程安全**，只在初始化与用例里改写；`SetAcceleration(enabled)` 只允许
+  "关"或在支持的平台上"开"，反过来的请求会被拒绝：
+  `if enabled && !simdSupported() { UseAVX2 = false; return }`。
+- 门面层通过 `SetAvx2Enabled` / `GetAvx2Enabled` 暴露同一个开关（仅供调试与用例）。
+- `UseAVX2 == false` 时，`x32` / `x64` 全部改调 `Xxx_Go`；其余平台不会触达 `accel_noasm.go` 的
+  `panic("not implemented")` 桩。
+- `darwin/amd64` 被显式排除（历史原因：macOS 上的 AVX2 路径未验证），改动前需先补验证。
+
+### 5.2 amd64 内核的生成链路
+
+`internal/functions/accel_avx2_amd64.s` 与 `math32/*_amd64.s` 属于**生成的汇编**，来源是 C 源码经
+clang 编成 Intel 语法汇编，再由 `c2goasm` 转成 Plan 9 语法：
+
+```bash
+# 1) c2goasm（工具在 asm/ 下有 fork，也可 go install github.com/minio/c2goasm@latest）
+# 2) C 源码转 cpp 后生成汇编（c2goasm 对纯 C 支持不佳）
+cp src/floats_avx.c src/floats_avx.cpp
+clang -O3 -mavx -mfma -masm=intel -fno-asynchronous-unwind-tables -fno-exceptions -fno-rtti \
+      -S src/floats_avx.cpp -o src/floats_avx.s
+c2goasm -a src/floats_avx.s floats_avx_amd64.s
+```
+
+- 完整参数（`-mno-red-zone -mstackrealign -ffast-math` 等）见 `asm/makefile`；**改生成的 `.s` 等于
+  下次重新生成时被覆盖** —— 需要长期生效的修改要落在 C 源或生成脚本里，并在提交信息中说明。
+- 生成的汇编自带标量尾部处理，任意长度都能直接调用（与 arm64 内核的分工不同，见 §5.3）。
+- 符号命名由 c2goasm 决定（`·Xxx_AVX2_F64(SB)`），Go 侧声明在 `accel_avx2_amd64.go`，两侧必须同名。
+
+### 5.3 arm64 NEON 内核（手写）
+
+`internal/functions/accel_neon_arm64.s` 是**手写**的 Plan 9 汇编，约定与 amd64 不同：
+
+- **只处理整块**：f64 每块 4 个、f32 每块 8 个；`n` 必须是块大小的整数倍，不满一块的尾部由 Go 包装层
+  （`accel_neon_arm64.go`）补齐。
+- 每个内核一组寄存器约定：累加器与广播值不得共用寄存器（矩阵乘法用 `V20` / `V21` 作累加器，输入广播用
+  `V4` / `V12`）。
+- 内核入口参数按 ABI0 布局读取（`MOVD a+0(FP), R0`），帧大小 `$0-<字节数>` 必须与实际参数 + 返回值
+  一致；Go 侧声明加 `//go:noescape`。
+- 常量表用 `DATA` + `GLOBL ... RODATA` 声明（`·neonOneF64` / `·neonOneF32`），不要在内核里现算。
+- 验证必须跑 `GOARCH=arm64` 的用例（[§5.6](#56-跨架构验证)）；x86 机器上无法直跑。
+
+### 5.4 `asm/` 实验链路的结论
+
+| 结论 | 说明 |
+| --- | --- |
+| c2goasm 只适合**无异常 / 无 RTTI / 无内建函数**的纯计算代码 | 生成物里没有栈展开信息，混入运行时依赖会崩 |
+| c2goasm 对纯 C 支持不佳 | 需先转 `.cpp` 再编（`asm/README.md`） |
+| asm2plan9s 已停止维护 | 与当前反汇编输出存在断言级差异，不要拿它做正确性判据 |
+| 生成物不可手改 | 见 §5.2；要改就改源与脚本 |
+
+### 5.5 修改内核后的必查项
+
+1. `go build ./...` 与 `go vet ./internal/functions/` 通过（汇编参数大小写错会在这里暴露）。
+2. `go test ./internal/functions/` 全绿（对拍用例覆盖 `Xxx_Go` vs `Xxx_AVX2_*`）。
+3. 长度边界：`1, 块大小-1, 块大小, 块大小+1, 2*块大小` 都要跑到（NEON 尾部处理的高发区）。
+4. 两种架构都验：amd64 直跑 + arm64 交叉编译经 qemu 执行。
+5. 改到归约（`Sum` / `Prod` / `Dot` / `Norm`）时，确认累加顺序与门槛未被顺手改动
+   （[CONTRIBUTING.md §5.6.3](CONTRIBUTING.md#563-浮点归约的顺序敏感)）。
+
+### 5.6 跨架构验证
+
+x86 主机上验证 arm64 实现：**交叉编译 + qemu-user**。以 WSL 的 Debian 为例（需 `qemu-user-static`）：
+
+```bash
+# 1) 主机侧交叉编译测试二进制，产物放 temp/（不要落系统临时目录）
+GOOS=linux GOARCH=arm64 go test -c -o temp/internal/functions/arm64/functions.test ./internal/functions
+
+# 2) 在 WSL 里用 qemu 执行
+wsl -d Debian bash -lc "cd /mnt/d/projects/quant1x/num && chmod +x temp/internal/functions/arm64/functions.test \
+  && qemu-aarch64-static temp/internal/functions/arm64/functions.test"
+```
+
+PowerShell 写法（等价）：
+
+```powershell
+$env:GOOS = "linux"; $env:GOARCH = "arm64"
+go test -c -o temp/internal/functions/arm64/functions.test ./internal/functions
+wsl -d Debian bash -lc "cd /mnt/d/projects/quant1x/num && chmod +x temp/internal/functions/arm64/functions.test && qemu-aarch64-static temp/internal/functions/arm64/functions.test"
+```
+
+注意事项：
+
+- `-test.v` / `-test.run <正则>` 照常可用（如 `... functions.test -test.run TestSumProd -test.v`）。
+- **qemu 下的耗时不准**，不要用它出基准结论；只用于功能验证。
+- 验证完删掉 `temp/` 下的二进制；不要提交。
+- 需要真机结论（性能、指令退化的实际影响）时，在 arm64 机器上直接 `go test`，并在结论里注明环境。
+
+---
+
+## 6. 其它语言（未落地）
+
+各语言的构建章节随着落地补齐，骨架与口径先固定：
+
+### 6.1 Python
+
+落地后：`python -m venv .venv` → `pip install -e .` → `python -m pytest tests -q`。
+Python 是 spec 锚点，**新语义先在这里定案**。
+
+### 6.2 C/C++
+
+落地后按 quant1x 同口径：Conan 2 取依赖、CMake ≥ 3.30 配置、Windows 用 MSVC（`/MT`）、
+Linux 用 GCC 13+；测试用 `ctest`，基准用 `benchmark`。新增源文件必须在 CMake 清单里显式登记。
+
+### 6.3 Rust
+
+落地后按 quant1x 同口径：`cargo build` / `cargo test` / `cargo clippy -- -D warnings` /
+`cargo fmt --check`，版本由 `rust-toolchain.toml` 锁定。
+
+### 6.4 Zig / Java
+
+扩展语言，只承载小功能与对照实现；Zig 无 `build.zig` 时直接 `zig test <文件>`，Java 用 Maven wrapper。
+
+---
+
+## 7. 跨语言一致性验证（规划）
+
+各语言落地后，同一输入应给出 epsilon 内一致的结果：
+
+1. 准备同一组输入与黄金输出（`tests/fixtures/`，**期望值只由 spec 生成**）；
+2. 分别运行各语言实现；
+3. 浮点按约定 epsilon 比较，结构体按字段逐一比较（字段名必须全小写 `snake_case`）。
+
+Go 侧当前的落地形态是**包内对拍**：`Xxx_Go` 作为期望值，`Xxx_AVX2_F32/F64` 作为被测对象
+（`internal/functions/*_test.go`）。跨语言 fixtures 目录随第二门语言落地一并建立。
+
+---
+
+## 8. 版本与发布约束
+
+- 版本唯一由 git tag `vMAJOR.MINOR.PATCH` 决定，各语言共享同一版本号。
+- `autochangelog` 是唯一发布入口：tag 自增、主次版本递增、需要手改版本号的技术栈配置、`CHANGELOG.md`
+  生成，全部由它完成。**AI 与协作者一律不碰**（[CONTRIBUTING.md §10](CONTRIBUTING.md#10-版本与发布)）。
+- `go.mod` 没有 `version` 字段，Go 侧不参与版本号维护 —— 不要为了"对齐版本"往 Go 代码里塞版本常量。
+
+---
+
+## 9. 常见问题
+
+| 现象 | 原因与处置 |
+| --- | --- |
+| `go test ./...` 报 `asm/*` 失败 | 实验目录的既有问题，不是回归；用 §4.1 的包列表判定 |
+| `go vet ./...` 一堆 `unreachable code` / `SliceHeader` | 存量告警（§4.2）；只处理自己新增的 |
+| `go vet` 在 arm64 目标上报 `math32/exp_arm64.s` 参数大小 | 存量问题，汇编参数声明与实际不符；改动 `math32` 时一并核对 |
+| 交叉编译的 `.test` 在 Windows 上跑不了 | 需要 qemu（[§5.6](#56-跨架构验证)）；Windows 自身无法执行 ELF |
+| `go test -c` 产物进了源码目录、被 `git status` 看到 | `*.test` 已在 `.gitignore`，但仍应输出到 `temp/` 并清理 |
+| 中文注释显示成「姹傚拰」 | 历史遗留的编码损坏（UTF-8 → GBK 误解码）；新增注释写正常中文，只在正在改的函数内顺手修 |
+| README 徽章说 1.21+，`go.mod` 是 1.27.3 | 徽章滞后，以 `go.mod` 为准 |
+| Windows 下 `git commit -m "中文"` 变乱码 | 改走 `-F` 文件（[CONTRIBUTING.md §8.2](CONTRIBUTING.md#82-windows-下提交信息的传递必须走文件)） |
+
+---
+
+## 10. 相关文档
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) — 规范源：分层、命名、内核契约、测试、提交
+- [AGENTS.md](AGENTS.md) — AI 入口：读什么、硬约束、交付前自检
+- [README.md](README.md) — 项目介绍与 `Rolling` / `min_period` 用法
+- `asm/README.md` — 实验链路的原始记录（clang + c2goasm 命令）
+- `math32/README.md` — `math32` 的来源说明（`chewxy/math32` 的 fork）
