@@ -2,11 +2,9 @@ package num
 
 import (
 	"fmt"
-	"reflect"
+	"log"
 	"strconv"
 
-	"github.com/quant1x/gox/exception"
-	"github.com/quant1x/gox/logger"
 	"github.com/quant1x/num/x64"
 )
 
@@ -105,7 +103,7 @@ func ParseBool(s string, v any) bool {
 	defer func() {
 		// 解析失败以后输出日志, 以备检查
 		if err := recover(); err != nil {
-			logger.Errorf("ParseBool %+v, error=%+v\n", v, err)
+			log.Printf("ParseBool %+v, error=%+v\n", v, err)
 		}
 	}()
 	f, err := strconv.ParseBool(s)
@@ -242,10 +240,7 @@ func SliceToBool(v any) []bool {
 			vs[idx] = AnyToBool(iv)
 		}
 	default:
-		vv := reflect.ValueOf(v)
-		vk := vv.Kind()
-		err := exception.New(errorFloat64Base+0, "Unsupported type: %s", vk.String())
-		panic(err)
+		panic(TypeError(v))
 	}
 	return []bool{}
 }

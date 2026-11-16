@@ -1,12 +1,9 @@
 package num
 
 import (
-	"reflect"
+	"log"
 	"strconv"
 	"strings"
-
-	"github.com/quant1x/gox/exception"
-	"github.com/quant1x/gox/logger"
 )
 
 const (
@@ -74,7 +71,7 @@ func __anyToString(v any) string {
 	case string:
 		return val
 	default:
-		logger.Errorf("%s, error=The type is not recognized\n", v)
+		log.Printf("%s, error=The type is not recognized\n", v)
 		_ = v.(string) // Intentionally panic
 		return Nil2String
 	}
@@ -117,7 +114,7 @@ func __printString(v any) string {
 	case string:
 		return val
 	default:
-		logger.Errorf("%s, error=The type is not recognized\n", v)
+		log.Printf("%s, error=The type is not recognized\n", v)
 		_ = v.(string) // Intentionally panic
 		return Nil2String
 	}
@@ -186,9 +183,7 @@ func SliceToString(v any) []string {
 	case []string:
 		return values
 	default:
-		vv := reflect.ValueOf(v)
-		vk := vv.Kind()
-		panic(exception.New(errorFloat64Base+0, "Unsupported type: %s", vk.String()))
+		panic(TypeError(v))
 	}
 	return []string{}
 }

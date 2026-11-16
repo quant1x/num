@@ -1,17 +1,14 @@
 package num
 
 import (
+	"log"
 	"math"
-	"reflect"
 	"strconv"
 
-	"github.com/quant1x/gox/logger"
 	"github.com/quant1x/num/x64"
 )
 
 const (
-	errorFloat64Base = errorTypeBase + int(reflect.Float64)*100
-
 	MaxFloat64          float64 = float64(math.MaxFloat64)             // float64最大值
 	MinFloat64          float64 = float64(math.SmallestNonzeroFloat64) // float64最小值
 	True2Float64        float64 = float64(1)                           // true转float64
@@ -55,7 +52,7 @@ func ParseFloat64(s string, v any) float64 {
 	defer func() {
 		// 解析失败以后输出日志, 以备检查
 		if err := recover(); err != nil {
-			logger.Errorf("ParseFloat64 %+v, error=%+v\n", v, err)
+			log.Printf("ParseFloat64 %+v, error=%+v\n", v, err)
 		}
 	}()
 	if IsEmpty(s) {

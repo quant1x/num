@@ -6,10 +6,6 @@ import (
 	"reflect"
 )
 
-const (
-	errorTypeBase = 0
-)
-
 var (
 	// ErrUnsupportedType 不支持的类型
 	ErrUnsupportedType = errors.New("unsupported type")

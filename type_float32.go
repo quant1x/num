@@ -1,17 +1,11 @@
 package num
 
 import (
+	"log"
 	"math"
-	"reflect"
 	"strconv"
 
-	"github.com/quant1x/gox/exception"
-	"github.com/quant1x/gox/logger"
 	"github.com/quant1x/num/x32"
-)
-
-const (
-	errorFloat32Base = errorTypeBase + int(reflect.Float32)*100
 )
 
 const (
@@ -94,9 +88,7 @@ func SliceToFloat32(v any) []float32 {
 			vs[idx] = float32(AnyToFloat64(iv))
 		}
 	default:
-		vv := reflect.ValueOf(v)
-		vk := vv.Kind()
-		panic(exception.New(errorFloat32Base+0, "Unsupported type: %s", vk.String()))
+		panic(TypeError(v))
 	}
 	return []float32{}
 }
@@ -106,7 +98,7 @@ func ParseFloat32(s string, v any) float32 {
 	defer func() {
 		// 解析失败以后输出日志, 以备检查
 		if err := recover(); err != nil {
-			logger.Errorf("ParseFloat32 %+v, error=%+v\n", v, err)
+			log.Printf("ParseFloat32 %+v, error=%+v\n", v, err)
 		}
 	}()
 

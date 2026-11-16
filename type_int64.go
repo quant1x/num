@@ -2,10 +2,10 @@ package num
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"strconv"
 
-	"github.com/quant1x/gox/logger"
 	"github.com/quant1x/num/x32"
 	"github.com/quant1x/num/x64"
 )
@@ -27,7 +27,7 @@ func ParseInt64(s string, v any) int64 {
 	defer func() {
 		// 解析失败以后输出日志, 以备检查
 		if err := recover(); err != nil {
-			logger.Errorf("ParseInt64 %+v, error=%+v\n", v, err)
+			log.Printf("ParseInt64 %+v, error=%+v\n", v, err)
 		}
 	}()
 	if IsEmpty(s) {
@@ -50,7 +50,7 @@ func ParseInt64(s string, v any) int64 {
 	if err == nil {
 		return i
 	}
-	logger.Errorf("%s, error=%+v\n", s, err)
+	log.Printf("%s, error=%+v\n", s, err)
 	if IgnoreParseExceptions {
 		i = StringBad2Int64
 	} else {
