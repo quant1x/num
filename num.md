@@ -8,14 +8,14 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 
 ## 1. 路线图
 
-**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件），覆盖算术、归约、逻辑比较、数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。C++ 侧已立起构建链路并落地**第一批算子**（算术、归约、逻辑比较、构造与整形、舍入、指数对数、填充、滑动窗口、线代与几何，§2 中 53 个功能行有 C++ 实现），其余类中的类型转换族尚未移植。Python spec 与 Rust 均未落地，按 [CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律) 现阶段整包判为**部分落地（缺 python / rust）**。下一个里程碑：按 §5 TODO 的顺序补齐 C++ 剩余算子，同时补 Python spec 作为语义准绳。
+**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件），覆盖算术、归约、逻辑比较、数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。C++ 侧已立起构建链路并落地**第一批算子**（算术、归约、逻辑比较、构造与整形、舍入、指数对数、填充、滑动窗口、线代与几何，§2 中 59 个功能行有 C++ 实现），余下只有反射族（`AnyToGeneric` 的反射部分 / `AnyToSlice` / `CheckoutRawType` / `ExtractValueFromPointer`）与 Go 侧本身就是空实现的 `PeeksAndValleys`。Python spec 与 Rust 均未落地，按 [CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律) 现阶段整包判为**部分落地（缺 python / rust）**。下一个里程碑：按 §5 TODO 的顺序补齐 C++ 剩余算子，同时补 Python spec 作为语义准绳。
 
 **临时基准**：本仓对标 NumPy，算法与数值口径以它为准；Python spec 未落地期间，本文件、NumPy 语义与 Go 用例共同充当临时基准（[§9.3](CONTRIBUTING.md#93-spec--实现--验证)），Python 落地后以其为准。Go 是最早落地的一份实现，可作可执行对照，但不是 spec。
 
 | 阶段 | 语言（角色） | 载体 / 文件 | 状态 | 说明 |
 | --- | --- | --- | --- | --- |
 | spec 定语义 | Python（spec） | 仓库根 `*.py`（与 `.go` 同名） | 未落地 | 语义源头，见 §5 TODO |
-| 生产实现 | C++（生产） | 仓库根 `*.h` / `*.cpp`（与 `.go` 同名） | 部分落地 | 53 个功能行，见 §2 / §5 TODO |
+| 生产实现 | C++（生产） | 仓库根 `*.h` / `*.cpp`（与 `.go` 同名） | 部分落地 | 59 个功能行，见 §2 / §5 TODO |
 | 对齐实现 | Rust（对齐） | 仓库根 `*.rs` | 未落地 | 见 §5 TODO |
 | 对齐实现 | Go（对齐） | 仓库根 `*.go`（`package num`，64 个实现文件） | 已落地 | 用例见 §4.1 |
 
@@ -91,16 +91,16 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 | 正态分布分位 | — | `find_percent` / `find_zscore` | — | `FindPercent` / `FindZScore` | — | — | 部分落地（缺 python / rust） |
 | 置信区间换算 | — | `confidence_interval_to_zscore` / `zscore_to_confidence_interval` | — | `ConfidenceIntervalToZscore` / `ZscoreToConfidenceInterval` | — | — | 部分落地（缺 python / rust） |
 | 类型零值 / 无效值 | — | `type_default` / `nan` / `is_nan` | — | `TypeDefault` / `NaN` / `DTypeIsNaN` / `Float32NaN` / `Float64NaN` | — | — | 部分落地（缺 python / rust） |
-| `any` 转数值 | — | —（静态类型，不设 `any`） | — | `AnyToInt32` / `AnyToInt64` / `AnyToFloat32` / `AnyToFloat64` / `AnyToBool` / `AnyToString` | — | — | 部分落地（缺 python / c++ / rust） |
-| 字符串解析 | — | — | — | `ParseBool` / `ParseInt32` / `ParseInt64` / `ParseFloat32` / `ParseFloat64` / `GenericParse` | — | — | 部分落地（缺 python / c++ / rust） |
-| 切片类型转换 | — | — | — | `SliceToBool` / `SliceToInts` / `SliceToFloat32` / `SliceToFloat64` / `SliceToString` / `SliceFloatToInt32` / `SliceFloatToInt64` / `Slice2DType` / `DType2Int` | — | — | 部分落地（缺 python / c++ / rust） |
-| 布尔与数值互转 | — | — | — | `BoolToInt` / `BoolToInt32` / `BoolToInt64` / `BoolToFloat32` / `BoolToFloat64` / `BoolToString` | — | — | 部分落地（缺 python / c++ / rust） |
-| 字符串判空 / 判真 | — | — | — | `IsEmpty` / `StringIsTrue` / `StringIsFalse` / `StringIsNaN` | — | — | 部分落地（缺 python / c++ / rust） |
-| 泛型与反射工具 | — | —（静态类型，不设反射） | — | `AnyToGeneric` / `AnyToSlice` / `Any2DType` / `CheckoutRawType` / `ExtractValueFromPointer` | — | — | 部分落地（缺 python / rust） |
+| `any` 转数值 | — | `to_bool` / `to_string`（值重载，无 `any` 分派） | — | `AnyToInt32` / `AnyToInt64` / `AnyToFloat32` / `AnyToFloat64` / `AnyToBool` / `AnyToString` | — | — | 部分落地（缺 python / rust） |
+| 字符串解析 | — | `parse_bool` / `parse_int32` / `parse_int64` / `parse_float32` / `parse_float64`（`GenericParse` 未移植） | — | `ParseBool` / `ParseInt32` / `ParseInt64` / `ParseFloat32` / `ParseFloat64` / `GenericParse` | — | — | 部分落地（缺 python / rust） |
+| 切片类型转换 | — | `slice_to_bool` / `slice_to_string` / `slice_to_ints` / `slice_to_float32` / `slice_to_float64` / `slice_float_to_int32` / `slice_float_to_int64`（`Slice2DType` / `DType2Int` 分别是 `slice_to_float64` / `slice_float_to_int32` 的同义包装，按「一个功能一个导出符号」不另设） | — | `SliceToBool` / `SliceToInts` / `SliceToFloat32` / `SliceToFloat64` / `SliceToString` / `SliceFloatToInt32` / `SliceFloatToInt64` / `Slice2DType` / `DType2Int` | — | — | 部分落地（缺 python / rust） |
+| 布尔与数值互转 | — | `bool_to_int` / `bool_to_int32` / `bool_to_int64` / `bool_to_float32` / `bool_to_float64` / `bool_to_string` | — | `BoolToInt` / `BoolToInt32` / `BoolToInt64` / `BoolToFloat32` / `BoolToFloat64` / `BoolToString` | — | — | 部分落地（缺 python / rust） |
+| 字符串判空 / 判真 | — | `is_empty` / `string_is_true` / `string_is_false` / `string_is_nan` | — | `IsEmpty` / `StringIsTrue` / `StringIsFalse` / `StringIsNaN` | — | — | 部分落地（缺 python / rust） |
+| 泛型与反射工具 | — | `generic_parse`（`GenericParse` 的字符串入口；`AnyToGeneric` 的数值入口由 `slice_to_*` / `to_bool` / `to_string` 覆盖，反射部分不设） | — | `AnyToGeneric` / `AnyToSlice` / `Any2DType` / `CheckoutRawType` / `ExtractValueFromPointer` | — | — | 部分落地（缺 python / rust） |
 | 格式化与诊断 | — | 异常族 `Error` / `UnsupportedType` / `TypeError` / `RangeError` / `InvalidWindow` / `LengthMismatch` / `EmptyInput` / `DomainError` | — | `DefaultFormatter` / `PrintString` / `PanicTrace` / `TypeError` / `ErrUnsupportedType` / `ErrRange` / `ErrInvalidWindow` | — | — | 部分落地（缺 python / rust） |
 | 加速开关 | — | —（无运行期开关） | — | `GetAvx2Enabled` / `SetAvx2Enabled` | — | — | 部分落地（缺 python / c++ / rust） |
 
-**状态判据**：[CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律)。四门必做语言（python / c++ / rust / go）中 Go 全落地、C++ 落地第一批 53 个功能行，故带 c++ 符号的行判「部分落地（缺 python / rust）」，其余判「部分落地（缺 python / c++ / rust）」；`zig` / `java` 为扩展列，不参与判定。本表**未**逐函数审计用例覆盖度，包级覆盖率见 §4.2。
+**状态判据**：[CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律)。四门必做语言（python / c++ / rust / go）中 Go 全落地、C++ 落地第一批 59 个功能行，故带 c++ 符号的行判「部分落地（缺 python / rust）」，其余判「部分落地（缺 python / c++ / rust）」；`zig` / `java` 为扩展列，不参与判定。本表**未**逐函数审计用例覆盖度，包级覆盖率见 §4.2。
 
 ### 2.1 两层 API 对照
 
@@ -144,13 +144,13 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 | 语言 | 测试文件 | 用例数 | 运行命令 |
 | --- | --- | --- | --- |
 | Python（spec） | 未落地 | — | — |
-| C++ | 仓库根 `*_test.cpp`（19 个文件，与语义族同名） | 171 个 `TEST` | `ctest --preset release-static`（实测 `100% tests passed out of 171`，Debug 预设同数） |
+| C++ | 仓库根 `*_test.cpp`（23 个文件，与语义族同名） | 221 个 `TEST` | `ctest --preset release-static`（实测 `100% tests passed out of 221`，Debug 预设同数） |
 | Rust | 未落地 | — | — |
 | Go | 仓库根 `*_test.go`（49 个文件，与实现同名） | 82 个 `Test` + 46 个 `Benchmark` | `go test .`（实测 `ok github.com/quant1x/num 0.491s`） |
 
 用例与实现同目录；`window_test.go` 只有基准、无用例，见 §5 TODO。本包 Go 用例**未**按 [§7](CONTRIBUTING.md#7-测试规范) 的 `accel` 两遍跑（`functions.Info().Acceleration` 在 82 个 `Test` 里无引用，只有 `align` / `repeat` / `diff` 的基准用 `SetAvx2Enabled` 切换），见 §4.6 与 §5 TODO。
 
-C++ 用例按**语义族**合并成 19 个文件（`arithmetics_test.cpp` / `aggregates_test.cpp` / `logic_test.cpp` / `construct_test.cpp` / `ndarray_test.cpp` / `decimals_test.cpp` / `log_test.cpp` / `fillna_test.cpp` / `dot_test.cpp` / `cross_test.cpp` / `peak_finding_test.cpp` / `slope_test.cpp` / `rolling_test.cpp` / `median_test.cpp` / `freq_test.cpp` / `shape_test.cpp` / `matrix_test.cpp` / `polynomial_test.cpp` / `ztable_test.cpp`），每个 `TEST` 由 `gtest_discover_tests` 注册成一条 ctest 用例；覆盖 f32 / f64 两条宽度、空输入、长度不齐、`NaN` / `±Inf` / `±0`。C++ 侧无 `accel` 两遍跑可言（没有运行期加速开关）。
+C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `aggregates_test.cpp` / `logic_test.cpp` / `construct_test.cpp` / `ndarray_test.cpp` / `decimals_test.cpp` / `log_test.cpp` / `fillna_test.cpp` / `dot_test.cpp` / `cross_test.cpp` / `peak_finding_test.cpp` / `slope_test.cpp` / `rolling_test.cpp` / `median_test.cpp` / `freq_test.cpp` / `shape_test.cpp` / `matrix_test.cpp` / `polynomial_test.cpp` / `ztable_test.cpp` / `type_strings_test.cpp` / `type_bool_test.cpp` / `type_integer_test.cpp` / `type_generic_test.cpp`），每个 `TEST` 由 `gtest_discover_tests` 注册成一条 ctest 用例；覆盖 f32 / f64 两条宽度、空输入、长度不齐、`NaN` / `±Inf` / `±0`。C++ 侧无 `accel` 两遍跑可言（没有运行期加速开关）。
 
 ### 4.2 覆盖率
 
@@ -199,7 +199,7 @@ C++ 用例按**语义族**合并成 19 个文件（`arithmetics_test.cpp` / `agg
 
 | 待办项 | 缺什么 | 卡在哪 | 关联章节 | 关联 issue | 优先级 |
 | --- | --- | --- | --- | --- | --- |
-| 补齐 C++ 剩余算子 | 已落地 53 个功能行（§2 有 c++ 符号的行）；缺 `PeeksAndValleys`（Go 侧空实现）/ 类型转换族 | 类型转换族按语义族分批推进（`AnyTo*` 属 `any` 反射，不移植；`Parse*` / `SliceTo*` 可移植） | §1 / §2 | #11 | 高 |
+| 补齐 C++ 剩余算子 | 已落地 59 个功能行（§2 有 c++ 符号的行）；只剩 `PeeksAndValleys`（Go 侧就是空实现，返回 nil） | 该函数在 Go 里没有语义，等 Go 侧定案后再同步两侧；`AnyToGeneric` 的反射部分 / `AnyToSlice` / `CheckoutRawType` / `ExtractValueFromPointer` 属 `any` 反射，不移植 | §1 / §2 | #11 | 高 |
 | `min_period` 语义待定 | Go 的 `Periods.Min` 与 `v1At` 已写出但**没有接线**：`Rolling(S, N, minPeriod)` 的第三个可变参数被丢弃，实际走 `v0At`；README 却写着"提供即启用"。C++ 侧不设这个形参，也不引入 `Min` 字段 | 需先定案：按 README 描述接线 `v1At`，还是把 README 改成"暂不支持"。定案后两侧一起改 | §2 | 待建单 | 中 |
 | `cross` 的相等口径 | 判据是**前一根与当前根都严格分居两侧**，任一格相等即不记；"先触碰再穿越"的常见写法会多记一根 | 需在补 Python spec 时确认这是意图还是历史写法 | §2 | 待建单 | 低 |
 | `fit_line` 的失败返回 | 单点输入返回 `intercept = y[0]` 的水平线同时标记失败（`std::pair<Line,bool>`），C++ 照此保留 | 补 spec 时确认失败位与半成品是否都要保留 | §2 | 待建单 | 低 |
