@@ -126,6 +126,19 @@ add_library(num_core STATIC
         # 频率解析 / 日期序列
         freq.h
 
+        # 类型转换族：字符串判据 / 格式化 / bool 判据与转换（ignore_parse_exceptions 在 builtin.h）
+        builtin.h
+        type_strings.h
+        type_bool.h
+        # 数值解析与数值切片转换
+        type_integer.h
+        type_int32.h
+        type_int64.h
+        type_float32.h
+        type_float64.h
+        # 泛型解析入口
+        type_generic.h
+
         # 正态分布表（ztable_data.cpp 承载 2×10000 项数据）
         ztable.h
         ztable_data.h
@@ -190,6 +203,13 @@ if(NUM_BUILD_TESTS)
             polynomial_test.cpp
             # 正态分布表：find_percent / find_zscore / 置信区间互查
             ztable_test.cpp
+            # 类型转换族：字符串判据 / 格式化 / bool 转换
+            type_strings_test.cpp
+            type_bool_test.cpp
+            # 数值解析与数值切片转换
+            type_integer_test.cpp
+            # 泛型解析入口
+            type_generic_test.cpp
     )
 
     target_link_libraries(num_cpp_tests PRIVATE num_core GTest::gtest_main)
