@@ -1,0 +1,17 @@
+# clangd 配置：只放与机器无关的旗标。第三方头文件（xtensor / xtl / xsimd / gtest）的
+# 包含路径由编译数据库带进来，不在这里写死。
+#
+# 编译数据库来自 ninja-compile-db 预设（见 CMakePresets.json、BUILDING.md §6.2）：
+#   conan install . -s build_type=Release -s compiler.runtime=static
+#   cmake --preset ninja-compile-db          # MSVC 需在 VS 开发者环境里执行
+# VS 生成器不产出 compile_commands.json，故索引走这一个独立的 Ninja 构建目录。
+CompileFlags:
+  CompilationDatabase: build/ninja-compile-db
+  # 与 CMakeLists.txt 的 MSVC 一致；driver 走 clang-cl（cl 模式）
+  Compiler: cl
+  Add:
+    # 语言标准必须用 MSVC 写法：clang-cl 会丢弃 --std=c++20 并按 C++14 解析，
+    # 而 xtensor 0.27 用到 concept，结果是整片"unknown type name"。
+    - /std:c++20
+    # 失败约定是异常（errors.h 的 num::Error 派生类），clang-cl 默认关异常
+    - /EHsc

@@ -43,6 +43,19 @@
             "cacheVariables": {
                 "CMAKE_CONFIGURATION_TYPES": "Debug"
             }
+        },
+        {
+            "name": "ninja-compile-db",
+            "displayName": "Ninja 编译数据库（仅供 clangd / IDE 索引）",
+            "description": "复用 release-static 的 conan 配置文件，只产出 compile_commands.json；VS 生成器不产出该文件",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/ninja-compile-db",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_CXX_SCAN_FOR_MODULES": "OFF",
+                "CMAKE_PREFIX_PATH": "${sourceDir}/build/release-static/generators"
+            }
         }
     ],
     "buildPresets": [
