@@ -84,6 +84,11 @@ func v3Shift[E BaseType](S []E, N any) []E {
 			RepeatInto(d, defaultValue, length)
 			return d
 		}
+		if m == 0 {
+			// 位移 0 位不改变序列: N 为 0 且 |N| < 1 的小数常量在此列
+			copy(d, S)
+			return d
+		}
 		// 分两段操作
 		if n > 0 {
 			// 左边留空

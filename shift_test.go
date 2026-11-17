@@ -43,6 +43,42 @@ func TestShift(t *testing.T) {
 				return Shift(args.x.([]int32), args.y.(int))
 			},
 		},
+		{
+			Name: "float64-zero",
+			Args: args{
+				x: []float64{1, 2, 3, 4},
+				y: 0.0,
+			},
+			Want: []float64{1, 2, 3, 4},
+			TestFunc: func(v any) any {
+				args := v.(args)
+				return Shift(args.x.([]float64), args.y.(float64))
+			},
+		},
+		{
+			Name: "float64-fraction-0.5",
+			Args: args{
+				x: []float64{1, 2, 3, 4},
+				y: 0.5,
+			},
+			Want: []float64{1, 2, 3, 4},
+			TestFunc: func(v any) any {
+				args := v.(args)
+				return Shift(args.x.([]float64), args.y.(float64))
+			},
+		},
+		{
+			Name: "float64-fraction-negative-0.5",
+			Args: args{
+				x: []float64{1, 2, 3, 4},
+				y: -0.5,
+			},
+			Want: []float64{1, 2, 3, 4},
+			TestFunc: func(v any) any {
+				args := v.(args)
+				return Shift(args.x.([]float64), args.y.(float64))
+			},
+		},
 	}
 
 	for _, tt := range tests {
