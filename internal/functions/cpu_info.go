@@ -7,6 +7,8 @@ import (
 )
 
 var cpuFeatures = map[string]bool{
+	"ASIMD":            cpu.ARM64.HasASIMD,          // Advanced SIMD (NEON)
+	"SVE":              cpu.ARM64.HasSVE,            // Scalable Vector Extension
 	"AES":              cpu.X86.HasAES,              // AES hardware implementation (AES NI)
 	"ADX":              cpu.X86.HasADX,              // Multi-precision add-carry instruction extensions
 	"AVX":              cpu.X86.HasAVX,              // Advanced vector extension
@@ -73,7 +75,7 @@ func Info() SystemInfo {
 
 // SetAcceleration toggles simd acceleration. Not thread safe.
 func SetAcceleration(enabled bool) {
-	if enabled && !(cpu.X86.HasAVX2 && cpu.X86.HasFMA) {
+	if enabled && !simdSupported() {
 		UseAVX2 = false
 		//return fmt.Errorf("acceleration not supported on this platform")
 		return

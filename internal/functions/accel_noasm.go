@@ -1,8 +1,12 @@
-//go:build !amd64
+//go:build !amd64 && !arm64
 
 package functions
 
 var UseAVX2 bool = false
+
+func simdSupported() bool {
+	return false
+}
 
 // Arithmetic
 

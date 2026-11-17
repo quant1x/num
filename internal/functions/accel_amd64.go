@@ -6,4 +6,8 @@ import (
 	"golang.org/x/sys/cpu"
 )
 
-var UseAVX2 bool = cpu.X86.HasAVX2 && cpu.X86.HasFMA && runtime.GOOS != "darwin"
+var UseAVX2 = simdSupported()
+
+func simdSupported() bool {
+	return cpu.X86.HasAVX2 && cpu.X86.HasFMA && runtime.GOOS != "darwin"
+}
