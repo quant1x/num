@@ -39,6 +39,10 @@ namespace num {
     template<typename T>
     using Matrix = xt::xtensor<T, 2>;
 
+    // 容器约定：`from_shape({...})` **只分配、不清零**（xtensor 的 shape 构造函数不初始化
+    // 元素），与 Go 的 `make`（零值）不同 —— 创建之后必须逐格写完，或者先 `fill(T{})`。
+    // 需要"零填充"语义时要显式写，不要指望 from_shape 自带零值。
+
     template<typename T, std::size_t N>
     using Array = xt::xtensor<T, N>;
 

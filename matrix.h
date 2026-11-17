@@ -21,28 +21,26 @@
 
 namespace num {
 
-    namespace detail {
-
-        // 矩阵乘：顺序累加，与 Go 的 __matmul 同口径（归约顺序敏感，见 CONTRIBUTING §5.6.3）
-        template<typename T>
-        inline Matrix<T> matmul(const Matrix<T> &a, const Matrix<T> &b) {
-            if (a.shape(1) != b.shape(0)) {
-                throw LengthMismatch();
-            }
-            Matrix<T> d = Matrix<T>::from_shape({a.shape(0), b.shape(1)});
-            for (std::size_t i = 0; i < a.shape(0); ++i) {
-                for (std::size_t j = 0; j < b.shape(1); ++j) {
-                    T acc{};
-                    for (std::size_t k = 0; k < b.shape(0); ++k) {
-                        acc += a(i, k) * b(k, j);
-                    }
-                    d(i, j) = acc;
-                }
-            }
-            return d;
+    // 矩阵乘：顺序累加，与 Go 的 __matmul 同口径（归约顺序敏感，见 CONTRIBUTING §5.6.3）。
+    // 维度不匹配（a 的列数 != b 的行数）抛 LengthMismatch，Go 侧是下标越界 panic。
+    // Go 的 Dot / Dot_v1 就是这一份语义（两者逐字相同），故不再另设同义符号。
+    template<typename T>
+    inline Matrix<T> matmul(const Matrix<T> &a, const Matrix<T> &b) {
+        if (a.shape(1) != b.shape(0)) {
+            throw LengthMismatch();
         }
-
-    }  // namespace detail
+        Matrix<T> d = Matrix<T>::from_shape({a.shape(0), b.shape(1)});
+        for (std::size_t i = 0; i < a.shape(0); ++i) {
+            for (std::size_t j = 0; j < b.shape(1); ++j) {
+                T acc{};
+                for (std::size_t k = 0; k < b.shape(0); ++k) {
+                    acc += a(i, k) * b(k, j);
+                }
+                d(i, j) = acc;
+            }
+        }
+        return d;
+    }
 
     // 三条等长序列按行拼成 n×3
     template<typename T>
@@ -78,12 +76,14 @@ namespace num {
         if (a.shape(1) != n) {
             throw LengthMismatch();
         }
+        // from_shape 只分配、不清零（见 type.h）：增广矩阵的右半（单位阵那块）必须逐格写满，
+        // 否则非对角位置吃的是堆上的残留值，求逆结果会随内存内容漂移。
         Matrix<f64> augmented = Matrix<f64>::from_shape({n, 2 * n});
         for (std::size_t i = 0; i < n; ++i) {
             for (std::size_t j = 0; j < n; ++j) {
                 augmented(i, j) = a(i, j);
+                augmented(i, j + n) = (i == j) ? 1.0 : 0.0;
             }
-            augmented(i, i + n) = 1.0;
         }
 
         // 前向消元

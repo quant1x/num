@@ -1,7 +1,7 @@
 // spec: matrix.go
 //
 // 覆盖口径：concat1d 拼成 n×3（长度不够抛 LengthMismatch）；transpose2d 行列互换；
-// inverse 走 Gauss-Jordan，非方阵抛 LengthMismatch；detail::matmul 维度不匹配抛
+// inverse 走 Gauss-Jordan，非方阵抛 LengthMismatch；matmul 维度不匹配抛
 // LengthMismatch。求逆不做主元搜索，奇异矩阵得到 Inf/NaN 而不报错（与 Go 一致）。
 
 #include <cmath>
@@ -71,6 +71,8 @@ namespace {
 
     TEST(Inverse, IdentityStaysIdentity) {
         Matrix<f64> m = Matrix<f64>::from_shape({3, 3});
+        // from_shape 不清零（见 type.h），非对角位置必须显式写 0
+        m.fill(0.0);
         for (std::size_t i = 0; i < 3; ++i) {
             m(i, i) = 1.0;
         }
@@ -88,7 +90,7 @@ namespace {
         m(0, 0) = 2.0;  m(0, 1) = -1.0; m(0, 2) = 0.0;
         m(1, 0) = -1.0; m(1, 1) = 2.0;  m(1, 2) = -1.0;
         m(2, 0) = 0.0;  m(2, 1) = -1.0; m(2, 2) = 2.0;
-        const Matrix<f64> product = num::detail::matmul(num::inverse(m), m);
+        const Matrix<f64> product = num::matmul(num::inverse(m), m);
         for (std::size_t i = 0; i < 3; ++i) {
             for (std::size_t j = 0; j < 3; ++j) {
                 EXPECT_NEAR(product(i, j), i == j ? 1.0 : 0.0, 1e-9);
@@ -123,7 +125,7 @@ namespace {
     TEST(Matmul, DimensionMismatchThrows) {
         const Matrix<f64> a = Matrix<f64>::from_shape({2, 3});
         const Matrix<f64> b = Matrix<f64>::from_shape({2, 3});
-        EXPECT_THROW(num::detail::matmul(a, b), num::LengthMismatch);
+        EXPECT_THROW(num::matmul(a, b), num::LengthMismatch);
     }
 
     TEST(Matmul, BasicProduct) {
@@ -137,7 +139,7 @@ namespace {
         b(0, 1) = 6.0;
         b(1, 0) = 7.0;
         b(1, 1) = 8.0;
-        const Matrix<f64> d = num::detail::matmul(a, b);
+        const Matrix<f64> d = num::matmul(a, b);
         EXPECT_DOUBLE_EQ(d(0, 0), 19.0);
         EXPECT_DOUBLE_EQ(d(0, 1), 22.0);
         EXPECT_DOUBLE_EQ(d(1, 0), 43.0);

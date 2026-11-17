@@ -57,9 +57,9 @@ namespace num {
         }
 
         const Matrix<DType> xt = transpose2d(xv);            // (deg+1) × M
-        const Matrix<DType> xtx = detail::matmul(xt, xv);    // (deg+1) × (deg+1)
+        const Matrix<DType> xtx = matmul(xt, xv);    // (deg+1) × (deg+1)
         const Matrix<DType> xtxinv = inverse(xtx);
-        const Matrix<DType> xtxinvxt = detail::matmul(xtxinv, xt);  // (deg+1) × M
+        const Matrix<DType> xtxinvxt = matmul(xtxinv, xt);  // (deg+1) × M
 
         // 与 y 相乘：顺序累加，与 Go 的 __matvec 同口径
         Vector<DType> coef = Vector<DType>::from_shape({n});
