@@ -67,6 +67,45 @@ func TestSqrtSpecialValues(t *testing.T) {
 	}
 }
 
+// TestRoundSpecialValues 锁定 round 的半程方向（远离零）、±0 与 ±Inf 的保留，
+// 并保证与参考路径逐位相同。
+func TestRoundSpecialValues(t *testing.T) {
+	specials := []float64{
+		math.NaN(), math.Inf(1), math.Inf(-1),
+		0, math.Copysign(0, -1),
+		0.5, -0.5, 1.5, -1.5, 2.5, -2.5,
+		0.49999999999999994, -0.49999999999999994,
+		1.4999999999999998, -1.4999999999999998,
+		4503599627370495.5, -4503599627370495.5,
+		math.MaxFloat64, math.SmallestNonzeroFloat64,
+	}
+	for _, size := range []int{1, 3, 7, 8, 9, 15, 16, 17, 31} {
+		x64 := make([]float64, size)
+		for i := range x64 {
+			x64[i] = specials[i%len(specials)]
+		}
+		want64 := slices.Clone(x64)
+		got64 := slices.Clone(x64)
+		Round_Go_F64(want64)
+		Round_AVX2_F64(got64)
+		for i := range want64 {
+			requireSameBits64(t, want64[i], got64[i], "Round f64", size, i)
+		}
+
+		x32 := make([]float32, size)
+		for i := range x32 {
+			x32[i] = float32(x64[i])
+		}
+		want32 := slices.Clone(x32)
+		got32 := slices.Clone(x32)
+		Round_Go_F32(want32)
+		Round_AVX2_F32(got32)
+		for i := range want32 {
+			requireSameBits32(t, want32[i], got32[i], "Round f32", size, i)
+		}
+	}
+}
+
 func requireSameBits64(t *testing.T, want, got float64, kind string, size, i int) {
 	t.Helper()
 	if math.IsNaN(want) {

@@ -125,7 +125,7 @@ NEON（`accel_neon_arm64.s`，1695 行 / 28 个 `TEXT` 符号），其余平台�
 | Python（spec） | 未落地 | — | — |
 | C++ | 未落地 | — | — |
 | Rust | 未落地 | — | — |
-| Go | `internal/functions/` 下 11 个 `*_test.go`（`arithmetic` / `aggregates` / `boolean` / `comparison` / `construct` / `distance` / `find` / `matrix` / `max` / `min` / `special`） | 30 个 `Test` + 26 个 `Benchmark` | `go test ./internal/functions/` |
+| Go | `internal/functions/` 下 11 个 `*_test.go`（`arithmetic` / `aggregates` / `boolean` / `comparison` / `construct` / `distance` / `find` / `matrix` / `max` / `min` / `special`） | 31 个 `Test` + 26 个 `Benchmark` | `go test ./internal/functions/` |
 
 用例按「`Xxx_Go` vs `Xxx_AVX2_*` 逐元素对拍」组织，长度覆盖 `1`、块大小 `±1` 与多个块；随机数据取自
 `internal/rand` 并固定 `rand.Seed(...)`。
@@ -164,7 +164,7 @@ NEON（`accel_neon_arm64.s`，1695 行 / 28 个 `TEXT` 符号），其余平台�
 | 场景 | 测试位置 | 断言内容 | 运行命令 |
 | --- | --- | --- | --- |
 | `Xxx_Go` vs `Xxx_AVX2_*` 对拍 | 各 `*_test.go` | 逐元素相等；长度 1、块大小 ±1、多块 | `go test ./internal/functions/` |
-| 特殊值（`NaN` / `±Inf` / `±0` / 次正规） | `comparison_test.go` 的 `TestCompareSpecialValues`、`special_test.go` 的 `TestSqrtSpecialValues`、`find_test.go` 的 `TestFindSpecialValues`、`min_test.go` / `max_test.go` 的 `TestMinimumSpecialValues` / `TestMaximumSpecialValues` | `NaN` 参与比较一律 false（`Neq` 为 true）；`Sqrt(+Inf)=+Inf`、`Sqrt(-Inf)=NaN`、`Sqrt(±0)=±0`、次正规不归零且与参考路径逐位相同；`Find` 的 `NaN` 永不命中、`+0` 命中 `-0`、未命中返回 `len(x)`；`Minimum` / `Maximum` 遇 `NaN` 保持原值 | `go test ./internal/functions/` |
+| 特殊值（`NaN` / `±Inf` / `±0` / 次正规 / 半程） | `comparison_test.go` 的 `TestCompareSpecialValues`、`special_test.go` 的 `TestSqrtSpecialValues` 与 `TestRoundSpecialValues`、`find_test.go` 的 `TestFindSpecialValues`、`min_test.go` / `max_test.go` 的 `TestMinimumSpecialValues` / `TestMaximumSpecialValues` | `NaN` 参与比较一律 false（`Neq` 为 true）；`Sqrt(+Inf)=+Inf`、`Sqrt(-Inf)=NaN`、`Sqrt(±0)=±0`、次正规不归零且与参考路径逐位相同；`Round` 半程远离零（`0.5→1`、`-0.5→-1`、`2.5→3`）且 `±0` 保留符号；`Find` 的 `NaN` 永不命中、`+0` 命中 `-0`、未命中返回 `len(x)`；`Minimum` / `Maximum` 遇 `NaN` 保持原值 | `go test ./internal/functions/` |
 | arm64 NEON vs Go 路径 | 交叉编译后经 qemu 执行 | 同一批用例在 arm64 上全绿 | 见下 |
 | 两条路径开关 | 由适配层承担：`x32/vek_test.go` 与 `x64/vek_test.go` 用 `accel := []bool{false, functions.Info().Acceleration}` 跑两遍 | 本包用例直接对拍 `Xxx_Go` 与 `Xxx_AVX2_*`，不需要开关 | `go test ./x32/ ./x64/` |
 
@@ -183,7 +183,6 @@ wsl -d Debian bash -lc "cd /mnt/d/projects/quant1x/num && chmod +x temp/internal
 | 统一 `Find` 未命中返回值 | 参考路径 `Find_Go` 返回 `-1`，内核 `Find_AVX2_*` 返回 `len(x)`（未命中分支由 `TestFindSpecialValues` 覆盖） | 属语义口径问题，需先定 spec 再改两侧与用例 | §2 / §4.1 | 待建单 | 高 |
 | 统一布尔归约签名 | `All_AVX2` / `Any_AVX2` / `None_AVX2` 返回 `int`，`All_Go` / `Any_Go` / `None_Go` 返回 `bool` | 需确认适配层调用方是否需要布尔语义 | §2 | 待建单 | 中 |
 | arm64 补 `Pow` / `Sin` / `Cos` / `SinCos` 内核 | `special_arm64.go` 里这四个直接调 Go 路径，无 NEON 实现 | 无技术阻塞，待排期 | §2 | 待建单 | 中 |
-| arm64 `Round` 的半程方向与参考路径相反 | `neonRoundF32/F64` 用 `VFRINTN`（半程取偶），`math.Round` 半程远离零，`x.5` 差一位；qemu 下 `x64` 的 `TestSpecial` 因此失败 | 需确认 Go 汇编可用的「半程远离零」指令（`FRINTA`），否则要按比较+位选实现 | §2 | #10 | 高 |
 | 清理 `Zeros_AVX2_F64` / `Ones_AVX2_F64` | arm64 与 noasm 有定义、amd64 无定义，且全仓无调用方 | 需决定是补 amd64 实现还是删掉这三处 | §2 | 待建单 | 中 |
 | 补 Python spec | 无 `*.py`，归约顺序、未命中返回值等口径无正式 spec | 无技术阻塞，待排期 | §1 | 待建单 | 高 |
 | 补目录 `README.md` | 本目录缺 `README.md`（[§6.1](../../CONTRIBUTING.md#61-每个目录必须有-readmemd)），文件清单与层级关系只在本文档里 | 无技术阻塞，待排期 | §1 | 待建单 | 中 |

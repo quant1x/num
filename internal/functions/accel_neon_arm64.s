@@ -10,6 +10,18 @@ GLOBL ·neonOneF64(SB), RODATA, $8
 DATA ·neonOneF32+0(SB)/4, $0x3f800000
 GLOBL ·neonOneF32(SB), RODATA, $4
 
+DATA ·neonHalfF64+0(SB)/8, $0x3fe0000000000000
+GLOBL ·neonHalfF64(SB), RODATA, $8
+
+DATA ·neonNegHalfF64+0(SB)/8, $0xbfe0000000000000
+GLOBL ·neonNegHalfF64(SB), RODATA, $8
+
+DATA ·neonHalfF32+0(SB)/4, $0x3f000000
+GLOBL ·neonHalfF32(SB), RODATA, $4
+
+DATA ·neonNegHalfF32+0(SB)/4, $0xbf000000
+GLOBL ·neonNegHalfF32(SB), RODATA, $4
+
 // ---------------------------------------------------------------- f64 元素级
 
 // a[i] = a[i] op b[i]
@@ -160,7 +172,45 @@ done:
 UNARY_F64(·neonAbsF64, VFABS)
 UNARY_F64(·neonNegF64, VFNEG)
 UNARY_F64(·neonSqrtF64, VFSQRT)
-UNARY_F64(·neonRoundF64, VFRINTN)
+// a[i] = 就近取整, 半程远离零(与 math.Round 一致): FRINTZ 取截断, 小数绝对值 >= 0.5 时
+// 朝远离零的方向补 1. FRINTN 是半程取偶, 与参考路径差一位. NaN / ±Inf 保持原值.
+
+TEXT ·neonRoundF64(SB), NOSPLIT, $0-16
+	MOVD    a+0(FP), R0
+	MOVD    n+8(FP), R2
+	MOVD    ·neonOneF64(SB), R3
+	VDUP    R3, V10.D2
+	MOVD    ·neonHalfF64(SB), R3
+	VDUP    R3, V11.D2
+	MOVD    ·neonNegHalfF64(SB), R3
+	VDUP    R3, V12.D2
+	CBZ     R2, done
+loop:
+	VLD1    (R0), [V0.D2, V1.D2]
+	VFRINTZ V0.D2, V2.D2
+	VFSUB   V2.D2, V0.D2, V3.D2
+	VFADD   V10.D2, V2.D2, V4.D2
+	VFSUB   V10.D2, V2.D2, V5.D2
+	VFCMGE  V11.D2, V3.D2, V6.D2
+	VFCMGE  V3.D2, V12.D2, V7.D2
+	VMOV    V2.B16, V0.B16
+	VBIT    V6.B16, V4.B16, V0.B16
+	VBIT    V7.B16, V5.B16, V0.B16
+	VFRINTZ V1.D2, V2.D2
+	VFSUB   V2.D2, V1.D2, V3.D2
+	VFADD   V10.D2, V2.D2, V4.D2
+	VFSUB   V10.D2, V2.D2, V5.D2
+	VFCMGE  V11.D2, V3.D2, V6.D2
+	VFCMGE  V3.D2, V12.D2, V7.D2
+	VMOV    V2.B16, V1.B16
+	VBIT    V6.B16, V4.B16, V1.B16
+	VBIT    V7.B16, V5.B16, V1.B16
+	VST1    [V0.D2, V1.D2], (R0)
+	ADD     $32, R0
+	SUB     $4, R2
+	CBNZ    R2, loop
+done:
+	RET
 UNARY_F64(·neonFloorF64, VFRINTM)
 UNARY_F64(·neonCeilF64, VFRINTP)
 
@@ -822,7 +872,42 @@ done:
 UNARY_F32(·neonAbsF32, VFABS)
 UNARY_F32(·neonNegF32, VFNEG)
 UNARY_F32(·neonSqrtF32, VFSQRT)
-UNARY_F32(·neonRoundF32, VFRINTN)
+TEXT ·neonRoundF32(SB), NOSPLIT, $0-16
+	MOVD    a+0(FP), R0
+	MOVD    n+8(FP), R2
+	MOVW    ·neonOneF32(SB), R3
+	VDUP    R3, V10.S4
+	MOVW    ·neonHalfF32(SB), R3
+	VDUP    R3, V11.S4
+	MOVW    ·neonNegHalfF32(SB), R3
+	VDUP    R3, V12.S4
+	CBZ     R2, done
+loop:
+	VLD1    (R0), [V0.S4, V1.S4]
+	VFRINTZ V0.S4, V2.S4
+	VFSUB   V2.S4, V0.S4, V3.S4
+	VFADD   V10.S4, V2.S4, V4.S4
+	VFSUB   V10.S4, V2.S4, V5.S4
+	VFCMGE  V11.S4, V3.S4, V6.S4
+	VFCMGE  V3.S4, V12.S4, V7.S4
+	VMOV    V2.B16, V0.B16
+	VBIT    V6.B16, V4.B16, V0.B16
+	VBIT    V7.B16, V5.B16, V0.B16
+	VFRINTZ V1.S4, V2.S4
+	VFSUB   V2.S4, V1.S4, V3.S4
+	VFADD   V10.S4, V2.S4, V4.S4
+	VFSUB   V10.S4, V2.S4, V5.S4
+	VFCMGE  V11.S4, V3.S4, V6.S4
+	VFCMGE  V3.S4, V12.S4, V7.S4
+	VMOV    V2.B16, V1.B16
+	VBIT    V6.B16, V4.B16, V1.B16
+	VBIT    V7.B16, V5.B16, V1.B16
+	VST1    [V0.S4, V1.S4], (R0)
+	ADD     $32, R0
+	SUB     $8, R2
+	CBNZ    R2, loop
+done:
+	RET
 UNARY_F32(·neonFloorF32, VFRINTM)
 UNARY_F32(·neonCeilF32, VFRINTP)
 
