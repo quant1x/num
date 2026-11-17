@@ -1,6 +1,7 @@
 package num
 
 import (
+	"fmt"
 	"slices"
 	"testing"
 
@@ -44,39 +45,27 @@ func TestShift(t *testing.T) {
 			},
 		},
 		{
-			Name: "float64-zero",
+			Name: "int-zero",
 			Args: args{
 				x: []float64{1, 2, 3, 4},
-				y: 0.0,
+				y: 0,
 			},
 			Want: []float64{1, 2, 3, 4},
 			TestFunc: func(v any) any {
 				args := v.(args)
-				return Shift(args.x.([]float64), args.y.(float64))
+				return Shift(args.x.([]float64), args.y.(int))
 			},
 		},
 		{
-			Name: "float64-fraction-0.5",
+			Name: "dtype-series-zero",
 			Args: args{
 				x: []float64{1, 2, 3, 4},
-				y: 0.5,
+				y: []DType{0, 0, 0, 0},
 			},
 			Want: []float64{1, 2, 3, 4},
 			TestFunc: func(v any) any {
 				args := v.(args)
-				return Shift(args.x.([]float64), args.y.(float64))
-			},
-		},
-		{
-			Name: "float64-fraction-negative-0.5",
-			Args: args{
-				x: []float64{1, 2, 3, 4},
-				y: -0.5,
-			},
-			Want: []float64{1, 2, 3, 4},
-			TestFunc: func(v any) any {
-				args := v.(args)
-				return Shift(args.x.([]float64), args.y.(float64))
+				return Shift(args.x.([]float64), args.y.([]DType))
 			},
 		},
 	}
@@ -86,6 +75,33 @@ func TestShift(t *testing.T) {
 			if got := tt.TestFunc(tt.Args); !labs.DeepEqual(got, tt.Want) {
 				t.Errorf("Shift() = %v, want %v", got, tt.Want)
 			}
+		})
+	}
+}
+
+func TestShiftInvalidWindow(t *testing.T) {
+	x := []float64{1, 2, 3, 4}
+	invalid := []any{
+		0.0,
+		0.5,
+		-0.5,
+		0.9,
+		Float64NaN(),
+		[]int{1, 2, 3, 4},
+		int32(1),
+		int64(-1),
+		uint8(2),
+		Periods{N: 2},
+	}
+	for _, n := range invalid {
+		n := n
+		t.Run(fmt.Sprintf("%T", n), func(t *testing.T) {
+			defer func() {
+				if r := recover(); r != ErrInvalidWindow {
+					t.Fatalf("Shift(%v) panic = %v, want ErrInvalidWindow", n, r)
+				}
+			}()
+			_ = Shift(x, n)
 		})
 	}
 }

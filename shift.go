@@ -7,8 +7,15 @@ import (
 // Shift 使用可选的时间频率按所需的周期数移动索引
 //
 //	N 支持前后移动, N>0 向右, N<0 向左
+//
+// N 只接受 int（常量位移）与 []DType（逐位置位移）两种形态, 其它类型 panic ErrInvalidWindow
 func Shift[E BaseType](S []E, N any) []E {
-	return v3Shift[E](S, N)
+	switch N.(type) {
+	case int, []DType:
+		return v3Shift[E](S, N)
+	default:
+		panic(ErrInvalidWindow)
+	}
 }
 
 // N为常量常量, 未加速处理, 且做了一次对齐操作
@@ -82,11 +89,6 @@ func v3Shift[E BaseType](S []E, N any) []E {
 		if m >= length {
 			// 如果n大于S长度, 则返回空
 			RepeatInto(d, defaultValue, length)
-			return d
-		}
-		if m == 0 {
-			// 位移 0 位不改变序列: N 为 0 且 |N| < 1 的小数常量在此列
-			copy(d, S)
 			return d
 		}
 		// 分两段操作
