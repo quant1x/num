@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.8] - 2026-11-17
+### Changed
+- fix[go]：Shift 的窗口参数收敛为 int 与 []DType
+  - 入口只接受 int（常量位移）与 []DType（逐位置位移，DType 即 float64），其余类型 panic ErrInvalidWindow，与 C++ 的 int / Vector<DType> 两个重载对齐
+  - 原先 0.5 / NaN / int32 / []int / Periods 分别落到隐式截断或越界 panic，现在统一为明确的窗口错误
+  - v3Shift 的 m == 0 分支在收敛后不可达，删除以免被读成"仍支持小数常量"
+  - 用例补 int-zero / dtype-series-zero 与 TestShiftInvalidWindow（10 种非法入参）
+  - num.md §2 回写口径，§5 换登 C++ 侧隐式截断；shift.h 注释同步
+
+  关联 #15
+
+  验证：
+  - go test .
+  - go build ./...
+  - gofmt -l shift.go shift_test.go（无输出）
+  - ctest --preset release-static（221/221）
+- release version 0.8.8
+
 ## [0.8.7] - 2026-11-17
 ### Changed
 - feat[c++]：移植正态分布表
@@ -800,7 +818,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://codeberg.org/quant1x/num/compare/v0.8.7...HEAD
+[Unreleased]: https://codeberg.org/quant1x/num/compare/v0.8.8...HEAD
+[0.8.8]: https://codeberg.org/quant1x/num/compare/v0.8.7...v0.8.8
 [0.8.7]: https://codeberg.org/quant1x/num/compare/v0.8.6...v0.8.7
 [0.8.6]: https://codeberg.org/quant1x/num/compare/v0.8.5...v0.8.6
 [0.8.5]: https://codeberg.org/quant1x/num/compare/v0.8.4...v0.8.5
