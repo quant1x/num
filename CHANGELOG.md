@@ -3,6 +3,85 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.6] - 2026-11-17
+### Changed
+- feat[c++]: 新增 C++ 生产实现（xtensor + xsimd / cmake + conan2 / 扁平目录）
+  - 构建链路：conanfile.py 取 xtensor 0.27.1（带 xsimd 13.2.0）与 gtest 1.18.0（test_requires）；CMake ≥3.30 + C++20，MSVC v143 统一 /MT 与 /utf-8，基线不符在配置期 FATAL_ERROR；预设 release-static / debug-static，conan 的预设台账收进各自 build/<配置>/generators/，避免两套构建目录的 conan-default 同名冲突
+  - 目录形态：42 个 C++ 源文件平铺仓库根，与同语义的 .go 同名词干（sum.go ↔ sum.h），不设 include/ 与 src/；num_core 为静态库，模板承载实现、仅 decimals.cpp 落编译单元
+  - 第一批算子：算术（abs/sqrt/pow/add/sub/mul/div/maximum/minimum）、归约（sum/mean/max/min/argmax/argmin/count/stddev/variance/covariance/cumsum）、逻辑比较（gt/gte/lt/lte/equal/not_equal/all/any/logic_and/logic_or/logic_not）、构造与整形（zeros/ones/repeat/range/arange/linspace/align/where/shift/diff）、舍入（decimal/change_rate/net_change_rate）
+  - 第二批算子：log1p/expm1、fill/fill_na、dot1d、cross（LinerTrend/TrendState）、arg_rel_extrema、slope 族与 Line/FitLine/Point/DataPoint
+  - 口径：浮点缺失值统一 NaN；length 不齐按"最长"或"第一个操作数"两种分别复刻 Go；maximum/minimum 遇 NaN 保持原值；diff 方向为 s[i-n]-s[i]；语言约束导致 Std→stddev、And/Or/Not→logic_and/logic_or/logic_not
+  - 文档同批：CONTRIBUTING 新增 §3.8（C++ 单层扁平，不建 x32/x64/internal/functions 对应文件）并更新 §1/§2.1/§2.2/§2.3/§3.1/§3.2/§6.4；num.md 补 c++ 列（41 个功能行）、测试与 §5 TODO；BUILDING 补落地表/§1.1/§1.2/§3.4/§3.5 C++ 目标/§4.1/§6.2 构建章节/§9 排障；AGENTS 补硬约束 22/23 与 C++ 命令；README 补能力清单与依赖表；functions.md、x32|x64/vek.md 说明 C++ 不设该层
+  - 验证：cmake --build --preset release-static 与 debug-static 均 0 error / 0 warning（/W4）；ctest --preset release-static 与 debug-static 均 111/111 通过；41 个根头文件各自单独成 TU 用 cl /Zs /W4 编译，0 error / 0 warning；编码自查 UTF-8 无 BOM、LF、末尾换行
+- feat[c++]: 补滑动窗口族（rolling / rolling_apply / periods / window）
+  - rolling.h：第 i 格取 [i + 1 - n, i + 1)；n 为 NaN、n > i + 1、n == 0 都是空窗口（长度 0 容器占位，不补值），n 为负抛 RangeError
+  - periods.h：Periods（序列 + 越界常量，at / is_const）与 Window（at / is_const）+ rolling_window；Go 的 AnyToPeriod / Any2Window 靠 any 分派，C++ 由构造函数承担
+  - 两条路径的越界口径照抄不统一：rolling(<逐位置序列>) 走 AnyToSlice 对齐补 NaN，rolling_apply(<逐位置序列>) 走 AnyToPeriod、越界是常量 0（回调拿到空 block）
+  - 回调形参 (f64 n, const Vector<T> &block)：Go 传子切片视图，C++ 传副本（值语义，避免回调持有调用方内存的引用）
+  - min_period 未接线：Go 的 Rolling 第三个可变参数被丢弃、实际走 Periods.v0At，而 README 写着"提供即启用"；C++ 不设该形参、不引入不生效的 Min 字段，缺口与待定案口径登记在 num.md §5 TODO
+  - 用例：rolling_test.cpp 9 条（常量 / 逐位置 / 0 与负窗口 / 回调三形态 / Periods 与 Window 的 at、is_const）
+  - 文档同批：num.md §2 三行与 §1/§4.1/§4.4/§5；CONTRIBUTING §1/§2.3、BUILDING 落地表与目标表与跑法、AGENTS 命令、README 能力清单
+  - 验证：ctest --preset release-static 与 debug-static 均 120/120；两套配置 0 error / 0 warning（/W4）；43 个根头文件各自单独成 TU 经 cl /Zs /W4 编译 0 error / 0 warning
+
+  Closes #13
+- refactor[c++]：头文件相互引用改为相对包含
+  - 42 个头文件、67 处 `#include <num/xxx.h>` 统一改为 `#include "xxx.h"`
+  - C++ 侧单层扁平、没有 include/ 这一层，`<num/>` 前缀只多出一层包含根（必须额外 -I 仓库父目录），
+    换目录即整体失效；相对包含与同目录 .go 的布局一致
+  - 只碰 include 行，未触及任何实现
+
+  验证：
+  - g++ -std=c++20 仅用 -I . 即可编译通过，不再需要 -I 仓库父目录
+  - 全仓 *.h 内已无 `#include <num/`
+  - UTF-8 无 BOM、LF、末尾单个换行；每个文件改动 1~3 行
+- feat[c++]：移植 shape / matrix / polynomial / median / freq
+  - shape.h：shape(Vector) 返回 {长度, 0}、shape(Matrix) 返回 {行, 列}；Go 依赖 any 分派的标量 (0,0)
+    与非法 (-1,-1) 两条分支在 C++ 没有对应类型，不适用
+  - matrix.h：concat1d / transpose2d / inverse / detail::matmul；求逆走 Gauss-Jordan，不做主元搜索
+    （奇异矩阵得到 Inf/NaN 而不报错，与 Go 一致）
+  - polynomial.h：poly_fit 走正规方程 XTX⁻¹XT y（系数默认按幂次降序，increasing 改升序）、
+    poly_val 走 Horner
+  - median.h：median，空序列 NaN、单元素返回 0、不排序（按入参顺序取中点下标）
+  - freq.h：parse_freq / date_range，单位表与 Go 的 switch 逐条对应且大小写敏感
+  - 非法输入按 CONTRIBUTING §3.8 换成异常：RangeError / EmptyInput / LengthMismatch / DomainError
+  - 新增 median / freq / shape / matrix / polynomial 五个用例文件，并在 CMakeLists.txt 的 num_core
+    与 num_cpp_tests 两处显式登记
+
+  验证：
+  - cmake --build --preset release-static 通过
+  - ctest --preset release-static → 100% tests passed out of 156（原 120，新增 36 条）
+  - poly_fit 与 numpy.polyfit 文档示例逐位一致：0.08703704 -0.81349206 1.69312169 -0.03968254
+  - 记录一处数值事实：deg=3 且 increasing=true 时正规方程病态、MSVC 下系数发散，用例改用条件良好的
+    deg=1 验倒序关系，头注释写明高次拟合的稳定性由调用方负责（与 Go 同）
+- chore[c++]：为编辑器提供 clangd 编译数据库
+  - CMakePresets.json 新增 ninja-compile-db 预设：Ninja 生成器 + CMAKE_EXPORT_COMPILE_COMMANDS=ON，
+    复用 build/release-static/generators 的 conan 配置文件；不套 conan_toolchain.cmake，因为它固化了
+    CMAKE_GENERATOR_PLATFORM=x64，Ninja 直接报 "does not support platform specification"
+  - CMAKE_CXX_SCAN_FOR_MODULES=OFF：否则编译命令末尾多出 @*.obj.modmap，clangd 读不了这个响应文件
+  - 新增仓库根 .clangd：只放与机器无关的 Compiler / /std:c++20 / /EHsc，以及 CompilationDatabase 指向
+    该构建目录；第三方头文件（xtensor / xtl / xsimd / gtest）路径由编译数据库带入，不写死 conan 缓存哈希
+  - /std:c++20 用 MSVC 写法是必须的：Compiler: cl 时 driver 是 clang-cl，--std=c++20 会被丢弃并按
+    C++14 解析，xtensor 0.27 的 concept 随即报成整片 unknown type name
+
+  验证：
+  - 删掉 clangd 用户级配置后，clangd --check 仍输出 Loaded compilation database from
+    build/ninja-compile-db/compile_commands.json
+  - median.h / freq.h / shape.h / matrix.h / polynomial.h 与 5 个用例文件的 clangd 诊断全清
+  - cmake --build --preset release-static --target num_core 通过（该预设不影响 VS 侧构建）
+- docs：同步功能表与用例计数，澄清本仓对标 NumPy
+  - num.md：中位数 / 形状 / 一维拼接 / 二维转置 / 矩阵求逆 / 多项式拟合求值 / 频率解析日期序列
+    共 7 行补上 c++ 符号，功能行计数 44 → 51；用例表 13 个文件 / 120 条 → 18 个文件 / 156 条
+  - CONTRIBUTING.md / BUILDING.md / AGENTS.md 的计数同步；BUILDING.md §6.2 增补 ninja-compile-db
+    预设的用法与前置条件（MSVC 需在 VS 开发者环境里配置）
+  - 语义基准写清楚：本仓对标 NumPy，算法、数值口径与边界行为以它为准；Go 是最早落地的一份实现，
+    可作可执行对照，但**不是 spec**（CONTRIBUTING §1 落地现状与 §9.3、AGENTS.md 开工必读表、
+    num.md 临时基准）
+
+  验证：
+  - ctest --preset release-static → 100% tests passed out of 156
+  - 四个文档均为 UTF-8 无 BOM、LF、末尾单个换行
+- release version 0.8.6
+
 ## [0.8.5] - 2026-11-17
 ### Changed
 - chore[git]: 增加githooks
@@ -609,7 +688,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://codeberg.org/quant1x/num/compare/v0.8.5...HEAD
+[Unreleased]: https://codeberg.org/quant1x/num/compare/v0.8.6...HEAD
+[0.8.6]: https://codeberg.org/quant1x/num/compare/v0.8.5...v0.8.6
 [0.8.5]: https://codeberg.org/quant1x/num/compare/v0.8.4...v0.8.5
 [0.8.4]: https://codeberg.org/quant1x/num/compare/v0.8.3...v0.8.4
 [0.8.3]: https://codeberg.org/quant1x/num/compare/v0.8.2...v0.8.3
