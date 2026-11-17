@@ -45,6 +45,7 @@
   归约类输入为空（`slice must not be empty`，`Mean` / `Median` / `Dot` 等 13 处）。
 - **两条路径**：`functions.UseAVX2` 为真走向量内核，否则走 `Xxx_Go_*`；两条路径语义相同，差异只在性能。
 - **比较类**：返回 `[]bool`；`NaN` 与任何值比较一律 `false`（含 `Neq`，即 `Neq(x, NaN)` 也是 `true`），不按位判等。
+  **加速路径当前未满足该口径**（`Lt` / `Lte` / `Eq` / `Neq` 对 `NaN` 判错），见 §5 TODO。
 - **未命中**：`Find` 对外统一返回 `-1`；加速内核返回的 `len(x)` 由本层归一（这层归一属于本包契约，内核层的
   口径见 `internal/functions/functions.md` §2）。
 - **归约精度**：`Sum` / `Prod` / `Dot` / `Norm` 走内核时按 amd64 口径重排，用例按量级设容差
@@ -144,7 +145,9 @@
 
 | 待办项 | 缺什么 | 卡在哪 | 关联章节 | 关联 issue | 优先级 |
 | --- | --- | --- | --- | --- | --- |
-| 补用例 | 语句覆盖 12.8%，175 个导出函数只有 2 个 `Test`；`_Inplace` / `_Into` 与四条 panic 分支基本未覆盖 | 无技术阻塞，待排期 | §4.1 / §4.2 | 待建单 | 高 |
+| 加速内核 `Sqrt(+Inf)` 返回 `NaN` | AVX2 路径违反 IEEE 754（Go 路径返回 `+Inf`） | 需查 amd64 内核的 `+Inf` 分支 | §4.6 | 待建单 | 高 |
+| 加速内核 NaN 比较语义错误 | `Lt` / `Lte` / `Eq` / `Neq` 在 `NaN` 上与口径相反（§2「比较类」） | 需查 amd64 比较内核的 ordered / unordered 谓词 | §2 / §4.6 | 待建单 | 高 |
+| `ToBool` 签名与包内其余 API 不一致 | `x32.ToBool` / `ToBool_Into` 收 `[]float64`，本包其余函数全是 `[]float32` | 无技术阻塞；是否改成 `[]float32` 需定 spec | §2 | 待建单 | 中 |
 | 补 Python spec | 无 `x32/vek.py`，三形式契约与失败约定无正式 spec | 无技术阻塞，待排期 | §1 | 待建单 | 高 |
 | 补目录 `README.md` | 本目录缺 `README.md`（[§6.1](../../CONTRIBUTING.md#61-每个目录必须有-readmemd)） | 无技术阻塞，待排期 | §1 | 待建单 | 中 |
 | 设覆盖率门槛 | 仓库未设统一门槛，当前 12.8% | 无技术阻塞，待排期 | §4.2 | 待建单 | 低 |
