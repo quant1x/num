@@ -1,1 +1,3 @@
+//go:build ignore
+
     LONG $0xd471c1c4; BYTE $0xc0 // VPADDQ  XMM0,XMM1,XMM8

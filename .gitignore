@@ -20,3 +20,6 @@ coverage.out
 
 # test
 test-*-w*
+
+# 临时产物(见 CONTRIBUTING.md §3.6)
+temp/
