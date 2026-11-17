@@ -26,7 +26,7 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 - **类型分发（Go）**：浮点（`[]float32`）走 `x32/`，浮点（`[]float64`）走 `x64/`，两者再下沉到 `internal/functions/` 的 `Xxx_AVX2_F32/F64` 内核；整型、无符号与其它类型走包内 `__go_*` 回退路径。未命中分支的处理按函数分别是**原样返回**（`Abs` 对无符号 / 其它类型）、**panic `ErrUnsupportedType`**（`Sqrt` 的非浮点）或 **panic `TypeError(v)`**（`Mean2` 的非数值），逐行见下表备注。
 - **类型分发（C++）**：模板在**编译期**完成同一件事，非浮点类型在编译期即被 `static_assert` 拒绝（`sqrt` / `stddev`），没有运行期分支，也没有加速开关。
 - **无效值（NaN / nil）**：浮点用 `math.NaN()`（`NaN()` / `Float64NaN()` / `Float32NaN()`）；`int32` / `int64` 的无效值是 `0`；`bool` 的无效值是 `false`；`string` 的无效值是 `"NaN"`（`StringNaN`）。判 NaN 一律用 `DTypeIsNaN` / `Float32IsNaN` / `Float64IsNaN` / `StringIsNaN`，不直接与 `NaN` 比较。C++ 侧同口径收在 `type.h`：`type_default<T>()`（浮点 `NaN`、整型 `0`、`bool` `false`）与 `is_nan(DType)`。
-- **缺失值填充**：`Fill` / `FillNa` 默认**复制**入参再填（`args[0] == true` 时原地改）；`Rolling` 窗口不足时**用空切片占位**，不补值；`Shift` 越界位填 `TypeDefault[T]()`（C++ 侧 `shift` 同此口径）；`n == 0` 返回**原序列**（[#14](https://codeberg.org/quant1x/num/issues/14) 定案），`Diff` 随之全 0；窗口参数只接受 `int`（常量位移）与 `[]DType`（逐位置位移），其余类型 panic `ErrInvalidWindow`（[#15](https://codeberg.org/quant1x/num/issues/15) 定案）。
+- **缺失值填充**：`Fill` / `FillNa` 默认**复制**入参再填（`args[0] == true` 时原地改）；`Rolling` 窗口不足时**用空切片占位**，不补值；`Shift` 越界位填 `TypeDefault[T]()`（C++ 侧 `shift` 同此口径）；`n == 0` 返回**原序列**（[#14](https://codeberg.org/quant1x/num/issues/14) 定案），`Diff` 随之全 0；窗口参数只接受 `int`（常量位移）与 `[]DType`（逐位置位移），其余类型 panic `ErrInvalidWindow`（[#15](https://codeberg.org/quant1x/num/issues/15) 定案），C++ 侧的非 `int` 算术常量由 `= delete` 重载在编译期拒绝。
 - **长度不齐**：`Align`、`Where`、`Maximum` / `Minimum`、`Gt` / `Gte` / `Lt` / `Lte` / `And` / `Or` 按**最长**输入对齐；`Add` / `Sub` / `Mul` / `Div` 与 `Equal` / `NotEqual` 按**第一个操作数**的长度对齐（第二个短则补默认值、长则截断）。两侧都用 `TypeDefault[T]()` 填充，C++ 照此实现，不要统一成一种。
 - **舍入**：`Decimal` 默认 2 位，负 `digits` 视为 0，入参为 `NaN` 时按 0 参与舍入；进位是**半程远离零**（`decimal(0.5, 0) = 1`、`decimal(-0.5, 0) = -1`），不是银行家舍入。
 - **精度与平台**：Go 侧浮点结果以 `x32` / `x64` 的加速实现为准，`internal/functions` 在 amd64 走 AVX2、arm64 走 NEON（内核同名 `Xxx_AVX2_F32/F64`），开关关闭或架构不支持时回退 Go 路径（[§5.6](CONTRIBUTING.md#56-向量化内核规范)）。C++ 侧由 xtensor 表达式经 xsimd 后端向量化，指令集按编译器基线下发，**不**加 `/arch:AVX2`（见 §5 TODO）。
@@ -208,7 +208,6 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 | C++ 与 Go 逐值对拍 | 无跨语言对拍用例：C++ 侧断言按文档口径手写，未与 Go 输出自动比对 | 需要一套统一的输入/期望样本（JSON 或头文件表）与两侧共用的比对脚本 | §4.6 | #11 | 中 |
 | C++ 打包与导出 | `conan create` 与 `cmake --install` 未落地，`num_core` 只能源码内使用 | 安装布局要与扁平目录一起设计（头文件按 `num/` 前缀导出） | §3 | #11 | 中 |
 | C++ 指令集分发 | 只按编译器基线下发，未做运行期多版本分发（Go 侧有 `UseAVX2` 开关与两套内核） | 需要 CMake 多目标编译 + 运行期 `__builtin_cpu_supports` / `IsProcessorFeaturePresent` 探测；会牺牲老 CPU 兼容，须先定策略 | §2 精度与平台 | #11 | 中 |
-| C++ `shift` 的隐式截断 | `shift(s, 0.5)` 在 C++ 侧被隐式转成 `int` 0，静默当位移 0；Go 侧已按 #15 收敛为 panic `ErrInvalidWindow` | 要一致需给 `shift` 加 `double` 重载并 `= delete`，或把形参换成强类型 | §2 缺失值填充 | #15 | 低 |
 | `diff` 方向文档化核对 | C++ 已按 Go 口径实现为 `s[i-n] - s[i]`（与 pandas 相反），但 Go 侧无文档说明 | 需确认是设计意图还是历史包袱 | §2 | #11 | 低 |
 | `Median` 是否内置排序 | Go 与 C++ 均按入参顺序取中间元素、**不排序**（空输入 `NaN`、单元素 `0`），排序责任在调用方 | 两侧已逐行一致（`median.h` 照抄 Go），待补 spec 时确认「不排序」是意图；定案后一起改 | §2 | 待建单 | 低 |
 | C++ 覆盖率与基准 | 无覆盖率工具接入、无 Google Benchmark 用例与基线 | 需要在 CMake 侧引入 `llvm-cov` / `benchmark` | §4.2 / §4.5 | #11 | 低 |

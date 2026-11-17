@@ -10,6 +10,7 @@
 // n == 0 返回**原序列**（位移 0 位不改变序列，见 num.md §2 缺失值填充）。
 
 #include <cstddef>
+#include <type_traits>
 
 #include "type.h"
 
@@ -46,6 +47,11 @@ namespace num {
         }
         return d;
     }
+
+    // 位移周期必须是整数：非 int 的算术常量（0.5 / 1L / 1u …）一律拒绝，不静默截断
+    template<typename T, typename N,
+             typename = std::enable_if_t<std::is_arithmetic_v<N> && !std::is_same_v<N, int>>>
+    Vector<T> shift(const Vector<T> &, N) = delete;
 
     // 逐元素位移：n[i] 为 NaN 或越界时该位置填默认值
     template<typename T>

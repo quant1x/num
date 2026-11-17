@@ -65,7 +65,7 @@ namespace {
     }
 
     TEST(Shift, ZeroIsIdentity) {
-        // Go 的 v3Shift 在 n == 0 时返回全零数组（缺陷），C++ 取原序列
+        // 位移 0 位不改变序列
         const Vector<f64> s = {1.0, 2.0, 3.0};
         const Vector<f64> d = num::shift(s, 0);
         ASSERT_EQ(d.size(), 3u);
