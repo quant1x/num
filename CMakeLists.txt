@@ -84,6 +84,7 @@ add_library(num_core STATIC
         stddev.h
         covariance.h
         cumsum.h
+        median.h
 
         # 逻辑
         logic.h
@@ -96,6 +97,7 @@ add_library(num_core STATIC
         ones.h
         repeat.h
         range.h
+        shape.h
         align.h
         where.h
         shift.h
@@ -111,13 +113,18 @@ add_library(num_core STATIC
         # 填充
         fillna.h
 
-        # 线代（一维）
+        # 线代：一维点积 + 二维拼接 / 转置 / 求逆 + 多项式
         dot.h
+        matrix.h
+        polynomial.h
 
         # 趋势与几何：穿越常量在 cross.h，直线族依赖它
         cross.h
         peak_finding.h
         slope.h
+
+        # 频率解析 / 日期序列
+        freq.h
 
         # 标量工具（decimal 是非模板实现，落编译单元）
         decimals.h
@@ -166,6 +173,16 @@ if(NUM_BUILD_TESTS)
             slope_test.cpp
             # 滑动窗口：rolling / rolling_apply / periods / window
             rolling_test.cpp
+            # 中位数：median（不排序口径）
+            median_test.cpp
+            # 频率解析 / 日期序列：parse_freq / date_range
+            freq_test.cpp
+            # 形状：shape（一维 / 二维）
+            shape_test.cpp
+            # 线代：concat1d / transpose2d / inverse / matmul
+            matrix_test.cpp
+            # 多项式：poly_fit / poly_val
+            polynomial_test.cpp
     )
 
     target_link_libraries(num_cpp_tests PRIVATE num_core GTest::gtest_main)
