@@ -224,24 +224,15 @@ func TestUnarySpecialValues(t *testing.T) {
 		}
 		require.True(t, math32.IsNaN(Sqrt(neginf)[0]))
 		require.Equal(t, float32(0), Sqrt(zero)[0])
-		// IEEE 754 要求 sqrt(+Inf) = +Inf；加速内核（amd64 AVX2）当前返回 NaN，按缺陷单登记，
-		// 此处只锁「不是有限值」，避免把某条架构的临时行为写死成契约。
-		if flag {
-			got := Sqrt(inf)[0]
-			require.Truef(t, math32.IsNaN(got) || math32.IsInf(got, 1), "accelerated Sqrt(+Inf) = %v", got)
-		} else {
-			require.Truef(t, math32.IsInf(Sqrt(inf)[0], 1), "Go Sqrt(+Inf) = %v", Sqrt(inf)[0])
-		}
-		// NaN 参与比较一律 false（Neq 为 true）——仅 Go 路径满足，AVX2 比较内核当前不符，见缺陷单。
-		if !flag {
-			require.False(t, Lt([]float32{1}, nan)[0])
-			require.False(t, Lte([]float32{1}, nan)[0])
-			require.False(t, Eq([]float32{1}, nan)[0])
-			require.True(t, Neq([]float32{1}, nan)[0])
-		} else {
-			t.Logf("AVX2 路径 NaN 比较偏离 IEEE：Lt=%v Lte=%v Eq=%v Neq=%v",
-				Lt([]float32{1}, nan)[0], Lte([]float32{1}, nan)[0], Eq([]float32{1}, nan)[0], Neq([]float32{1}, nan)[0])
-		}
+		// IEEE 754 要求 sqrt(+Inf) = +Inf。
+		require.Truef(t, math32.IsInf(Sqrt(inf)[0], 1), "Sqrt(+Inf) = %v", Sqrt(inf)[0])
+		// NaN 参与比较一律 false，Neq 为 true。
+		require.False(t, Lt([]float32{1}, nan)[0])
+		require.False(t, Lte([]float32{1}, nan)[0])
+		require.False(t, Gt([]float32{1}, nan)[0])
+		require.False(t, Gte([]float32{1}, nan)[0])
+		require.False(t, Eq([]float32{1}, nan)[0])
+		require.True(t, Neq([]float32{1}, nan)[0])
 	}
 }
 

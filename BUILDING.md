@@ -234,9 +234,14 @@ clang -O3 -mavx -mfma -masm=intel -fno-asynchronous-unwind-tables -fno-exception
 c2goasm -a src/floats_avx.s floats_avx_amd64.s
 ```
 
-- 完整参数（`-mno-red-zone -mstackrealign -ffast-math` 等）见 `asm/makefile`；**改生成的 `.s` 等于
-  下次重新生成时被覆盖** —— 需要长期生效的修改要落在 C 源或生成脚本里，并在提交信息中说明。
-- 生成的汇编自带标量尾部处理，任意长度都能直接调用（与 arm64 内核的分工不同，见 §5.3）。
+- 完整参数（`-mno-red-zone -mstackrealign -ffast-math` 等）见 `asm/makefile`。
+- **本仓没有 `internal/functions` 内核的 C 源与生成脚本**：`asm/src/floats_avx.c` 只是上述链路的样例
+  （导出 `asm/floats_avx_amd64.s`），不含 `Accel` 这一批内核。因此 `accel_avx2_amd64.s` 目前按
+  **手工维护**处理 —— 其中 `Find_AVX2_*` / `Maximum_AVX2_*` 等本就是手写内核（标签是 `loop` / `tail`
+  而不是 clang 的 `LBB*`）。改动时按 §5.5 验证，并在提交信息里说明改的是内核本身。
+- 生成的汇编自带标量尾部处理，任意长度都能直接调用（与 arm64 内核的分工不同，见 §5.3）；**标量尾部与
+  向量段受同一套特殊值口径约束**（[CONTRIBUTING.md §5.6.3](CONTRIBUTING.md#563-浮点归约的顺序敏感)），
+  即 `NaN` 参与比较一律 false、`±Inf` 与 `±0` 按 IEEE，`ucomis*` 之后的跳转必须把 unordered（PF=1）算进去。
 - 符号命名由 c2goasm 决定（`·Xxx_AVX2_F64(SB)`），Go 侧声明在 `accel_avx2_amd64.go`，两侧必须同名。
 
 ### 5.3 arm64 NEON 内核（手写）
@@ -259,7 +264,7 @@ c2goasm -a src/floats_avx.s floats_avx_amd64.s
 | c2goasm 只适合**无异常 / 无 RTTI / 无内建函数**的纯计算代码 | 生成物里没有栈展开信息，混入运行时依赖会崩 |
 | c2goasm 对纯 C 支持不佳 | 需先转 `.cpp` 再编（`asm/README.md`） |
 | asm2plan9s 已停止维护 | 与当前反汇编输出存在断言级差异，不要拿它做正确性判据 |
-| 生成物不可手改 | 见 §5.2；要改就改源与脚本 |
+| 有生成源时不要手改生成物 | 见 §5.2；要改就改源与脚本。`internal/functions/accel_avx2_amd64.s` 本仓无生成源，按手工维护 |
 
 ### 5.5 修改内核后的必查项
 

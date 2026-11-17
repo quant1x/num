@@ -2,6 +2,7 @@ package functions
 
 import (
 	"fmt"
+	"math"
 	"slices"
 	"testing"
 
@@ -28,6 +29,60 @@ func TestSqrt(t *testing.T) {
 			require.InDeltaSlice(t, r1, r2, 0.001)
 		}
 	}
+}
+
+// TestSqrtSpecialValues 锁定 sqrt 的 IEEE 语义：+Inf→+Inf、-Inf→NaN、NaN→NaN、±0 保留符号、
+// 次正规不归零，且结果与参考路径逐位相同。
+func TestSqrtSpecialValues(t *testing.T) {
+	specials := []float64{
+		math.NaN(), math.Inf(1), math.Inf(-1),
+		0, math.Copysign(0, -1), 1, 2, 4, -1,
+		math.SmallestNonzeroFloat64, math.MaxFloat64,
+	}
+	for _, size := range []int{1, 3, 7, 8, 9, 15, 16, 17, 31, 32, 33} {
+		x64 := make([]float64, size)
+		for i := range x64 {
+			x64[i] = specials[i%len(specials)]
+		}
+		x32 := make([]float32, size)
+		for i := range x32 {
+			x32[i] = float32(x64[i])
+		}
+
+		want64 := slices.Clone(x64)
+		got64 := slices.Clone(x64)
+		Sqrt_Go_F64(want64)
+		Sqrt_AVX2_F64(got64)
+		for i := range want64 {
+			requireSameBits64(t, want64[i], got64[i], "f64", size, i)
+		}
+
+		want32 := slices.Clone(x32)
+		got32 := slices.Clone(x32)
+		Sqrt_Go_F32(want32)
+		Sqrt_AVX2_F32(got32)
+		for i := range want32 {
+			requireSameBits32(t, want32[i], got32[i], "f32", size, i)
+		}
+	}
+}
+
+func requireSameBits64(t *testing.T, want, got float64, kind string, size, i int) {
+	t.Helper()
+	if math.IsNaN(want) {
+		require.Truef(t, math.IsNaN(got), "%s size=%d 第 %d 个: got %v, want NaN", kind, size, i, got)
+		return
+	}
+	require.Equalf(t, math.Float64bits(want), math.Float64bits(got), "%s size=%d 第 %d 个", kind, size, i)
+}
+
+func requireSameBits32(t *testing.T, want, got float32, kind string, size, i int) {
+	t.Helper()
+	if math.IsNaN(float64(want)) {
+		require.Truef(t, math.IsNaN(float64(got)), "%s size=%d 第 %d 个: got %v, want NaN", kind, size, i, got)
+		return
+	}
+	require.Equalf(t, math.Float32bits(want), math.Float32bits(got), "%s size=%d 第 %d 个", kind, size, i)
 }
 
 func TestRound(t *testing.T) {

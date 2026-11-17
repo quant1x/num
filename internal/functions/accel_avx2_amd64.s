@@ -4000,14 +4000,9 @@ LBB0_7:
 	MOVSD X0, ret+24(FP)
 	RET
 
-DATA dataSqrtF32<>+0(SB)/4, $0xc0400000
-DATA dataSqrtF32<>+4(SB)/4, $0xbf000000
-DATA dataSqrtF32<>+8(SB)/4, $0x7fffffff
-DATA dataSqrtF32<>+12(SB)/4, $0x00800000
-GLOBL dataSqrtF32<>(SB), RODATA|NOPTR, $16
 
 // func Sqrt_AVX2_F32(x []float32) float32
-// Requires: AVX, FMA3, SSE
+// Requires: AVX, SSE
 TEXT ·Sqrt_AVX2_F32(SB), NOSPLIT, $0-28
 	MOVQ  x_base+0(FP), DI
 	MOVQ  x_len+8(FP), SI
@@ -4016,84 +4011,35 @@ TEXT ·Sqrt_AVX2_F32(SB), NOSPLIT, $0-28
 	CMPQ  SI, $0x20
 	JAE   LBB1_3
 	XORL  AX, AX
-	JMP   LBB1_6
+	JMP   LBB1_7
 
 LBB1_3:
-	MOVQ         SI, AX
-	ANDQ         $-32, AX
-	XORL         CX, CX
-	VBROADCASTSS dataSqrtF32<>+0(SB), Y0
-	VBROADCASTSS dataSqrtF32<>+4(SB), Y1
-	VBROADCASTSS dataSqrtF32<>+8(SB), Y2
-	VBROADCASTSS dataSqrtF32<>+12(SB), Y3
+	MOVQ SI, AX
+	ANDQ $-32, AX
+	XORL CX, CX
 
 LBB1_4:
-	VMOVUPS     (DI)(CX*4), Y4
-	VMOVUPS     32(DI)(CX*4), Y5
-	VMOVUPS     64(DI)(CX*4), Y6
-	VRSQRTPS    Y4, Y7
-	VMOVUPS     96(DI)(CX*4), Y8
-	VMULPS      Y7, Y4, Y9
-	VFMADD213PS Y0, Y9, Y7
-	VMULPS      Y1, Y9, Y9
-	VMULPS      Y7, Y9, Y7
-	VANDPS      Y2, Y4, Y4
-	VCMPPS      $0x02, Y4, Y3, Y4
-	VANDPS      Y7, Y4, Y4
-	VRSQRTPS    Y5, Y7
-	VMULPS      Y7, Y5, Y9
-	VFMADD213PS Y0, Y9, Y7
-	VMULPS      Y1, Y9, Y9
-	VMULPS      Y7, Y9, Y7
-	VANDPS      Y2, Y5, Y5
-	VCMPPS      $0x02, Y5, Y3, Y5
-	VRSQRTPS    Y6, Y9
-	VANDPS      Y7, Y5, Y5
-	VMULPS      Y6, Y9, Y7
-	VFMADD213PS Y0, Y7, Y9
-	VMULPS      Y1, Y7, Y7
-	VMULPS      Y7, Y9, Y7
-	VANDPS      Y2, Y6, Y6
-	VCMPPS      $0x02, Y6, Y3, Y6
-	VANDPS      Y7, Y6, Y6
-	VRSQRTPS    Y8, Y7
-	VMULPS      Y7, Y8, Y9
-	VFMADD213PS Y0, Y9, Y7
-	VMULPS      Y1, Y9, Y9
-	VMULPS      Y7, Y9, Y7
-	VANDPS      Y2, Y8, Y8
-	VCMPPS      $0x02, Y8, Y3, Y8
-	VANDPS      Y7, Y8, Y7
-	VMOVUPS     Y4, (DI)(CX*4)
-	VMOVUPS     Y5, 32(DI)(CX*4)
-	VMOVUPS     Y6, 64(DI)(CX*4)
-	VMOVUPS     Y7, 96(DI)(CX*4)
-	ADDQ        $0x20, CX
-	CMPQ        AX, CX
-	JNE         LBB1_4
-	CMPQ        AX, SI
-	JE          LBB1_8
-
-LBB1_6:
-	VMOVSS       dataSqrtF32<>+0(SB), X0
-	VMOVSS       dataSqrtF32<>+4(SB), X1
-	VBROADCASTSS dataSqrtF32<>+8(SB), X2
-	VMOVSS       dataSqrtF32<>+12(SB), X3
+	VSQRTPS (DI)(CX*4), Y0
+	VSQRTPS 32(DI)(CX*4), Y1
+	VSQRTPS 64(DI)(CX*4), Y2
+	VSQRTPS 96(DI)(CX*4), Y3
+	VMOVUPS Y0, (DI)(CX*4)
+	VMOVUPS Y1, 32(DI)(CX*4)
+	VMOVUPS Y2, 64(DI)(CX*4)
+	VMOVUPS Y3, 96(DI)(CX*4)
+	ADDQ    $0x20, CX
+	CMPQ    AX, CX
+	JNE     LBB1_4
+	CMPQ    AX, SI
+	JE      LBB1_8
 
 LBB1_7:
-	VMOVSS      (DI)(AX*4), X4
-	VRSQRTSS    X4, X4, X5
-	VMULSS      X5, X4, X6
-	VFMADD213SS X0, X6, X5
-	VMULSS      X1, X6, X6
-	VMULSS      X5, X6, X5
-	VANDPS      X2, X4, X4
-	VCMPSS      $0x01, X3, X4, X4
-	VANDNPS     X5, X4, X4
-	VMOVSS      X4, (DI)(AX*4)
-	ADDQ        $0x01, AX
-	CMPQ        SI, AX
-	JNE         LBB1_7
+	VMOVSS  (DI)(AX*4), X0
+	VSQRTSS X0, X0, X0
+	VMOVSS  X0, (DI)(AX*4)
+	ADDQ    $0x01, AX
+	CMPQ    SI, AX
+	JNE     LBB1_7
 
 LBB1_8:
 	VZEROUPPER
@@ -6455,6 +6401,7 @@ LBB2_8:
 LBB2_6:
 	VMOVSD   (SI)(AX*8), X0
 	VUCOMISD (DI)(AX*8), X0
+	JPS      LBB2_8
 	JAE      LBB2_8
 	VMOVSD   X0, (DI)(AX*8)
 	JMP      LBB2_8
@@ -6509,6 +6456,7 @@ LBB3_8:
 LBB3_6:
 	VMOVSS   (SI)(AX*4), X0
 	VUCOMISS (DI)(AX*4), X0
+	JPS      LBB3_8
 	JAE      LBB3_8
 	VMOVSS   X0, (DI)(AX*4)
 	JMP      LBB3_8
@@ -6559,6 +6507,7 @@ LBB4_8:
 
 LBB4_6:
 	VUCOMISD (DI)(AX*8), X0
+	JPS      LBB4_8
 	JAE      LBB4_8
 	VMOVSD   X0, (DI)(AX*8)
 	JMP      LBB4_8
@@ -6609,6 +6558,7 @@ LBB5_8:
 
 LBB5_6:
 	VUCOMISS (DI)(AX*4), X0
+	JPS      LBB5_8
 	JAE      LBB5_8
 	VMOVSS   X0, (DI)(AX*4)
 	JMP      LBB5_8
@@ -7034,8 +6984,8 @@ TEXT ·Find_AVX2_F64(SB), NOSPLIT, $0-40
 	XORL         AX, AX
 
 loop:
-	VPCMPEQQ (DI)(AX*8), Y1, Y2
-	VPCMPEQQ 32(DI)(AX*8), Y1, Y3
+	VCMPPD   $0x00, (DI)(AX*8), Y1, Y2
+	VCMPPD   $0x00, 32(DI)(AX*8), Y1, Y3
 	VPOR     Y2, Y3, Y4
 	VPTEST   Y4, Y4
 	JNE      mask
@@ -7057,14 +7007,15 @@ tail:
 
 tailbody:
 	VUCOMISD (DI)(AX*8), X0
+	JPS      tailnext
 	JE       return
+
+tailnext:
 	ADDQ     $0x01, AX
 	CMPQ     SI, AX
 	JNE      tailbody
 	MOVQ     SI, AX
-	VZEROUPPER
-	MOVQ     AX, ret+32(FP)
-	RET
+	JMP      return
 
 mask:
 	VMOVMSKPD Y3, CX
@@ -7090,8 +7041,8 @@ TEXT ·Find_AVX2_F32(SB), NOSPLIT, $0-40
 	XORL         AX, AX
 
 loop:
-	VPCMPEQD (DI)(AX*4), Y1, Y2
-	VPCMPEQD 32(DI)(AX*4), Y1, Y3
+	VCMPPS   $0x00, (DI)(AX*4), Y1, Y2
+	VCMPPS   $0x00, 32(DI)(AX*4), Y1, Y3
 	VPOR     Y2, Y3, Y4
 	VPTEST   Y4, Y4
 	JNE      mask
@@ -7113,14 +7064,15 @@ tail:
 
 tailbody:
 	VUCOMISS (DI)(AX*4), X0
+	JPS      tailnext
 	JE       return
+
+tailnext:
 	ADDQ     $+1, AX
 	CMPQ     SI, AX
 	JNE      tailbody
 	MOVQ     SI, AX
-	VZEROUPPER
-	MOVQ     AX, ret+32(FP)
-	RET
+	JMP      return
 
 mask:
 	VMOVMSKPS Y3, CX
@@ -7214,8 +7166,10 @@ LBB0_4:
 
 LBB0_6:
 	VMOVSD   (SI)(R8*8), X0
-	VUCOMISD (DX)(R8*8), X0
-	SETCS    (DI)(R8*1)
+	VCMPSD    $0x01, (DX)(R8*8), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(R8*1)
 	ADDQ     $0x01, R8
 	CMPQ     CX, R8
 	JNE      LBB0_6
@@ -7300,8 +7254,10 @@ LBB1_4:
 
 LBB1_6:
 	VMOVSS   (SI)(R8*4), X0
-	VUCOMISS (DX)(R8*4), X0
-	SETCS    (DI)(R8*1)
+	VCMPSS    $0x01, (DX)(R8*4), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(R8*1)
 	ADDQ     $0x01, R8
 	CMPQ     CX, R8
 	JNE      LBB1_6
@@ -7391,8 +7347,10 @@ LBB2_4:
 
 LBB2_6:
 	VMOVSD   (SI)(R8*8), X0
-	VUCOMISD (DX)(R8*8), X0
-	SETLS    (DI)(R8*1)
+	VCMPSD    $0x02, (DX)(R8*8), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(R8*1)
 	ADDQ     $0x01, R8
 	CMPQ     CX, R8
 	JNE      LBB2_6
@@ -7477,8 +7435,10 @@ LBB3_4:
 
 LBB3_6:
 	VMOVSS   (SI)(R8*4), X0
-	VUCOMISS (DX)(R8*4), X0
-	SETLS    (DI)(R8*1)
+	VCMPSS    $0x02, (DX)(R8*4), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(R8*1)
 	ADDQ     $0x01, R8
 	CMPQ     CX, R8
 	JNE      LBB3_6
@@ -7922,8 +7882,10 @@ LBB8_4:
 
 LBB8_6:
 	VMOVSD   (SI)(R8*8), X0
-	VUCOMISD (DX)(R8*8), X0
-	SETEQ    (DI)(R8*1)
+	VCMPSD    $0x00, (DX)(R8*8), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(R8*1)
 	ADDQ     $0x01, R8
 	CMPQ     CX, R8
 	JNE      LBB8_6
@@ -8008,8 +7970,10 @@ LBB9_4:
 
 LBB9_6:
 	VMOVSS   (SI)(R8*4), X0
-	VUCOMISS (DX)(R8*4), X0
-	SETEQ    (DI)(R8*1)
+	VCMPSS    $0x00, (DX)(R8*4), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(R8*1)
 	ADDQ     $0x01, R8
 	CMPQ     CX, R8
 	JNE      LBB9_6
@@ -8099,8 +8063,10 @@ LBB10_4:
 
 LBB10_6:
 	VMOVSD   (SI)(R8*8), X0
-	VUCOMISD (DX)(R8*8), X0
-	SETNE    (DI)(R8*1)
+	VCMPSD    $0x04, (DX)(R8*8), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(R8*1)
 	ADDQ     $0x01, R8
 	CMPQ     CX, R8
 	JNE      LBB10_6
@@ -8185,8 +8151,10 @@ LBB11_4:
 
 LBB11_6:
 	VMOVSS   (SI)(R8*4), X0
-	VUCOMISS (DX)(R8*4), X0
-	SETNE    (DI)(R8*1)
+	VCMPSS    $0x04, (DX)(R8*4), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(R8*1)
 	ADDQ     $0x01, R8
 	CMPQ     CX, R8
 	JNE      LBB11_6
@@ -8626,8 +8594,10 @@ LBB16_4:
 	JE           LBB16_7
 
 LBB16_6:
-	VUCOMISD (SI)(AX*8), X0
-	SETCS    (DI)(AX*1)
+	VCMPSD    $0x01, (SI)(AX*8), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(AX*1)
 	ADDQ     $0x01, AX
 	CMPQ     DX, AX
 	JNE      LBB16_6
@@ -8708,8 +8678,10 @@ LBB17_4:
 	JE           LBB17_7
 
 LBB17_6:
-	VUCOMISS (SI)(AX*4), X0
-	SETCS    (DI)(AX*1)
+	VCMPSS    $0x01, (SI)(AX*4), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(AX*1)
 	ADDQ     $0x01, AX
 	CMPQ     DX, AX
 	JNE      LBB17_6
@@ -8795,8 +8767,10 @@ LBB18_4:
 	JE           LBB18_7
 
 LBB18_6:
-	VUCOMISD (SI)(AX*8), X0
-	SETLS    (DI)(AX*1)
+	VCMPSD    $0x02, (SI)(AX*8), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(AX*1)
 	ADDQ     $0x01, AX
 	CMPQ     DX, AX
 	JNE      LBB18_6
@@ -8877,8 +8851,10 @@ LBB19_4:
 	JE           LBB19_7
 
 LBB19_6:
-	VUCOMISS (SI)(AX*4), X0
-	SETLS    (DI)(AX*1)
+	VCMPSS    $0x02, (SI)(AX*4), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(AX*1)
 	ADDQ     $0x01, AX
 	CMPQ     DX, AX
 	JNE      LBB19_6
@@ -8964,8 +8940,10 @@ LBB20_4:
 	JE           LBB20_7
 
 LBB20_6:
-	VUCOMISD (SI)(AX*8), X0
-	SETEQ    (DI)(AX*1)
+	VCMPSD    $0x00, (SI)(AX*8), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(AX*1)
 	ADDQ     $0x01, AX
 	CMPQ     DX, AX
 	JNE      LBB20_6
@@ -9046,8 +9024,10 @@ LBB21_4:
 	JE           LBB21_7
 
 LBB21_6:
-	VUCOMISS (SI)(AX*4), X0
-	SETEQ    (DI)(AX*1)
+	VCMPSS    $0x00, (SI)(AX*4), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(AX*1)
 	ADDQ     $0x01, AX
 	CMPQ     DX, AX
 	JNE      LBB21_6
@@ -9133,8 +9113,10 @@ LBB22_4:
 	JE           LBB22_7
 
 LBB22_6:
-	VUCOMISD (SI)(AX*8), X0
-	SETNE    (DI)(AX*1)
+	VCMPSD    $0x04, (SI)(AX*8), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(AX*1)
 	ADDQ     $0x01, AX
 	CMPQ     DX, AX
 	JNE      LBB22_6
@@ -9215,8 +9197,10 @@ LBB23_4:
 	JE           LBB23_7
 
 LBB23_6:
-	VUCOMISS (SI)(AX*4), X0
-	SETNE    (DI)(AX*1)
+	VCMPSS    $0x04, (SI)(AX*4), X0, X1
+	VMOVD     X1, R9
+	ANDL      $0x01, R9
+	MOVB      R9, (DI)(AX*1)
 	ADDQ     $0x01, AX
 	CMPQ     DX, AX
 	JNE      LBB23_6

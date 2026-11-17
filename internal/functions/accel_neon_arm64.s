@@ -72,15 +72,90 @@ ELEM2_F64(·neonAddF64, VFADD)
 ELEM2_F64(·neonSubF64, VFSUB)
 ELEM2_F64(·neonMulF64, VFMUL)
 ELEM2_F64(·neonDivF64, VFDIV)
-ELEM2_F64(·neonMinimumF64, VFMIN)
-ELEM2_F64(·neonMaximumF64, VFMAX)
+// min/max 用「有序比较 + 位选」: 比较不成立(NaN)时保留 a 侧, 与 Go 参考路径一致;
+// FMIN/FMAX 会把 NaN 传播出去, 且对 ±0 的取舍与参考路径不同.
+
+TEXT ·neonMinimumF64(SB), NOSPLIT, $0-24
+	MOVD   a+0(FP), R0
+	MOVD   b+8(FP), R1
+	MOVD   n+16(FP), R2
+	CBZ    R2, done
+loop:
+	VLD1   (R0), [V0.D2, V1.D2]
+	VLD1   (R1), [V2.D2, V3.D2]
+	VFCMGT V2.D2, V0.D2, V4.D2
+	VFCMGT V3.D2, V1.D2, V5.D2
+	VBIT   V4.B16, V2.B16, V0.B16
+	VBIT   V5.B16, V3.B16, V1.B16
+	VST1   [V0.D2, V1.D2], (R0)
+	ADD    $32, R0
+	ADD    $32, R1
+	SUB    $4, R2
+	CBNZ   R2, loop
+done:
+	RET
+
+TEXT ·neonMaximumF64(SB), NOSPLIT, $0-24
+	MOVD   a+0(FP), R0
+	MOVD   b+8(FP), R1
+	MOVD   n+16(FP), R2
+	CBZ    R2, done
+loop:
+	VLD1   (R0), [V0.D2, V1.D2]
+	VLD1   (R1), [V2.D2, V3.D2]
+	VFCMGT V0.D2, V2.D2, V4.D2
+	VFCMGT V1.D2, V3.D2, V5.D2
+	VBIT   V4.B16, V2.B16, V0.B16
+	VBIT   V5.B16, V3.B16, V1.B16
+	VST1   [V0.D2, V1.D2], (R0)
+	ADD    $32, R0
+	ADD    $32, R1
+	SUB    $4, R2
+	CBNZ   R2, loop
+done:
+	RET
 
 ELEMNUM_F64(·neonAddNumF64, VFADD)
 ELEMNUM_F64(·neonSubNumF64, VFSUB)
 ELEMNUM_F64(·neonMulNumF64, VFMUL)
 ELEMNUM_F64(·neonDivNumF64, VFDIV)
-ELEMNUM_F64(·neonMinNumF64, VFMIN)
-ELEMNUM_F64(·neonMaxNumF64, VFMAX)
+TEXT ·neonMinNumF64(SB), NOSPLIT, $0-24
+	MOVD   a+0(FP), R0
+	FMOVD  v+8(FP), F0
+	VDUP   V0.D[0], V4.D2
+	MOVD   n+16(FP), R2
+	CBZ    R2, done
+loop:
+	VLD1   (R0), [V0.D2, V1.D2]
+	VFCMGT V4.D2, V0.D2, V2.D2
+	VFCMGT V4.D2, V1.D2, V3.D2
+	VBIT   V2.B16, V4.B16, V0.B16
+	VBIT   V3.B16, V4.B16, V1.B16
+	VST1   [V0.D2, V1.D2], (R0)
+	ADD    $32, R0
+	SUB    $4, R2
+	CBNZ   R2, loop
+done:
+	RET
+
+TEXT ·neonMaxNumF64(SB), NOSPLIT, $0-24
+	MOVD   a+0(FP), R0
+	FMOVD  v+8(FP), F0
+	VDUP   V0.D[0], V4.D2
+	MOVD   n+16(FP), R2
+	CBZ    R2, done
+loop:
+	VLD1   (R0), [V0.D2, V1.D2]
+	VFCMGT V0.D2, V4.D2, V2.D2
+	VFCMGT V1.D2, V4.D2, V3.D2
+	VBIT   V2.B16, V4.B16, V0.B16
+	VBIT   V3.B16, V4.B16, V1.B16
+	VST1   [V0.D2, V1.D2], (R0)
+	ADD    $32, R0
+	SUB    $4, R2
+	CBNZ   R2, loop
+done:
+	RET
 
 UNARY_F64(·neonAbsF64, VFABS)
 UNARY_F64(·neonNegF64, VFNEG)
@@ -662,15 +737,87 @@ ELEM2_F32(·neonAddF32, VFADD)
 ELEM2_F32(·neonSubF32, VFSUB)
 ELEM2_F32(·neonMulF32, VFMUL)
 ELEM2_F32(·neonDivF32, VFDIV)
-ELEM2_F32(·neonMinimumF32, VFMIN)
-ELEM2_F32(·neonMaximumF32, VFMAX)
+TEXT ·neonMinimumF32(SB), NOSPLIT, $0-24
+	MOVD   a+0(FP), R0
+	MOVD   b+8(FP), R1
+	MOVD   n+16(FP), R2
+	CBZ    R2, done
+loop:
+	VLD1   (R0), [V0.S4, V1.S4]
+	VLD1   (R1), [V2.S4, V3.S4]
+	VFCMGT V2.S4, V0.S4, V4.S4
+	VFCMGT V3.S4, V1.S4, V5.S4
+	VBIT   V4.B16, V2.B16, V0.B16
+	VBIT   V5.B16, V3.B16, V1.B16
+	VST1   [V0.S4, V1.S4], (R0)
+	ADD    $32, R0
+	ADD    $32, R1
+	SUB    $8, R2
+	CBNZ   R2, loop
+done:
+	RET
+
+TEXT ·neonMaximumF32(SB), NOSPLIT, $0-24
+	MOVD   a+0(FP), R0
+	MOVD   b+8(FP), R1
+	MOVD   n+16(FP), R2
+	CBZ    R2, done
+loop:
+	VLD1   (R0), [V0.S4, V1.S4]
+	VLD1   (R1), [V2.S4, V3.S4]
+	VFCMGT V0.S4, V2.S4, V4.S4
+	VFCMGT V1.S4, V3.S4, V5.S4
+	VBIT   V4.B16, V2.B16, V0.B16
+	VBIT   V5.B16, V3.B16, V1.B16
+	VST1   [V0.S4, V1.S4], (R0)
+	ADD    $32, R0
+	ADD    $32, R1
+	SUB    $8, R2
+	CBNZ   R2, loop
+done:
+	RET
 
 ELEMNUM_F32(·neonAddNumF32, VFADD)
 ELEMNUM_F32(·neonSubNumF32, VFSUB)
 ELEMNUM_F32(·neonMulNumF32, VFMUL)
 ELEMNUM_F32(·neonDivNumF32, VFDIV)
-ELEMNUM_F32(·neonMinNumF32, VFMIN)
-ELEMNUM_F32(·neonMaxNumF32, VFMAX)
+TEXT ·neonMinNumF32(SB), NOSPLIT, $0-24
+	MOVD   a+0(FP), R0
+	FMOVS  v+8(FP), F0
+	VDUP   V0.S[0], V4.S4
+	MOVD   n+16(FP), R2
+	CBZ    R2, done
+loop:
+	VLD1   (R0), [V0.S4, V1.S4]
+	VFCMGT V4.S4, V0.S4, V2.S4
+	VFCMGT V4.S4, V1.S4, V3.S4
+	VBIT   V2.B16, V4.B16, V0.B16
+	VBIT   V3.B16, V4.B16, V1.B16
+	VST1   [V0.S4, V1.S4], (R0)
+	ADD    $32, R0
+	SUB    $8, R2
+	CBNZ   R2, loop
+done:
+	RET
+
+TEXT ·neonMaxNumF32(SB), NOSPLIT, $0-24
+	MOVD   a+0(FP), R0
+	FMOVS  v+8(FP), F0
+	VDUP   V0.S[0], V4.S4
+	MOVD   n+16(FP), R2
+	CBZ    R2, done
+loop:
+	VLD1   (R0), [V0.S4, V1.S4]
+	VFCMGT V0.S4, V4.S4, V2.S4
+	VFCMGT V1.S4, V4.S4, V3.S4
+	VBIT   V2.B16, V4.B16, V0.B16
+	VBIT   V3.B16, V4.B16, V1.B16
+	VST1   [V0.S4, V1.S4], (R0)
+	ADD    $32, R0
+	SUB    $8, R2
+	CBNZ   R2, loop
+done:
+	RET
 
 UNARY_F32(·neonAbsF32, VFABS)
 UNARY_F32(·neonNegF32, VFNEG)
