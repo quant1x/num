@@ -3,6 +3,118 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.7] - 2026-11-17
+### Changed
+- feat[c++]：移植正态分布表
+  - ztable_data.h / ztable_data.cpp：ztable_data.go 的两张 10000 项表逐值转写（最短往返字面量，
+    math.Inf(-1) 记为 -std::numeric_limits<f64>::infinity()）。头文件只放声明，定义落在一个编译
+    单元，避免每个包含方都背一份 20000 个浮点字面量
+  - ztable.h：find_percent（percent_to_zscore 上取下界，Go 的 sort.SearchFloat64s）、find_zscore、
+    confidence_interval_to_zscore（索引按 int(percent × 10000) % 10000 取模）、
+    zscore_to_confidence_interval（Go 的 sort.Find + 未命中退一格）
+  - Go 的 float→int 越界由实现决定（amd64 得 MinInt64，按负数比较），C++ 侧不触发该转换，
+    用 detail::scaled_compare 折成同一口径；下标越界抛 RangeError（Go 侧是 panic）
+  - ztable_test.cpp：期望值全部取自 Go 侧 ztable_test.go 的实际输出，另加表首尾、取模回绕、
+    负入参抛错与 percent_to_zscore 单调性扫描
+  - CMakeLists.txt 登记头文件、编译单元与用例
+
+  验证：
+  - cmake --build --preset release-static 通过
+  - ctest --preset release-static → 100% tests passed out of 164（新增 8 条）
+  - 表值抽样与 ztable_data.go 逐值相等：percent_to_zscore[0] = -6.637991575671451e-17、
+    [5000] = 0.674489995531578、z_table[0] = -inf、[9999] = 3.71903027479015
+- fix[c++]：求逆的增广矩阵未初始化
+  现象：Inverse.TwoByTwo 与 PolyFit.IncreasingReversesCoefficients 偶发失败（十次里约一次），
+  差值随堆内容漂移，量级从 1e-1 到 1e60。
+
+  根因：xt::xtensor 的 from_shape 只分配、不初始化（Go 的 make 是零值）。inverse() 的 n×2n 增广
+  矩阵右半只写了对角线，非对角位置吃的是堆上的残留值。探针证据：先把同尺寸内存写成 1.2345e300
+  再释放，随后 from_shape 的 64×64 矩阵 4096/4096 个元素全非零。
+
+  修法：
+  - inverse() 把增广矩阵右半逐格写满（(i == j) ? 1.0 : 0.0）
+  - matrix_test.cpp 的 IdentityStaysIdentity 原来只写对角线，补 fill(0.0)
+  - type.h 在 Vector / Matrix 定义旁写明容器约定：from_shape 不清零，创建后必须写满或先 fill(T{})
+  - 逐个核对其余 from_shape 调用点（align / log / logic / logic_equal / peak_finding / pow /
+    range / repeat / rolling / shift / slope / where / dot / polynomial 与全部用例），只有上述两处
+    存在"只填一部分"
+
+  同时把 matmul 从 detail 提到 num 层：Go 的 Dot 与 Dot_v1 逐字相同、就是这份语义，只保留一个
+  导出符号；polynomial.h 与 matrix_test.cpp 的引用同步。
+
+  验证：
+  - 同一工作树上全量用例连跑 10 次：修复前 9 次通过，修复后 10 次全通过
+  - ctest --preset release-static → 100% tests passed out of 171（含同批的二维点积用例）
+- feat[c++]：移植二维点积族
+  - dot2d（Go 的 Dot2D）：行数取**左矩阵的列数**、列数取右矩阵的列数，结果
+    min(a.cols, b.cols) × b.cols，累加上界是 a.cols —— 3×2 的 a 只会用到前 2 行，口径照抄不"修正"
+  - dot2d_v1（Go 的 Dot2D_V1）：两矩阵各取右下 3×3 再相乘（Go 的 __align_go）
+  - dot2d1（Go 的 Dot2D1）：矩阵乘向量，要求 a.cols == b.size()；Go 的 Dot2D1_v2 结果与之相同
+    （只多几行调试打印），不另设符号
+  - Go 的 Dot / Dot_v1 即 matrix.h 的 matmul（逐字相同）；__dot2d_go / __align_go 是内部辅助，不导出
+  - 越界在 Go 是 panic、C++ 抛 LengthMismatch；Go 侧 fmt.Println 的调试输出不照搬
+  - dot_test.cpp 增补 7 条用例：方阵相乘、行数取左矩阵列数的口径、行数不足抛错、右下 3×3 块、
+    矩阵乘向量及其长度校验
+
+  验证：
+  - cmake --build --preset release-static 通过
+  - ctest --preset release-static → 100% tests passed out of 171（新增 7 条）
+  - 同一工作树连跑全量用例 10 次全通过
+- docs：同步正态分布表与二维点积的落地状态
+  - num.md：点积行补上 matmul / dot2d / dot2d_v1 / dot2d1，正态分布分位与置信区间换算两行补上
+    c++ 符号（功能行 51 → 53）；用例表 18 个文件 / 156 条 → 19 个文件 / 171 条
+  - num.md §5 TODO：去掉「二维点积族」「正态分布表」，剩余口径写明 AnyTo* 属 any 反射不移植、
+    Parse* / SliceTo* 可移植
+  - CONTRIBUTING.md / BUILDING.md / AGENTS.md 的功能行与用例计数同步
+
+  验证：
+  - ctest --preset release-static → 100% tests passed out of 171
+  - 四个文档均为 UTF-8 无 BOM、LF、末尾单个换行
+- feat[c++]：移植类型转换族
+  - type_strings.h：字符串判据与格式化（to_string / parse_float64 / is_number 等）
+  - type_bool.h：bool 词表、to_bool 与 parse_bool
+  - type_integer.h / type_int32.h / type_int64.h / type_float32.h / type_float64.h：数值解析与数值切片转换
+  - type_generic.h：generic_parse<T>，对齐 Go 的 GenericParse[T]（浮点先按 f64 解析再收窄、整型经 f64 取整后按目标宽度截断）
+  - builtin.h：ignore_parse_exceptions 等共用小工具
+  - 用例按语义族分别落 type_strings_test.cpp / type_bool_test.cpp / type_integer_test.cpp / type_generic_test.cpp
+  - CMakeLists.txt 在 num_core 与 num_cpp_tests 中逐文件登记
+
+  不移植的 Go 特有机制：AnyToGeneric 的反射分派、AnyToSlice、CheckoutRawType、ExtractValueFromPointer。
+
+  验证：
+  - cmake --build --preset release-static
+  - ctest --preset release-static（221/221 通过）
+- docs：同步类型转换族的落地状态
+  - num.md：功能表补类型转换族（59 个功能行），TODO 收敛为只剩 PeeksAndValleys 与 Go 侧反射机制
+  - CONTRIBUTING.md：用例文件计数 19 → 23，补四个类型转换用例文件
+  - BUILDING.md / AGENTS.md：ctest 用例计数 171 → 221
+
+  验证：
+  - ctest --preset release-static（221/221 通过）
+- docs：同步类型转换族落地状态与 shift 定案
+  - §2 字符串解析行补 generic_parse（GenericParse 已移植，不再是缺口）
+  - §4.4 根头文件数 43 → 59，实测 59 headers / 0 error / 0 warning
+  - §5 Median 条目作废「C++ 暂不移植」：median.h 已逐行照抄 Go
+  - 回写 #14 定案：shift(s, 0) 返回原序列，diff(s, 0) 全 0；Go 侧待修
+
+  验证：
+  - temp/cpp/hygiene/check.ps1（59 个头各自单独成 TU 编译，0 error / 0 warning）
+- fix[go]：shift 的小数常量位移返回未写入切片
+  - v3Shift 常量分支只写了 n > 0 与 n < 0 两段，0 < |N| < 1 时 int(N) 截断为 0，两段都不命中，返回刚分配、从未写入的 d（全默认值）
+  - 常量分支补 m == 0 提前返回原序列副本；n == 0 走的是非常量分支，本就正确
+  - 口径收敛为 |n| < 1（含 0）返回原序列，与 C++ shift(s, 0) 一致
+  - 用例补 float64-zero / float64-fraction-0.5 / float64-fraction-negative-0.5
+  - shift.h 注释纠错：原文断言 Go 在 n == 0 返回全零，实测不成立
+  - num.md §5 登记新发现：常量 NaN 在 int(NaN) 溢出后越界 panic
+
+  关联 #14
+
+  验证：
+  - go test .（新增 3 条子用例通过）
+  - ctest --preset release-static（221/221）
+  - gofmt -l shift.go shift_test.go（无输出）
+- release version 0.8.7
+
 ## [0.8.6] - 2026-11-17
 ### Changed
 - feat[c++]: 新增 C++ 生产实现（xtensor + xsimd / cmake + conan2 / 扁平目录）
@@ -688,7 +800,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://codeberg.org/quant1x/num/compare/v0.8.6...HEAD
+[Unreleased]: https://codeberg.org/quant1x/num/compare/v0.8.7...HEAD
+[0.8.7]: https://codeberg.org/quant1x/num/compare/v0.8.6...v0.8.7
 [0.8.6]: https://codeberg.org/quant1x/num/compare/v0.8.5...v0.8.6
 [0.8.5]: https://codeberg.org/quant1x/num/compare/v0.8.4...v0.8.5
 [0.8.4]: https://codeberg.org/quant1x/num/compare/v0.8.3...v0.8.4
