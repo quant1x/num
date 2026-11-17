@@ -101,6 +101,10 @@ add_library(num_core STATIC
         shift.h
         diff.h
 
+        # 滑动窗口：periods.h 是窗口长度表示，rolling.h 依赖它
+        periods.h
+        rolling.h
+
         # 指数 / 对数族
         log.h
 
@@ -160,6 +164,8 @@ if(NUM_BUILD_TESTS)
             cross_test.cpp
             peak_finding_test.cpp
             slope_test.cpp
+            # 滑动窗口：rolling / rolling_apply / periods / window
+            rolling_test.cpp
     )
 
     target_link_libraries(num_cpp_tests PRIVATE num_core GTest::gtest_main)

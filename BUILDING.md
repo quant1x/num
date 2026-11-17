@@ -13,7 +13,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | Go | `go.mod` | 库（无命令行入口） | **已落地** |
 | 汇编内核（amd64 / arm64） | 随 Go 包编译 | `.s` 编进库 | **已落地** |
 | Python | `pyproject.toml`（未建） | 包 | 未落地 |
-| C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | 部分落地（41 个功能行） |
+| C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | 部分落地（44 个功能行） |
 | Rust | `Cargo.toml`（未建） | 库 | 未落地 |
 | Zig / Java | 无清单文件 | — | 未落地（扩展语言） |
 
@@ -139,7 +139,7 @@ C++ 侧另有一条：新增算子必须在 `CMakeLists.txt` 里**逐文件显�
 | 目标 | 类型 | 内容 | 说明 |
 | --- | --- | --- | --- |
 | `num_core`（别名 `num::num_core`） | `STATIC` | 仓库根的 `*.h` + `decimals.cpp` | 门面实现。以 header-only 模板为主，只有非模板实现（`decimal`）落编译单元 |
-| `num_cpp_tests` | `EXECUTABLE` | 仓库根的 12 个 `*_test.cpp` | 链接 `num_core` 与 `GTest::gtest_main`，由 `gtest_discover_tests` 逐 `TEST` 注册到 ctest |
+| `num_cpp_tests` | `EXECUTABLE` | 仓库根的 13 个 `*_test.cpp` | 链接 `num_core` 与 `GTest::gtest_main`，由 `gtest_discover_tests` 逐 `TEST` 注册到 ctest |
 
 包含根是**仓库根的上一级**，故公共头的包含形态为 `<num/<模块>/<头文件>.h>`（根目录的 `sum.h` →
 `#include <num/sum.h>`）；与 [CONTRIBUTING.md §3.1](CONTRIBUTING.md#31-仓库根与实现根) 登记的三段式对位，
@@ -166,7 +166,7 @@ gofmt -l .
 C++ 侧：
 
 ```bash
-ctest --preset release-static      # 111 个用例，Release + /MT
+ctest --preset release-static      # 120 个用例，Release + /MT
 ctest --preset debug-static        # 同一批用例，Debug + /MTd
 ```
 
