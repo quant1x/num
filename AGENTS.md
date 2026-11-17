@@ -12,7 +12,7 @@
 | --- | --- | --- |
 | 1 | [CONTRIBUTING.md](CONTRIBUTING.md) | 规范全集：语言角色、目录布局、命名、注释、文档、测试、提交、工作准则 |
 | 2 | 目标目录的 `README.md` 与同名模块 `.md` | 该模块的口径、数据契约、跨语言对照、已知缺口（§5 TODO） |
-| 3 | **该语义的 Python 实现（spec）与 Python 用例** | 语义以此为准。**现阶段 Python 侧尚未落地**，此时以 Go 的参考实现 `Xxx_Go` 与同包用例为基准 |
+| 3 | **NumPy 的对应语义 + Python spec 与用例** | 本仓对标 NumPy，算法与数值口径以它为准。**现阶段 Python 侧尚未落地**，此时以 NumPy 语义 + Go 参考实现 `Xxx_Go` 与同包用例作可执行对照（Go 是最早的一份实现，不是 spec） |
 | 4 | 受影响的清单（`go.mod` / [BUILDING.md](BUILDING.md) 的包清单） | 新增包必须在本文件与 BUILDING.md 登记，见 BUILDING.md §3.4 |
 
 ## 2. 硬约束
@@ -83,7 +83,7 @@
 | 提交（Windows） | 写入 `.git/commit-msg.tmp` 后 `git commit -F .git/commit-msg.tmp` |
 | 建 / 查 / 关工单 | `labs-git-issue`（不传 `--host` / `--repo`，按 `origin` 自动识别），正文模板见 [§9.1](CONTRIBUTING.md#91-先建单再动手) |
 | C++ 取依赖 / 配置 / 编译 | `conan install . -s build_type=Release -s compiler.runtime=static`、`cmake --preset release-static`、`cmake --build --preset release-static` |
-| C++ 用例 | `ctest --preset release-static`（120 个用例，Debug 用 `debug-static`） |
+| C++ 用例 | `ctest --preset release-static`（156 个用例，Debug 用 `debug-static`） |
 | Python / Rust / Zig / Java | **尚未落地**：命令随各语言落地时补进 [BUILDING.md](BUILDING.md) 对应章节，此处不写未验证的命令 |
 
 ## 5. 交付前自检

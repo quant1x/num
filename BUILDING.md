@@ -13,7 +13,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | Go | `go.mod` | 库（无命令行入口） | **已落地** |
 | 汇编内核（amd64 / arm64） | 随 Go 包编译 | `.s` 编进库 | **已落地** |
 | Python | `pyproject.toml`（未建） | 包 | 未落地 |
-| C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | 部分落地（44 个功能行） |
+| C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | 部分落地（51 个功能行） |
 | Rust | `Cargo.toml`（未建） | 库 | 未落地 |
 | Zig / Java | 无清单文件 | — | 未落地（扩展语言） |
 
@@ -166,7 +166,7 @@ gofmt -l .
 C++ 侧：
 
 ```bash
-ctest --preset release-static      # 120 个用例，Release + /MT
+ctest --preset release-static      # 156 个用例，Release + /MT
 ctest --preset debug-static        # 同一批用例，Debug + /MTd
 ```
 
@@ -354,6 +354,9 @@ cmake --build --preset release-static
 
 # 3) 用例
 ctest --preset release-static
+
+# 4) 编辑器索引用的编译数据库（可选，见下条）
+cmake --preset ninja-compile-db
 ```
 
 - 预设名与 `conanfile.py` 的 `layout()` 一一对应：`Release + static` → `build/release-static`，
@@ -365,6 +368,12 @@ ctest --preset release-static
   预设同名（`conan-default`），先后装两个 `build_type` 后 CMake 一读档就报同名冲突。本仓已让 conan 把台账
   收进各自的 `build/<配置>/generators/`，入口只有根目录的 `CMakePresets.json`（直接指向
   `conan_toolchain.cmake`）。改 `conanfile.py` 的 `generate()` 时不要动这一行。
+- `ninja-compile-db` 是**只为编辑器索引**的预设：Ninja 生成器 + 复用 `build/release-static/generators`
+  的 conan 配置文件，产出 `build/ninja-compile-db/compile_commands.json`，不出产物、不影响 VS 预设。
+  VS 生成器不产出编译数据库，clangd 拿不到包含路径就会把 `xtensor/containers/xtensor.hpp` 报成
+  "file not found"。仓库根 `.clangd` 已指向该目录，VSCode / Zed 用 clangd 时无需另配包含路径。
+  MSVC 要在 VS 开发者环境里跑（`Enter-VsDevShell`，或 VSCode CMake Tools 的 kit），否则 `cl.exe`
+  不在 PATH、配置阶段就报 `CMAKE_CXX_COMPILER not set`。依赖或头文件变动后重跑这条即可。
 - 新增算子按 §3.4 的 C++ 条款在 `CMakeLists.txt` 显式登记。
 - 打包（`conan create` / `cmake --install` 导出）与 C++ 基准（`benchmark`）未落地，见 `num.md` §5 TODO。
 

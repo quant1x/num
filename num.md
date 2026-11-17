@@ -8,14 +8,14 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 
 ## 1. 路线图
 
-**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件），覆盖算术、归约、逻辑比较、数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。C++ 侧已立起构建链路并落地**第一批算子**（算术、归约、逻辑比较、构造与整形、舍入、指数对数、填充、滑动窗口、一维点积、趋势与几何，§2 中 44 个功能行有 C++ 实现），其余类中的二维线代、分布表与类型转换族尚未移植。Python spec 与 Rust 均未落地，按 [CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律) 现阶段整包判为**部分落地（缺 python / rust）**。下一个里程碑：按 §5 TODO 的顺序补齐 C++ 剩余算子，同时补 Python spec 作为语义准绳。
+**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件），覆盖算术、归约、逻辑比较、数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。C++ 侧已立起构建链路并落地**第一批算子**（算术、归约、逻辑比较、构造与整形、舍入、指数对数、填充、滑动窗口、线代与几何，§2 中 51 个功能行有 C++ 实现），其余类中的分布表与类型转换族尚未移植。Python spec 与 Rust 均未落地，按 [CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律) 现阶段整包判为**部分落地（缺 python / rust）**。下一个里程碑：按 §5 TODO 的顺序补齐 C++ 剩余算子，同时补 Python spec 作为语义准绳。
 
-**临时基准**：Python 未落地期间，本文件与 Go 用例共同充当临时基准（[§9.3](CONTRIBUTING.md#93-spec--实现--验证)），Python 落地后以其为准。
+**临时基准**：本仓对标 NumPy，算法与数值口径以它为准；Python spec 未落地期间，本文件、NumPy 语义与 Go 用例共同充当临时基准（[§9.3](CONTRIBUTING.md#93-spec--实现--验证)），Python 落地后以其为准。Go 是最早落地的一份实现，可作可执行对照，但不是 spec。
 
 | 阶段 | 语言（角色） | 载体 / 文件 | 状态 | 说明 |
 | --- | --- | --- | --- | --- |
 | spec 定语义 | Python（spec） | 仓库根 `*.py`（与 `.go` 同名） | 未落地 | 语义源头，见 §5 TODO |
-| 生产实现 | C++（生产） | 仓库根 `*.h` / `*.cpp`（与 `.go` 同名） | 部分落地 | 44 个功能行，见 §2 / §5 TODO |
+| 生产实现 | C++（生产） | 仓库根 `*.h` / `*.cpp`（与 `.go` 同名） | 部分落地 | 51 个功能行，见 §2 / §5 TODO |
 | 对齐实现 | Rust（对齐） | 仓库根 `*.rs` | 未落地 | 见 §5 TODO |
 | 对齐实现 | Go（对齐） | 仓库根 `*.go`（`package num`，64 个实现文件） | 已落地 | 用例见 §4.1 |
 
@@ -55,7 +55,7 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 | 二元运算分发内核 | — | —（模板在编译期分发，不设此层） | — | `BinaryOperations` / `BinaryOperations2` | — | — | 部分落地（缺 python / rust） |
 | 求和 | — | `sum` | — | `Sum` | — | — | 部分落地（缺 python / rust） |
 | 均值 | — | `mean` | — | `Mean` / `Mean2` | — | — | 部分落地（缺 python / rust） |
-| 中位数 | — | — | — | `Median` | — | — | 部分落地（缺 python / c++ / rust） |
+| 中位数 | — | `median` | — | `Median` | — | — | 部分落地（缺 python / rust） |
 | 最大值 / 最小值 | — | `max` / `min` | — | `Max` / `Max2` / `Min` / `Min2` | — | — | 部分落地（缺 python / rust） |
 | 极值下标 | — | `argmax` / `argmin` | — | `ArgMax` / `ArgMax2` / `ArgMin` / `ArgMin2` | — | — | 部分落地（缺 python / rust） |
 | 标准差 / 方差 / 协方差 | — | `stddev` / `variance` / `covariance` | — | `Std` / `Variance` / `Covariance` | — | — | 部分落地（缺 python / rust） |
@@ -67,10 +67,10 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 | 等差序列 | — | `arange` / `linspace` / `range` | — | `Arange` / `Linspace` / `Range` | — | — | 部分落地（缺 python / rust） |
 | 全零 / 全一 | — | `zeros` / `ones` | — | `Zeros` / `Ones` | — | — | 部分落地（缺 python / rust） |
 | 按最长对齐 | — | `align` | — | `Align` | — | — | 部分落地（缺 python / rust） |
-| 形状 | — | — | — | `Shape` | — | — | 部分落地（缺 python / c++ / rust） |
+| 形状 | — | `shape` | — | `Shape` | — | — | 部分落地（缺 python / rust） |
 | 重复 / 重复写入 | — | `repeat` / `repeat_into` | — | `Repeat` / `RepeatInto` | — | — | 部分落地（缺 python / rust） |
-| 一维拼接 | — | — | — | `Concat1D` | — | — | 部分落地（缺 python / c++ / rust） |
-| 二维转置 | — | — | — | `Transpose2D` | — | — | 部分落地（缺 python / c++ / rust） |
+| 一维拼接 | — | `concat1d` | — | `Concat1D` | — | — | 部分落地（缺 python / rust） |
+| 二维转置 | — | `transpose2d` | — | `Transpose2D` | — | — | 部分落地（缺 python / rust） |
 | 缺失值填充 | — | `fill` / `fill_inplace` / `fill_na` / `fill_na_inplace` | — | `Fill` / `FillNa` | — | — | 部分落地（缺 python / rust） |
 | 累计和 | — | `cumsum` / `cumsum_inplace` | — | `CumSum` | — | — | 部分落地（缺 python / rust） |
 | 一阶离散差分 | — | `diff` | — | `Diff` / `V2Diff` | — | — | 部分落地（缺 python / rust） |
@@ -80,10 +80,10 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 | 周期序列 | — | `Periods`（`at` / `is_const`） | — | `Periods` / `AnyToPeriod` | — | — | 部分落地（缺 python / rust） |
 | 波峰波谷 | — | `arg_rel_extrema`（`peeks_and_valleys` 在 Go 侧是空实现，未移植） | — | `PeeksAndValleys` / `ArgRelExtrema` | — | — | 部分落地（缺 python / rust） |
 | 两序列交叉 | — | `cross` / `LinerTrend` / `TrendState` | — | `Cross` | — | — | 部分落地（缺 python / rust） |
-| 频率解析 / 日期序列 | — | — | — | `ParseFreq` / `DateRange` | — | — | 部分落地（缺 python / c++ / rust） |
+| 频率解析 / 日期序列 | — | `parse_freq` / `date_range` | — | `ParseFreq` / `DateRange` | — | — | 部分落地（缺 python / rust） |
 | 点积 | — | `dot1d`（二维族未移植，见 §5 TODO） | — | `Dot` / `Dot1D` / `Dot2D` / `Dot2D1` / `Dot2D1_v2` / `Dot2D_V1` / `Dot_v1` | — | — | 部分落地（缺 python / rust） |
-| 矩阵求逆 | — | — | — | `Inverse` | — | — | 部分落地（缺 python / c++ / rust） |
-| 多项式拟合 / 求值 | — | — | — | `PolyFit` / `PolyVal` | — | — | 部分落地（缺 python / c++ / rust） |
+| 矩阵求逆 | — | `inverse` | — | `Inverse` | — | — | 部分落地（缺 python / rust） |
+| 多项式拟合 / 求值 | — | `poly_fit` / `poly_val` | — | `PolyFit` / `PolyVal` | — | — | 部分落地（缺 python / rust） |
 | 直线方程与角度 | — | `slope` / `triangle_bevel` / `degrees_to_slope` / `slope_to_degrees` / `calculate_line_equation` / `Line`（`radian` / `degrees` / `angle` / `equation` / `distance` / `horizontal_distance` / `vertical_distance` / `shortest_distance` / `parallel_line` / `symmetric_parallel_line` / `x` / `y` / `incr` / `intersect`） | — | `Slope` / `SlopeToDegrees` / `DegreesToSlope` / `CalculateLineEquation` / `TriangleBevel` | — | — | 部分落地（缺 python / rust） |
 | 趋势线拟合 | — | `fit_line`（`Line::extend` / `Line::analyze`） | — | `FitLine` / `Line.*`（`Analyze` / `Extend` / `Angle` / `Incr` / `X` / `Y` …） | — | — | 部分落地（缺 python / rust） |
 | 点 / 数据点 | — | `Point` / `DataPoint` / `new_point`（`add` / `to_data_point` / `to_point`） | — | `Point` / `NewPoint` / `DataPoint` / `Point.Add` | — | — | 部分落地（缺 python / rust） |
@@ -100,7 +100,7 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 | 格式化与诊断 | — | 异常族 `Error` / `UnsupportedType` / `TypeError` / `RangeError` / `InvalidWindow` / `LengthMismatch` / `EmptyInput` / `DomainError` | — | `DefaultFormatter` / `PrintString` / `PanicTrace` / `TypeError` / `ErrUnsupportedType` / `ErrRange` / `ErrInvalidWindow` | — | — | 部分落地（缺 python / rust） |
 | 加速开关 | — | —（无运行期开关） | — | `GetAvx2Enabled` / `SetAvx2Enabled` | — | — | 部分落地（缺 python / c++ / rust） |
 
-**状态判据**：[CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律)。四门必做语言（python / c++ / rust / go）中 Go 全落地、C++ 落地第一批 44 个功能行，故带 c++ 符号的行判「部分落地（缺 python / rust）」，其余判「部分落地（缺 python / c++ / rust）」；`zig` / `java` 为扩展列，不参与判定。本表**未**逐函数审计用例覆盖度，包级覆盖率见 §4.2。
+**状态判据**：[CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律)。四门必做语言（python / c++ / rust / go）中 Go 全落地、C++ 落地第一批 51 个功能行，故带 c++ 符号的行判「部分落地（缺 python / rust）」，其余判「部分落地（缺 python / c++ / rust）」；`zig` / `java` 为扩展列，不参与判定。本表**未**逐函数审计用例覆盖度，包级覆盖率见 §4.2。
 
 ### 2.1 两层 API 对照
 
@@ -144,13 +144,13 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 | 语言 | 测试文件 | 用例数 | 运行命令 |
 | --- | --- | --- | --- |
 | Python（spec） | 未落地 | — | — |
-| C++ | 仓库根 `*_test.cpp`（13 个文件，与语义族同名） | 120 个 `TEST` | `ctest --preset release-static`（实测 `100% tests passed out of 120`，Debug 预设同数） |
+| C++ | 仓库根 `*_test.cpp`（18 个文件，与语义族同名） | 156 个 `TEST` | `ctest --preset release-static`（实测 `100% tests passed out of 156`，Debug 预设同数） |
 | Rust | 未落地 | — | — |
 | Go | 仓库根 `*_test.go`（49 个文件，与实现同名） | 82 个 `Test` + 46 个 `Benchmark` | `go test .`（实测 `ok github.com/quant1x/num 0.491s`） |
 
 用例与实现同目录；`window_test.go` 只有基准、无用例，见 §5 TODO。本包 Go 用例**未**按 [§7](CONTRIBUTING.md#7-测试规范) 的 `accel` 两遍跑（`functions.Info().Acceleration` 在 82 个 `Test` 里无引用，只有 `align` / `repeat` / `diff` 的基准用 `SetAvx2Enabled` 切换），见 §4.6 与 §5 TODO。
 
-C++ 用例按**语义族**合并成 6 个文件（`arithmetics_test.cpp` / `aggregates_test.cpp` / `logic_test.cpp` / `construct_test.cpp` / `ndarray_test.cpp` / `decimals_test.cpp`），每个 `TEST` 由 `gtest_discover_tests` 注册成一条 ctest 用例；覆盖 f32 / f64 两条宽度、空输入、长度不齐、`NaN` / `±Inf` / `±0`。C++ 侧无 `accel` 两遍跑可言（没有运行期加速开关）。
+C++ 用例按**语义族**合并成 18 个文件（`arithmetics_test.cpp` / `aggregates_test.cpp` / `logic_test.cpp` / `construct_test.cpp` / `ndarray_test.cpp` / `decimals_test.cpp` / `log_test.cpp` / `fillna_test.cpp` / `dot_test.cpp` / `cross_test.cpp` / `peak_finding_test.cpp` / `slope_test.cpp` / `rolling_test.cpp` / `median_test.cpp` / `freq_test.cpp` / `shape_test.cpp` / `matrix_test.cpp` / `polynomial_test.cpp`），每个 `TEST` 由 `gtest_discover_tests` 注册成一条 ctest 用例；覆盖 f32 / f64 两条宽度、空输入、长度不齐、`NaN` / `±Inf` / `±0`。C++ 侧无 `accel` 两遍跑可言（没有运行期加速开关）。
 
 ### 4.2 覆盖率
 
@@ -199,7 +199,7 @@ C++ 用例按**语义族**合并成 6 个文件（`arithmetics_test.cpp` / `aggr
 
 | 待办项 | 缺什么 | 卡在哪 | 关联章节 | 关联 issue | 优先级 |
 | --- | --- | --- | --- | --- | --- |
-| 补齐 C++ 剩余算子 | 已落地 44 个功能行（§2 有 c++ 符号的行）；缺 `Median`（语义待定）/ `Shape` / `Concat1D` / `Transpose2D` / `PeeksAndValleys`（Go 侧空实现）/ 二维点积族 / `Inverse` / `PolyFit` / `PolyVal` / 正态分布表 / 类型转换族 | 二维族等 `Matrix` 层语义定案；其余按语义族分批推进 | §1 / §2 | #11 | 高 |
+| 补齐 C++ 剩余算子 | 已落地 51 个功能行（§2 有 c++ 符号的行）；缺 `PeeksAndValleys`（Go 侧空实现）/ 二维点积族 / 正态分布表 / 类型转换族 | 二维点积族等 `Matrix` 层语义定案；其余按语义族分批推进 | §1 / §2 | #11 | 高 |
 | `min_period` 语义待定 | Go 的 `Periods.Min` 与 `v1At` 已写出但**没有接线**：`Rolling(S, N, minPeriod)` 的第三个可变参数被丢弃，实际走 `v0At`；README 却写着"提供即启用"。C++ 侧不设这个形参，也不引入 `Min` 字段 | 需先定案：按 README 描述接线 `v1At`，还是把 README 改成"暂不支持"。定案后两侧一起改 | §2 | 待建单 | 中 |
 | `cross` 的相等口径 | 判据是**前一根与当前根都严格分居两侧**，任一格相等即不记；"先触碰再穿越"的常见写法会多记一根 | 需在补 Python spec 时确认这是意图还是历史写法 | §2 | 待建单 | 低 |
 | `fit_line` 的失败返回 | 单点输入返回 `intercept = y[0]` 的水平线同时标记失败（`std::pair<Line,bool>`），C++ 照此保留 | 补 spec 时确认失败位与半成品是否都要保留 | §2 | 待建单 | 低 |
