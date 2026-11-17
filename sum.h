@@ -8,7 +8,7 @@
 // 归约顺序是口径，不要改成 xt::sum 之类的重排实现 —— 严格容差的用例会漂移
 // （CONTRIBUTING.md §5.6.3）。
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
 

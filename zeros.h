@@ -6,8 +6,8 @@
 //
 // 给定长度、元素全为 0 的向量。
 
-#include <num/repeat.h>
-#include <num/type.h>
+#include "repeat.h"
+#include "type.h"
 
 namespace num {
 

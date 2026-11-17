@@ -22,8 +22,8 @@
 #include <string>
 #include <type_traits>
 
-#include <num/errors.h>
-#include <num/type.h>
+#include "errors.h"
+#include "type.h"
 
 namespace num {
 

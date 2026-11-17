@@ -7,8 +7,8 @@
 // 条件选择：condition 为真取 x，否则取 y。三个入参按**最长**对齐，缺位用
 // type_default<T>() 补齐；条件按「不为 0」判真，故 NaN 条件算真。
 
-#include <num/align.h>
-#include <num/type.h>
+#include "align.h"
+#include "type.h"
 
 namespace num {
 

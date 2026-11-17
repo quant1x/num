@@ -8,7 +8,7 @@
 // 缺位填什么由调用方决定 —— 二元算子传 type_default<T>()（浮点是 NaN），
 // 这是 Go 侧 Align 的用法，不要在这里改成 0。
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
 

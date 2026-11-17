@@ -21,7 +21,7 @@
 #include <cstddef>
 #include <type_traits>
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
 

@@ -7,8 +7,8 @@
 // 与 zeros.h 的不对称来自 Go：Zeros 取长度（shape），Ones 取一个样本向量，
 // 返回**同样长度**、元素全为 1 的新向量。
 
-#include <num/repeat.h>
-#include <num/type.h>
+#include "repeat.h"
+#include "type.h"
 
 namespace num {
 

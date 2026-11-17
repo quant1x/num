@@ -19,8 +19,8 @@
 #include <cstddef>
 #include <string_view>
 
-#include <num/errors.h>
-#include <num/type.h>
+#include "errors.h"
+#include "type.h"
 
 namespace num {
 

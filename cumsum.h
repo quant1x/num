@@ -6,7 +6,7 @@
 //
 // 累计和：第 i 个元素等于 x[0..i] 之和（顺序累加，不重排）。
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
 

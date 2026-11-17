@@ -14,7 +14,7 @@
 
 #include <cstddef>
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
     namespace detail {

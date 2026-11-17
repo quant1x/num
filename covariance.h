@@ -7,8 +7,8 @@
 // 协方差与方差（均为总体口径：除以 n）。长度不等或空输入一律返回 0，
 // 不抛异常 —— 与 Go 一致。
 
-#include <num/mean.h>
-#include <num/type.h>
+#include "mean.h"
+#include "type.h"
 
 namespace num {
 

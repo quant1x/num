@@ -7,8 +7,8 @@
 // 等差序列：arange（起止步长）/ linspace（起止个数）/ range（0..n-1）。
 // 步长为 0 时 arange 无解，抛 RangeError（Go 侧同等输入是死循环，属缺陷，不复制）。
 
-#include <num/errors.h>
-#include <num/type.h>
+#include "errors.h"
+#include "type.h"
 
 namespace num {
 

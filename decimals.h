@@ -7,7 +7,7 @@
 // 舍入口径与 Go 一致：**半程远离零**（decimal(0.5) = 1、decimal(-0.5) = -1），
 // 不是银行家舍入；digits 为负按 0 处理；入参 NaN 按 0 参与舍入，±Inf 原样返回。
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
 

@@ -12,8 +12,8 @@
 #include <cmath>
 #include <type_traits>
 
-#include <num/mean.h>
-#include <num/type.h>
+#include "mean.h"
+#include "type.h"
 
 namespace num {
 

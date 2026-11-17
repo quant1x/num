@@ -9,8 +9,8 @@
 // 不是取最长。故 float 场景下超出的那一侧会与 NaN 比较，结果恒为 false、
 // 不相等恒为 true。
 
-#include <num/align.h>
-#include <num/type.h>
+#include "align.h"
+#include "type.h"
 
 namespace num {
 

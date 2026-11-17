@@ -10,8 +10,8 @@
 // diff（当前减前一）符号相反，不要按 pandas 的直觉改。
 // 平移引入的越界位是默认值（浮点为 NaN），故这些位置的结果也是 NaN。
 
-#include <num/shift.h>
-#include <num/type.h>
+#include "shift.h"
+#include "type.h"
 
 namespace num {
 

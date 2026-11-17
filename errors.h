@@ -12,7 +12,7 @@
 #include <string>
 #include <string_view>
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
 

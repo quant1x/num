@@ -9,8 +9,8 @@
 // - 遇 NaN 保持原值：只有 y[i] > x[i] 成立才覆盖，NaN 参与比较恒为 false。
 //   这一点与 NumPy 的 maximum 不同（NumPy 传播 NaN），不要换成 xt::maximum。
 
-#include <num/align.h>
-#include <num/type.h>
+#include "align.h"
+#include "type.h"
 
 namespace num {
 

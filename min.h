@@ -6,7 +6,7 @@
 //
 // 最小值：空输入返回 0；NaN 参与比较恒为 false，故首个元素是 NaN 时结果就是 NaN。
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
 

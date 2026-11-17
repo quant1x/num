@@ -9,9 +9,9 @@
 // 第二操作数按第一个操作数的长度对齐 —— 标量广播，向量比目标短则用默认值补齐、
 // 长则截断（与 Go AnyToSlice(y, len(x)) 同口径）。
 
-#include <num/align.h>
-#include <num/repeat.h>
-#include <num/type.h>
+#include "align.h"
+#include "repeat.h"
+#include "type.h"
 
 namespace num {
 

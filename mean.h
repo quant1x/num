@@ -7,8 +7,8 @@
 // 均值：空输入返回 0（Go 门面层 Mean 经 UnaryOperations1，长度 0 时返回零值，
 // 不是抛错 —— 不要照 x32/x64 的 panic 改）。
 
-#include <num/sum.h>
-#include <num/type.h>
+#include "sum.h"
+#include "type.h"
 
 namespace num {
 

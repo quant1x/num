@@ -25,9 +25,9 @@
 #include <tuple>
 #include <utility>
 
-#include <num/cross.h>
-#include <num/decimals.h>
-#include <num/type.h>
+#include "cross.h"
+#include "decimals.h"
+#include "type.h"
 
 namespace num {
 

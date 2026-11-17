@@ -6,8 +6,8 @@
 //
 // 逐元素除。除零按 IEEE 走（±Inf / NaN），不抛异常 —— 与 Go 的浮点除零一致。
 
-#include <num/arithmetics.h>
-#include <num/type.h>
+#include "arithmetics.h"
+#include "type.h"
 
 namespace num {
 

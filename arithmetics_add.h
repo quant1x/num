@@ -6,8 +6,8 @@
 //
 // 逐元素加：结果长度与第一个操作数相同；第二个操作数可以是标量或向量。
 
-#include <num/arithmetics.h>
-#include <num/type.h>
+#include "arithmetics.h"
+#include "type.h"
 
 namespace num {
 

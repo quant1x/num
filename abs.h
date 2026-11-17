@@ -13,7 +13,7 @@
 
 #include <xtensor/core/xmath.hpp>
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
 

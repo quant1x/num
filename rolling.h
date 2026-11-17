@@ -24,9 +24,9 @@
 #include <utility>
 #include <vector>
 
-#include <num/errors.h>
-#include <num/periods.h>
-#include <num/type.h>
+#include "errors.h"
+#include "periods.h"
+#include "type.h"
 
 namespace num {
 

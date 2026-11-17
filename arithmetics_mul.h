@@ -6,8 +6,8 @@
 //
 // 逐元素乘。
 
-#include <num/arithmetics.h>
-#include <num/type.h>
+#include "arithmetics.h"
+#include "type.h"
 
 namespace num {
 

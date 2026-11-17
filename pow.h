@@ -9,7 +9,7 @@
 
 #include <cmath>
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
 

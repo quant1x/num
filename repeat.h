@@ -6,7 +6,7 @@
 //
 // 重复构造：把标量 a 铺成 n 个元素的向量。n < 1 返回空向量（Go 同口径）。
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
 

@@ -6,7 +6,7 @@
 //
 // 全部为真：数值按「不为 0」判（NaN 不为 0，故算真），布尔按值判。空输入为真。
 
-#include <num/type.h>
+#include "type.h"
 
 namespace num {
 

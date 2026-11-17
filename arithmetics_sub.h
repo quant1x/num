@@ -6,8 +6,8 @@
 //
 // 逐元素减 z = x - y；sub_inplace 为原地形态（Go SubInplace）。
 
-#include <num/arithmetics.h>
-#include <num/type.h>
+#include "arithmetics.h"
+#include "type.h"
 
 namespace num {
 
