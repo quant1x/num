@@ -157,8 +157,9 @@
 | Rust | 未落地 | — | — |
 | Go | 仓库根 `*_test.go`（49 个文件，与实现同名） | 82 个 `Test` + 46 个 `Benchmark` | `go test .`（实测 `ok github.com/quant1x/num 0.491s`） |
 
-用例与实现同目录同包；`window_test.go` 只有基准、无用例，见 §5 TODO。加速开关的关闭路径**未**在门面层
-用例里遍历（`functions.Info().Acceleration` 在本包用例中无引用），见 §4.6 与 §5 TODO。
+用例与实现同目录同包；`window_test.go` 只有基准、无用例，见 §5 TODO。本包用例**未**按
+[§7](CONTRIBUTING.md#7-测试规范) 的 `accel` 两遍跑（`functions.Info().Acceleration` 在 82 个 `Test` 里无引用，
+只有 `align` / `repeat` / `diff` 的基准用 `SetAvx2Enabled` 切换），见 §4.6 与 §5 TODO。
 
 ### 4.2 覆盖率
 
@@ -213,7 +214,7 @@
 | 补 C++ 生产实现 | 整包无 `.h` / `.cpp` | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
 | 补 Rust 对齐实现 | 整包无 `.rs` | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
 | 清 `go vet` 报错 | 5 处 `unreachable code`：`type.go:211`、`type.go:296`、`type_float64.go:134`、`type_integer.go:75`、`type_strings.go:188` | 无技术阻塞；需逐个确认是死分支还是 `panic` 之后的正常不可达 | §4.4 | 待建单 | 中 |
-| 门面层用例跑两条加速路径 | 本包 49 个测试文件均未引用 `functions.Info().Acceleration`，`UseAVX2 = false` 分支在门面层无用例覆盖 | 无技术阻塞，待排期 | §4.1 / §4.6 | 待建单 | 中 |
+| 根包用例按 `accel` 两遍跑 | 82 个 `Test` 均未引用 `functions.Info().Acceleration`，`UseAVX2 = false` 分支在根包层无用例（`x32` / `x64` 的用例已按 §7 跑两遍） | 无技术阻塞，待排期 | §4.1 / §4.6 | 待建单 | 中 |
 | 提升覆盖率并设门槛 | 语句覆盖 42.1%，仓库未设门槛；`window_test.go` 只有基准、无 `Test` | 无技术阻塞，待排期 | §4.2 | 待建单 | 中 |
 | 登记基准基线 | 46 个 `Benchmark*` 均无基线值与环境说明 | 需固定一台基准机，并写明 CPU / OS / commit | §4.5 | 待建单 | 中 |
 | 引入重复度检测 | 仓库无重复度工具与阈值配置 | 无技术阻塞，待排期 | §4.3 | 待建单 | 低 |

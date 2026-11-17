@@ -162,7 +162,7 @@ NEON（`accel_neon_arm64.s`，1695 行 / 28 个 `TEXT` 符号），其余平台�
 | --- | --- | --- | --- |
 | `Xxx_Go` vs `Xxx_AVX2_*` 对拍 | 各 `*_test.go` | 逐元素相等；长度 1、块大小 ±1、多块；`NaN` / `±Inf` / `±0` | `go test ./internal/functions/` |
 | arm64 NEON vs Go 路径 | 交叉编译后经 qemu 执行 | 同一批用例在 arm64 上全绿 | 见下 |
-| 两条路径开关 | **缺**：11 个测试文件均未引用 `SetAcceleration` / `UseAVX2` | `UseAVX2 = false` 时适配层只走 Go 路径这一分支无用例 | 见 §5 TODO |
+| 两条路径开关 | 由适配层承担：`x32/vek_test.go` 与 `x64/vek_test.go` 用 `accel := []bool{false, functions.Info().Acceleration}` 跑两遍 | 本包用例直接对拍 `Xxx_Go` 与 `Xxx_AVX2_*`，不需要开关 | `go test ./x32/ ./x64/` |
 
 arm64 验证流程（[BUILDING.md §5.6](../../BUILDING.md)）：
 
@@ -182,6 +182,5 @@ wsl -d Debian bash -lc "cd /mnt/d/projects/quant1x/num && chmod +x temp/internal
 | 清理 `Zeros_AVX2_F64` / `Ones_AVX2_F64` | arm64 与 noasm 有定义、amd64 无定义，且全仓无调用方 | 需决定是补 amd64 实现还是删掉这三处 | §2 | 待建单 | 中 |
 | 补 Python spec | 无 `*.py`，归约顺序、未命中返回值等口径无正式 spec | 无技术阻塞，待排期 | §1 | 待建单 | 高 |
 | 补目录 `README.md` | 本目录缺 `README.md`（[§6.1](../../CONTRIBUTING.md#61-每个目录必须有-readmemd)），文件清单与层级关系只在本文档里 | 无技术阻塞，待排期 | §1 | 待建单 | 中 |
-| 用例覆盖关闭加速的路径 | `SetAcceleration` / `UseAVX2` 在 11 个测试文件中零引用，`UseAVX2 = false` 时适配层只走 Go 分支这一条无用例 | 无技术阻塞，待排期 | §4.6 | 待建单 | 中 |
 | 设覆盖率门槛 | 64.5%，仓库未设统一门槛 | 无技术阻塞，待排期 | §4.2 | 待建单 | 低 |
 | 登记基准基线 | 26 个 `Benchmark*` 无基线值；arm64 侧需真机数据 | 需固定基准机并写明 CPU / OS / commit | §4.5 | 待建单 | 低 |

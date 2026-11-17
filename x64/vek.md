@@ -136,13 +136,12 @@
 | 场景 | 测试位置 | 断言内容 | 运行命令 |
 | --- | --- | --- | --- |
 | 与 `x32` 同构算子的行为一致 | 两侧 `vek_test.go` | 同一算子族在 f64 / f32 上的返回形态与失败约定一致 | `go test ./x64/ ./x32/` |
-| 加速 / 回退两条路径 | **缺**：`vek_test.go` 未切换 `functions.UseAVX2` | 关闭加速后结果不变 | 见 §5 TODO |
+| 加速 / 回退两条路径 | `vek_test.go` 顶部 `accel []bool{false, functions.Info().Acceleration}` | 两种开关下同一算子结果一致 | `go test ./x64/` |
 
 ## 5. TODO
 
 | 待办项 | 缺什么 | 卡在哪 | 关联章节 | 关联 issue | 优先级 |
 | --- | --- | --- | --- | --- | --- |
-| 覆盖关闭加速的路径 | `vek_test.go` 未切换 `functions.UseAVX2`，回退路径无用例 | 无技术阻塞，待排期 | §4.6 | 待建单 | 中 |
 | 补 Python spec | 无 `x64/vek.py`，三形式契约与失败约定无正式 spec | 无技术阻塞，待排期 | §1 | 待建单 | 高 |
 | 与 `x32` 的 API 不对称 | x64 无超越函数（`Sin` / `Cos` / `Exp` / `Log*`），独有 `FromFloat32` / `ToFloat32`；是否需要跨宽度对齐 | 取决于 `x32` / `x64` 的 spec 定案 | §2 | 待建单 | 低 |
 | 补目录 `README.md` | 本目录缺 `README.md`（[§6.1](../../CONTRIBUTING.md#61-每个目录必须有-readmemd)） | 无技术阻塞，待排期 | §1 | 待建单 | 中 |
