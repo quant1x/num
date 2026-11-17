@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.9] - 2026-11-17
+### Changed
+- fix[c++]：shift 拒绝非 int 的算术常量
+  - shift.h 加 deleted 重载（enable_if 限定为算术类型且非 int），0.5 / 1u / 1L 等在编译期报 C2280，不再被隐式截断成 0
+  - Vector<DType> 逐元素重载不受影响：不是算术类型，被 enable_if 排除
+  - 与 Go 侧入口收敛（int / []DType，其余 ErrInvalidWindow）对应
+  - ndarray_test.cpp 删掉「Go 的 v3Shift 在 n == 0 返回全零数组」的错误注释
+  - num.md §2 补 C++ 侧编译期拒绝的口径，§5 该待办出表
+
+  关联 #15
+
+  验证：
+  - cl /std:c++20 /Zs /W4 探针：shift(s, 1) / shift(s, 0) / shift(s, Vector<DType>) 通过，shift(s, 0.5) 报 C2280
+  - cmake --build --preset release-static
+  - ctest --preset release-static（221/221）
+  - temp/cpp/hygiene/check.ps1（59 headers, 0 error, 0 warning）
+- release version 0.8.9
+
 ## [0.8.8] - 2026-11-17
 ### Changed
 - fix[go]：Shift 的窗口参数收敛为 int 与 []DType
@@ -818,7 +836,8 @@ All notable changes to this project will be documented in this file.
 - 初始化Changelog
 
 
-[Unreleased]: https://codeberg.org/quant1x/num/compare/v0.8.8...HEAD
+[Unreleased]: https://codeberg.org/quant1x/num/compare/v0.8.9...HEAD
+[0.8.9]: https://codeberg.org/quant1x/num/compare/v0.8.8...v0.8.9
 [0.8.8]: https://codeberg.org/quant1x/num/compare/v0.8.7...v0.8.8
 [0.8.7]: https://codeberg.org/quant1x/num/compare/v0.8.6...v0.8.7
 [0.8.6]: https://codeberg.org/quant1x/num/compare/v0.8.5...v0.8.6
