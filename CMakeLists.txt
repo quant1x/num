@@ -126,6 +126,11 @@ add_library(num_core STATIC
         # 频率解析 / 日期序列
         freq.h
 
+        # 正态分布表（ztable_data.cpp 承载 2×10000 项数据）
+        ztable.h
+        ztable_data.h
+        ztable_data.cpp
+
         # 标量工具（decimal 是非模板实现，落编译单元）
         decimals.h
         decimals.cpp
@@ -183,6 +188,8 @@ if(NUM_BUILD_TESTS)
             matrix_test.cpp
             # 多项式：poly_fit / poly_val
             polynomial_test.cpp
+            # 正态分布表：find_percent / find_zscore / 置信区间互查
+            ztable_test.cpp
     )
 
     target_link_libraries(num_cpp_tests PRIVATE num_core GTest::gtest_main)
