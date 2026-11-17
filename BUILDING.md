@@ -13,7 +13,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | Go | `go.mod` | 库（无命令行入口） | **已落地** |
 | 汇编内核（amd64 / arm64） | 随 Go 包编译 | `.s` 编进库 | **已落地** |
 | Python | `pyproject.toml`（未建） | 包 | 未落地 |
-| C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | 部分落地（51 个功能行） |
+| C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | 部分落地（53 个功能行） |
 | Rust | `Cargo.toml`（未建） | 库 | 未落地 |
 | Zig / Java | 无清单文件 | — | 未落地（扩展语言） |
 
@@ -166,7 +166,7 @@ gofmt -l .
 C++ 侧：
 
 ```bash
-ctest --preset release-static      # 156 个用例，Release + /MT
+ctest --preset release-static      # 171 个用例，Release + /MT
 ctest --preset debug-static        # 同一批用例，Debug + /MTd
 ```
 
