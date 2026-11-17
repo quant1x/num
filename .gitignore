@@ -23,3 +23,11 @@ test-*-w*
 
 # 临时产物(见 CONTRIBUTING.md §3.6)
 temp/
+
+# C++：conan 的 generators 与 CMake 的中间件、用例二进制（BUILDING.md §1.2）
+build/
+# conan 默认写在仓库根的预设台账；本仓的预设收进 build/<配置>/generators/
+CMakeUserPresets.json
+
+# 编译数据库：VS 生成器不产出，改用单配置生成器（Ninja）时才有
+compile_commands.json

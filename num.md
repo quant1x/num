@@ -1,28 +1,21 @@
 # num：门面数值 API —— 按泛型类型分发到 `x32` / `x64` 与加速内核
 
-**边界**：本包（`github.com/quant1x/num`，`package num`）是仓库的**门面层**：把同一语义的强类型实现
-（`x32/`、`x64/`）与加速内核（`internal/functions/`）收在一条泛型签名后面，负责**类型分发**与**回退选择**。
-它**不**定义新的数值语义，也**不**承载 IO、序列化、时间序列数据容器；算法本体在 `x32/` / `x64/` /
-`internal/functions/` / `internal/partial/` / `math32/` / `binary/` / `vectors/` 各自成包。
+**边界**：本包（Go 侧 `github.com/quant1x/num`，`package num`；C++ 侧 `namespace num`）是仓库的**门面层**：把同一语义的强类型实现（`x32/`、`x64/`）与加速内核（`internal/functions/`）收在一条泛型签名后面，负责**类型分发**与**回退选择**。它**不**定义新的数值语义，也**不**承载 IO、序列化、时间序列数据容器；算法本体在 `x32/` / `x64/` / `internal/functions/` / `internal/partial/` / `math32/` / `binary/` / `vectors/` 各自成包。
 
-**文件组织**：逐语义一文件平铺在仓库根（`abs.go`、`sum.go`、`dot.go`、`rolling.go` …），本文件是整包的
-功能级文档，§2 一行一个功能对应到具体符号；本包无 `num.go`，文档以包名命名。
+C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f32 / f64 两条宽度，向量化由 xtensor 的 xsimd 后端承担，参考实现与加速实现是同一份代码，故不设 `x32` / `x64` / `internal/functions` 的对应文件（见 §2.1）。
+
+**文件组织**：逐语义一文件平铺在仓库根，Go 侧 `abs.go` / `sum.go` / `dot.go` / `rolling.go` …，C++ 侧同名不同后缀（`abs.h` / `sum.h` …，不用 `include/` 与 `src/` 两级目录）；本文件是整包的功能级文档，§2 一行一个功能对应到具体符号；本包无 `num.go` / `num.h`，文档以包名命名。
 
 ## 1. 路线图
 
-**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件），覆盖算术、归约、逻辑比较、
-数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。Python spec、C++、Rust 三侧均未落地，按
-[CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律) 现阶段整包判为
-**部分落地（缺 python / c++ / rust）**。下一个里程碑：先补 Python spec 作为语义准绳，再按
-[§2.3](CONTRIBUTING.md#23-语言角色与演进顺序) 顺序推广到 C++ 与 Rust。
+**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件），覆盖算术、归约、逻辑比较、数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。C++ 侧已立起构建链路并落地**第一批算子**（算术、归约、逻辑比较、构造与整形、舍入、指数对数、填充、一维点积、趋势与几何，§2 中 41 个功能行有 C++ 实现），其余类中的窗口、二维线代、分布表与类型转换族尚未移植。Python spec 与 Rust 均未落地，按 [CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律) 现阶段整包判为**部分落地（缺 python / rust）**。下一个里程碑：按 §5 TODO 的顺序补齐 C++ 剩余算子，同时补 Python spec 作为语义准绳。
 
-**临时基准**：Python 未落地期间，本文件与 Go 用例共同充当临时基准
-（[§9.3](CONTRIBUTING.md#93-spec--实现--验证)），Python 落地后以其为准。
+**临时基准**：Python 未落地期间，本文件与 Go 用例共同充当临时基准（[§9.3](CONTRIBUTING.md#93-spec--实现--验证)），Python 落地后以其为准。
 
 | 阶段 | 语言（角色） | 载体 / 文件 | 状态 | 说明 |
 | --- | --- | --- | --- | --- |
 | spec 定语义 | Python（spec） | 仓库根 `*.py`（与 `.go` 同名） | 未落地 | 语义源头，见 §5 TODO |
-| 生产实现 | C++（生产） | 仓库根 `*.h` / `*.cpp` | 未落地 | 见 §5 TODO |
+| 生产实现 | C++（生产） | 仓库根 `*.h` / `*.cpp`（与 `.go` 同名） | 部分落地 | 41 个功能行，见 §2 / §5 TODO |
 | 对齐实现 | Rust（对齐） | 仓库根 `*.rs` | 未落地 | 见 §5 TODO |
 | 对齐实现 | Go（对齐） | 仓库根 `*.go`（`package num`，64 个实现文件） | 已落地 | 用例见 §4.1 |
 
@@ -30,99 +23,93 @@
 
 **统一口径**：
 
-- **类型分发**：浮点（`[]float32`）走 `x32/`，浮点（`[]float64`）走 `x64/`，两者再下沉到
-  `internal/functions/` 的 `Xxx_AVX2_F32/F64` 内核；整型、无符号与其它类型走包内 `__go_*` 回退路径。
-  未命中分支的处理按函数分别是**原样返回**（`Abs` 对无符号 / 其它类型）、**panic `ErrUnsupportedType`**
-  （`Sqrt` 的非浮点）或 **panic `TypeError(v)`**（`Mean2` 的非数值），逐行见下表备注。
-- **无效值（NaN / nil）**：浮点用 `math.NaN()`（`NaN()` / `Float64NaN()` / `Float32NaN()`）；`int32` / `int64`
-  的无效值是 `0`；`bool` 的无效值是 `false`；`string` 的无效值是 `"NaN"`（`StringNaN`）。判 NaN 一律用
-  `DTypeIsNaN` / `Float32IsNaN` / `Float64IsNaN` / `StringIsNaN`，不直接与 `NaN` 比较。
-- **缺失值填充**：`Fill` / `FillNa` 默认**复制**入参再填（`args[0] == true` 时原地改）；`Rolling` 窗口不足
-  时**用空切片占位**，不补值；`Shift` 越界位填 `TypeDefault[T]()`。
-- **长度不齐**：`Where`、`Align`、`BinaryOperations` 按最长输入对齐，缺位用 `TypeDefault[T]()` 填。
-- **舍入**：`Decimal` 默认 2 位，负 `digits` 视为 0，入参为 `NaN` 时按 0 参与舍入。
-- **精度与平台**：浮点结果以 `x32` / `x64` 的加速实现为准，`internal/functions` 在 amd64 走 AVX2、arm64 走
-  NEON（内核同名 `Xxx_AVX2_F32/F64`），开关关闭或架构不支持时回退 Go 路径（[§5.6](CONTRIBUTING.md#56-向量化内核规范)）。
-- **并发**：`SetAvx2Enabled` **非线程安全**，只允许在用例与基准里切换，生产路径不得调用。
+- **类型分发（Go）**：浮点（`[]float32`）走 `x32/`，浮点（`[]float64`）走 `x64/`，两者再下沉到 `internal/functions/` 的 `Xxx_AVX2_F32/F64` 内核；整型、无符号与其它类型走包内 `__go_*` 回退路径。未命中分支的处理按函数分别是**原样返回**（`Abs` 对无符号 / 其它类型）、**panic `ErrUnsupportedType`**（`Sqrt` 的非浮点）或 **panic `TypeError(v)`**（`Mean2` 的非数值），逐行见下表备注。
+- **类型分发（C++）**：模板在**编译期**完成同一件事，非浮点类型在编译期即被 `static_assert` 拒绝（`sqrt` / `stddev`），没有运行期分支，也没有加速开关。
+- **无效值（NaN / nil）**：浮点用 `math.NaN()`（`NaN()` / `Float64NaN()` / `Float32NaN()`）；`int32` / `int64` 的无效值是 `0`；`bool` 的无效值是 `false`；`string` 的无效值是 `"NaN"`（`StringNaN`）。判 NaN 一律用 `DTypeIsNaN` / `Float32IsNaN` / `Float64IsNaN` / `StringIsNaN`，不直接与 `NaN` 比较。C++ 侧同口径收在 `type.h`：`type_default<T>()`（浮点 `NaN`、整型 `0`、`bool` `false`）与 `is_nan(DType)`。
+- **缺失值填充**：`Fill` / `FillNa` 默认**复制**入参再填（`args[0] == true` 时原地改）；`Rolling` 窗口不足时**用空切片占位**，不补值；`Shift` 越界位填 `TypeDefault[T]()`（C++ 侧 `shift` 同此口径）。
+- **长度不齐**：`Align`、`Where`、`Maximum` / `Minimum`、`Gt` / `Gte` / `Lt` / `Lte` / `And` / `Or` 按**最长**输入对齐；`Add` / `Sub` / `Mul` / `Div` 与 `Equal` / `NotEqual` 按**第一个操作数**的长度对齐（第二个短则补默认值、长则截断）。两侧都用 `TypeDefault[T]()` 填充，C++ 照此实现，不要统一成一种。
+- **舍入**：`Decimal` 默认 2 位，负 `digits` 视为 0，入参为 `NaN` 时按 0 参与舍入；进位是**半程远离零**（`decimal(0.5, 0) = 1`、`decimal(-0.5, 0) = -1`），不是银行家舍入。
+- **精度与平台**：Go 侧浮点结果以 `x32` / `x64` 的加速实现为准，`internal/functions` 在 amd64 走 AVX2、arm64 走 NEON（内核同名 `Xxx_AVX2_F32/F64`），开关关闭或架构不支持时回退 Go 路径（[§5.6](CONTRIBUTING.md#56-向量化内核规范)）。C++ 侧由 xtensor 表达式经 xsimd 后端向量化，指令集按编译器基线下发，**不**加 `/arch:AVX2`（见 §5 TODO）。
+- **并发**：`SetAvx2Enabled` **非线程安全**，只允许在用例与基准里切换，生产路径不得调用。C++ 侧无此开关。
+- **失败约定（C++）**：Go 的 `panic` 与 `error` 在 C++ 侧换成异常，类型与文案一一对应（`num::Error` 为基类，另有 `UnsupportedType` / `TypeError` / `RangeError` / `InvalidWindow` / `LengthMismatch` / `EmptyInput` / `DomainError`），调用方按类型 `catch`，不解析文案。
+- **C++ 侧的三个语言机制差异**（不是语义差异）：① 多返回值用 `std::tuple`（顺序与 Go 一致），需要保留"半成品 + 失败位"的用 `std::pair`（如 `fit_line`），只有"有 / 没有"的用 `std::optional`（如 `Line::intersect`）；② 结果元素是结构体时容器用 `std::vector`（`cross` 的 `LinerTrend`），xtensor 容器只装数值；③ 比较器按 `template` 形参收（`arg_rel_extrema`），Go 的 `func(a, b float64) bool` 直译成 lambda 即可。
+- **命名偏差（C++ 语言约束，非语义差异）**：`Std` → `stddev`（`num::std` 会把同命名空间内所有 `std::` 限定名遮蔽）；`And` / `Or` / `Not` → `logic_and` / `logic_or` / `logic_not`（`and` / `or` / `not` 是 C++ 关键字）。
 
 | 功能 | python（spec） | c++ | rust | go | zig | java | 状态 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 逐元素绝对值 | — | — | — | `Abs` | — | — | 部分落地（缺 python / c++ / rust） |
-| 标量整数绝对值 | — | — | — | `AbsInt` / `AbsInt8` / `AbsInt16` / `AbsInt32` / `AbsInt64` | — | — | 部分落地（缺 python / c++ / rust） |
-| 标量浮点绝对值 | — | — | — | `AbsFloat32` / `AbsFloat64` | — | — | 部分落地（缺 python / c++ / rust） |
-| 逐元素平方根 | — | — | — | `Sqrt` | — | — | 部分落地（缺 python / c++ / rust） |
-| 逐元素整数次幂 | — | — | — | `Pow` | — | — | 部分落地（缺 python / c++ / rust） |
-| 逐元素 `log(1+x)` | — | — | — | `Log1p` / `Log1pUnrolled` | — | — | 部分落地（缺 python / c++ / rust） |
-| 逐元素 `e^x-1` | — | — | — | `Expm1` / `Expm1Unrolled` | — | — | 部分落地（缺 python / c++ / rust） |
-| 二进制位舍入 | — | — | — | `Decimal` | — | — | 部分落地（缺 python / c++ / rust） |
-| 逐元素加 | — | — | — | `Add` | — | — | 部分落地（缺 python / c++ / rust） |
-| 逐元素减 | — | — | — | `Sub` / `SubInplace` | — | — | 部分落地（缺 python / c++ / rust） |
-| 逐元素乘 | — | — | — | `Mul` | — | — | 部分落地（缺 python / c++ / rust） |
-| 逐元素除 | — | — | — | `Div` | — | — | 部分落地（缺 python / c++ / rust） |
-| 逐元素取大 / 取小 | — | — | — | `Maximum` / `Minimum` | — | — | 部分落地（缺 python / c++ / rust） |
-| 变化率 / 净变化率 | — | — | — | `ChangeRate` / `NetChangeRate` | — | — | 部分落地（缺 python / c++ / rust） |
-| 一元运算分发内核 | — | — | — | `UnaryOperations` / `UnaryOperations1` / `UnaryOperations2` | — | — | 部分落地（缺 python / c++ / rust） |
-| 二元运算分发内核 | — | — | — | `BinaryOperations` / `BinaryOperations2` | — | — | 部分落地（缺 python / c++ / rust） |
-| 求和 | — | — | — | `Sum` | — | — | 部分落地（缺 python / c++ / rust） |
-| 均值 | — | — | — | `Mean` / `Mean2` | — | — | 部分落地（缺 python / c++ / rust） |
+| 逐元素绝对值 | — | `abs` | — | `Abs` | — | — | 部分落地（缺 python / rust） |
+| 标量整数绝对值 | — | `abs_int` / `abs_int8` / `abs_int16` / `abs_int32` / `abs_int64` | — | `AbsInt` / `AbsInt8` / `AbsInt16` / `AbsInt32` / `AbsInt64` | — | — | 部分落地（缺 python / rust） |
+| 标量浮点绝对值 | — | `abs_float32` / `abs_float64` | — | `AbsFloat32` / `AbsFloat64` | — | — | 部分落地（缺 python / rust） |
+| 逐元素平方根 | — | `sqrt` | — | `Sqrt` | — | — | 部分落地（缺 python / rust） |
+| 逐元素整数次幂 | — | `pow` | — | `Pow` | — | — | 部分落地（缺 python / rust） |
+| 逐元素 `log(1+x)` | — | `log1p` | — | `Log1p` / `Log1pUnrolled` | — | — | 部分落地（缺 python / rust） |
+| 逐元素 `e^x-1` | — | `expm1` | — | `Expm1` / `Expm1Unrolled` | — | — | 部分落地（缺 python / rust） |
+| 二进制位舍入 | — | `decimal` | — | `Decimal` | — | — | 部分落地（缺 python / rust） |
+| 逐元素加 | — | `add` / `add_inplace` | — | `Add` | — | — | 部分落地（缺 python / rust） |
+| 逐元素减 | — | `sub` / `sub_inplace` | — | `Sub` / `SubInplace` | — | — | 部分落地（缺 python / rust） |
+| 逐元素乘 | — | `mul` / `mul_inplace` | — | `Mul` | — | — | 部分落地（缺 python / rust） |
+| 逐元素除 | — | `div` / `div_inplace` | — | `Div` | — | — | 部分落地（缺 python / rust） |
+| 逐元素取大 / 取小 | — | `maximum` / `minimum` | — | `Maximum` / `Minimum` | — | — | 部分落地（缺 python / rust） |
+| 变化率 / 净变化率 | — | `change_rate` / `net_change_rate` | — | `ChangeRate` / `NetChangeRate` | — | — | 部分落地（缺 python / rust） |
+| 一元运算分发内核 | — | —（模板在编译期分发，不设此层） | — | `UnaryOperations` / `UnaryOperations1` / `UnaryOperations2` | — | — | 部分落地（缺 python / rust） |
+| 二元运算分发内核 | — | —（模板在编译期分发，不设此层） | — | `BinaryOperations` / `BinaryOperations2` | — | — | 部分落地（缺 python / rust） |
+| 求和 | — | `sum` | — | `Sum` | — | — | 部分落地（缺 python / rust） |
+| 均值 | — | `mean` | — | `Mean` / `Mean2` | — | — | 部分落地（缺 python / rust） |
 | 中位数 | — | — | — | `Median` | — | — | 部分落地（缺 python / c++ / rust） |
-| 最大值 / 最小值 | — | — | — | `Max` / `Max2` / `Min` / `Min2` | — | — | 部分落地（缺 python / c++ / rust） |
-| 极值下标 | — | — | — | `ArgMax` / `ArgMax2` / `ArgMin` / `ArgMin2` | — | — | 部分落地（缺 python / c++ / rust） |
-| 标准差 / 方差 / 协方差 | — | — | — | `Std` / `Variance` / `Covariance` | — | — | 部分落地（缺 python / c++ / rust） |
-| 非零计数 | — | — | — | `Count` | — | — | 部分落地（缺 python / c++ / rust） |
-| 全真 / 任一为真 | — | — | — | `All` / `Any` | — | — | 部分落地（缺 python / c++ / rust） |
-| 逐元素逻辑与 / 或 / 非 | — | — | — | `And` / `Or` / `Not` | — | — | 部分落地（缺 python / c++ / rust） |
-| 逐元素比较 | — | — | — | `Gt` / `Gte` / `Lt` / `Lte` / `Equal` / `NotEqual` | — | — | 部分落地（缺 python / c++ / rust） |
-| 条件选择 | — | — | — | `Where` | — | — | 部分落地（缺 python / c++ / rust） |
-| 等差序列 | — | — | — | `Arange` / `Linspace` / `Range` | — | — | 部分落地（缺 python / c++ / rust） |
-| 全零 / 全一 | — | — | — | `Zeros` / `Ones` | — | — | 部分落地（缺 python / c++ / rust） |
-| 按最长对齐 | — | — | — | `Align` | — | — | 部分落地（缺 python / c++ / rust） |
+| 最大值 / 最小值 | — | `max` / `min` | — | `Max` / `Max2` / `Min` / `Min2` | — | — | 部分落地（缺 python / rust） |
+| 极值下标 | — | `argmax` / `argmin` | — | `ArgMax` / `ArgMax2` / `ArgMin` / `ArgMin2` | — | — | 部分落地（缺 python / rust） |
+| 标准差 / 方差 / 协方差 | — | `stddev` / `variance` / `covariance` | — | `Std` / `Variance` / `Covariance` | — | — | 部分落地（缺 python / rust） |
+| 非零计数 | — | `count` | — | `Count` | — | — | 部分落地（缺 python / rust） |
+| 全真 / 任一为真 | — | `all` / `any` | — | `All` / `Any` | — | — | 部分落地（缺 python / rust） |
+| 逐元素逻辑与 / 或 / 非 | — | `logic_and` / `logic_or` / `logic_not` | — | `And` / `Or` / `Not` | — | — | 部分落地（缺 python / rust） |
+| 逐元素比较 | — | `gt` / `gte` / `lt` / `lte` / `equal` / `not_equal` | — | `Gt` / `Gte` / `Lt` / `Lte` / `Equal` / `NotEqual` | — | — | 部分落地（缺 python / rust） |
+| 条件选择 | — | `where` | — | `Where` | — | — | 部分落地（缺 python / rust） |
+| 等差序列 | — | `arange` / `linspace` / `range` | — | `Arange` / `Linspace` / `Range` | — | — | 部分落地（缺 python / rust） |
+| 全零 / 全一 | — | `zeros` / `ones` | — | `Zeros` / `Ones` | — | — | 部分落地（缺 python / rust） |
+| 按最长对齐 | — | `align` | — | `Align` | — | — | 部分落地（缺 python / rust） |
 | 形状 | — | — | — | `Shape` | — | — | 部分落地（缺 python / c++ / rust） |
-| 重复 / 重复写入 | — | — | — | `Repeat` / `RepeatInto` | — | — | 部分落地（缺 python / c++ / rust） |
+| 重复 / 重复写入 | — | `repeat` / `repeat_into` | — | `Repeat` / `RepeatInto` | — | — | 部分落地（缺 python / rust） |
 | 一维拼接 | — | — | — | `Concat1D` | — | — | 部分落地（缺 python / c++ / rust） |
 | 二维转置 | — | — | — | `Transpose2D` | — | — | 部分落地（缺 python / c++ / rust） |
-| 缺失值填充 | — | — | — | `Fill` / `FillNa` | — | — | 部分落地（缺 python / c++ / rust） |
-| 累计和 | — | — | — | `CumSum` | — | — | 部分落地（缺 python / c++ / rust） |
-| 一阶离散差分 | — | — | — | `Diff` / `V2Diff` | — | — | 部分落地（缺 python / c++ / rust） |
-| 索引平移 | — | — | — | `Shift` | — | — | 部分落地（缺 python / c++ / rust） |
+| 缺失值填充 | — | `fill` / `fill_inplace` / `fill_na` / `fill_na_inplace` | — | `Fill` / `FillNa` | — | — | 部分落地（缺 python / rust） |
+| 累计和 | — | `cumsum` / `cumsum_inplace` | — | `CumSum` | — | — | 部分落地（缺 python / rust） |
+| 一阶离散差分 | — | `diff` | — | `Diff` / `V2Diff` | — | — | 部分落地（缺 python / rust） |
+| 索引平移 | — | `shift` | — | `Shift` | — | — | 部分落地（缺 python / rust） |
 | 滑动窗口 | — | — | — | `Rolling` / `RollingApply` | — | — | 部分落地（缺 python / c++ / rust） |
 | 滚动窗口对象 | — | — | — | `RollingWindow` / `Any2Window` / `Window.At` / `Window.IsConst` | — | — | 部分落地（缺 python / c++ / rust） |
 | 周期序列 | — | — | — | `Periods` / `AnyToPeriod` | — | — | 部分落地（缺 python / c++ / rust） |
-| 波峰波谷 | — | — | — | `PeeksAndValleys` / `ArgRelExtrema` | — | — | 部分落地（缺 python / c++ / rust） |
-| 两序列交叉 | — | — | — | `Cross` | — | — | 部分落地（缺 python / c++ / rust） |
+| 波峰波谷 | — | `arg_rel_extrema`（`peeks_and_valleys` 在 Go 侧是空实现，未移植） | — | `PeeksAndValleys` / `ArgRelExtrema` | — | — | 部分落地（缺 python / rust） |
+| 两序列交叉 | — | `cross` / `LinerTrend` / `TrendState` | — | `Cross` | — | — | 部分落地（缺 python / rust） |
 | 频率解析 / 日期序列 | — | — | — | `ParseFreq` / `DateRange` | — | — | 部分落地（缺 python / c++ / rust） |
-| 点积 | — | — | — | `Dot` / `Dot1D` / `Dot2D` / `Dot2D1` / `Dot2D1_v2` / `Dot2D_V1` / `Dot_v1` | — | — | 部分落地（缺 python / c++ / rust） |
+| 点积 | — | `dot1d`（二维族未移植，见 §5 TODO） | — | `Dot` / `Dot1D` / `Dot2D` / `Dot2D1` / `Dot2D1_v2` / `Dot2D_V1` / `Dot_v1` | — | — | 部分落地（缺 python / rust） |
 | 矩阵求逆 | — | — | — | `Inverse` | — | — | 部分落地（缺 python / c++ / rust） |
 | 多项式拟合 / 求值 | — | — | — | `PolyFit` / `PolyVal` | — | — | 部分落地（缺 python / c++ / rust） |
-| 直线方程与角度 | — | — | — | `Slope` / `SlopeToDegrees` / `DegreesToSlope` / `CalculateLineEquation` / `TriangleBevel` | — | — | 部分落地（缺 python / c++ / rust） |
-| 趋势线拟合 | — | — | — | `FitLine` / `Line.*`（`Analyze` / `Extend` / `Angle` / `Incr` / `X` / `Y` …） | — | — | 部分落地（缺 python / c++ / rust） |
-| 点 / 数据点 | — | — | — | `Point` / `NewPoint` / `DataPoint` / `Point.Add` | — | — | 部分落地（缺 python / c++ / rust） |
-| 关联趋势 | — | — | — | `LinerTrend` | — | — | 部分落地（缺 python / c++ / rust） |
+| 直线方程与角度 | — | `slope` / `triangle_bevel` / `degrees_to_slope` / `slope_to_degrees` / `calculate_line_equation` / `Line`（`radian` / `degrees` / `angle` / `equation` / `distance` / `horizontal_distance` / `vertical_distance` / `shortest_distance` / `parallel_line` / `symmetric_parallel_line` / `x` / `y` / `incr` / `intersect`） | — | `Slope` / `SlopeToDegrees` / `DegreesToSlope` / `CalculateLineEquation` / `TriangleBevel` | — | — | 部分落地（缺 python / rust） |
+| 趋势线拟合 | — | `fit_line`（`Line::extend` / `Line::analyze`） | — | `FitLine` / `Line.*`（`Analyze` / `Extend` / `Angle` / `Incr` / `X` / `Y` …） | — | — | 部分落地（缺 python / rust） |
+| 点 / 数据点 | — | `Point` / `DataPoint` / `new_point`（`add` / `to_data_point` / `to_point`） | — | `Point` / `NewPoint` / `DataPoint` / `Point.Add` | — | — | 部分落地（缺 python / rust） |
+| 关联趋势 | — | `LinerTrend`（`x` / `state`） | — | `LinerTrend` | — | — | 部分落地（缺 python / rust） |
 | 正态分布分位 | — | — | — | `FindPercent` / `FindZScore` | — | — | 部分落地（缺 python / c++ / rust） |
 | 置信区间换算 | — | — | — | `ConfidenceIntervalToZscore` / `ZscoreToConfidenceInterval` | — | — | 部分落地（缺 python / c++ / rust） |
-| 类型零值 / 无效值 | — | — | — | `TypeDefault` / `NaN` / `DTypeIsNaN` / `Float32NaN` / `Float64NaN` | — | — | 部分落地（缺 python / c++ / rust） |
-| `any` 转数值 | — | — | — | `AnyToInt32` / `AnyToInt64` / `AnyToFloat32` / `AnyToFloat64` / `AnyToBool` / `AnyToString` | — | — | 部分落地（缺 python / c++ / rust） |
+| 类型零值 / 无效值 | — | `type_default` / `nan` / `is_nan` | — | `TypeDefault` / `NaN` / `DTypeIsNaN` / `Float32NaN` / `Float64NaN` | — | — | 部分落地（缺 python / rust） |
+| `any` 转数值 | — | —（静态类型，不设 `any`） | — | `AnyToInt32` / `AnyToInt64` / `AnyToFloat32` / `AnyToFloat64` / `AnyToBool` / `AnyToString` | — | — | 部分落地（缺 python / c++ / rust） |
 | 字符串解析 | — | — | — | `ParseBool` / `ParseInt32` / `ParseInt64` / `ParseFloat32` / `ParseFloat64` / `GenericParse` | — | — | 部分落地（缺 python / c++ / rust） |
 | 切片类型转换 | — | — | — | `SliceToBool` / `SliceToInts` / `SliceToFloat32` / `SliceToFloat64` / `SliceToString` / `SliceFloatToInt32` / `SliceFloatToInt64` / `Slice2DType` / `DType2Int` | — | — | 部分落地（缺 python / c++ / rust） |
 | 布尔与数值互转 | — | — | — | `BoolToInt` / `BoolToInt32` / `BoolToInt64` / `BoolToFloat32` / `BoolToFloat64` / `BoolToString` | — | — | 部分落地（缺 python / c++ / rust） |
 | 字符串判空 / 判真 | — | — | — | `IsEmpty` / `StringIsTrue` / `StringIsFalse` / `StringIsNaN` | — | — | 部分落地（缺 python / c++ / rust） |
-| 泛型与反射工具 | — | — | — | `AnyToGeneric` / `AnyToSlice` / `Any2DType` / `CheckoutRawType` / `ExtractValueFromPointer` | — | — | 部分落地（缺 python / c++ / rust） |
-| 格式化与诊断 | — | — | — | `DefaultFormatter` / `PrintString` / `PanicTrace` / `TypeError` / `ErrUnsupportedType` / `ErrRange` / `ErrInvalidWindow` | — | — | 部分落地（缺 python / c++ / rust） |
-| 加速开关 | — | — | — | `GetAvx2Enabled` / `SetAvx2Enabled` | — | — | 部分落地（缺 python / c++ / rust） |
+| 泛型与反射工具 | — | —（静态类型，不设反射） | — | `AnyToGeneric` / `AnyToSlice` / `Any2DType` / `CheckoutRawType` / `ExtractValueFromPointer` | — | — | 部分落地（缺 python / rust） |
+| 格式化与诊断 | — | 异常族 `Error` / `UnsupportedType` / `TypeError` / `RangeError` / `InvalidWindow` / `LengthMismatch` / `EmptyInput` / `DomainError` | — | `DefaultFormatter` / `PrintString` / `PanicTrace` / `TypeError` / `ErrUnsupportedType` / `ErrRange` / `ErrInvalidWindow` | — | — | 部分落地（缺 python / rust） |
+| 加速开关 | — | —（无运行期开关） | — | `GetAvx2Enabled` / `SetAvx2Enabled` | — | — | 部分落地（缺 python / c++ / rust） |
 
-**状态判据**：[CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律)。四门必做语言
-（python / c++ / rust / go）中目前只有 Go 落地，故全表统一为「部分落地（缺 python / c++ / rust）」；
-`zig` / `java` 为扩展列，不参与判定。本表**未**逐函数审计 Go 用例覆盖度，包级覆盖率见 §4.2。
+**状态判据**：[CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律)。四门必做语言（python / c++ / rust / go）中 Go 全落地、C++ 落地第一批 41 个功能行，故带 c++ 符号的行判「部分落地（缺 python / rust）」，其余判「部分落地（缺 python / c++ / rust）」；`zig` / `java` 为扩展列，不参与判定。本表**未**逐函数审计用例覆盖度，包级覆盖率见 §4.2。
 
 ### 2.1 两层 API 对照
 
-门面层（本包）与强类型层（`x32/` / `x64/`）是**同一语义的两套入口**：门面层按运行时类型分发，强类型层是
-分发的落点，也是加速内核的直接调用者。二者用例各在自己目录，互不替代。
+门面层（本包）与强类型层（`x32/` / `x64/`）是**同一语义的两套入口**：门面层按运行时类型分发，强类型层是分发的落点，也是加速内核的直接调用者。二者用例各在自己目录，互不替代。C++ 侧只有一层 —— 模板同时覆盖 f32 / f64 两条宽度，强类型层的存在理由（避开运行期分派成本）由编译期实例化天然满足。
 
 | 层 | 定位 | python（spec） | c++ | rust | go |
 | --- | --- | --- | --- | --- | --- |
-| 门面 API | 调用方默认入口，泛型 + `any`，跨类型统一签名 | — | — | — | 本包（`package num`） |
-| 强类型 API | 需要固定 dtype 或直接控制加速路径时使用 | — | — | — | `x32/` / `x64/`（`package x32` / `package x64`） |
+| 门面 API | 调用方默认入口，泛型 + `any`，跨类型统一签名 | — | 本包（`namespace num`，仓库根 `*.h` / `*.cpp`） | — | 本包（`package num`） |
+| 强类型 API | 需要固定 dtype 或直接控制加速路径时使用 | — | —（模板已覆盖两条宽度，不另设层） | — | `x32/` / `x64/`（`package x32` / `package x64`） |
 
 ## 3. 依赖
 
@@ -138,13 +125,17 @@
 | `github.com/quant1x/num/binary` | 本仓 `binary/` | `Repeat` 的批量写入 | go | 逐元素写入过慢，批量复制才达性能预期 |
 | `github.com/quant1x/num/vectors` | 本仓 `vectors/` | `Repeat` 的向量化路径 | go | 与 `binary/` 同为 `Repeat` 的性能路径 |
 | `math` / `slices` / `reflect` / `errors` / `fmt` / `strconv` / `strings` / `time` | Go 标准库 | 数学函数、切片克隆、类型反射、错误与频率解析 | go | 标准库足够，不引入三方依赖 |
+| `xtensor` | conan `xtensor/0.27.1` | `xtensor` / `xarray` 容器与逐元素表达式 | c++ | 仓库根 `conanfile.py` 固化版本；`Vector<T>` = `xt::xtensor<T, 1>` |
+| `xsimd` | conan `xsimd/13.2.0`（随 `xtensor`） | 表达式层的 SIMD 后端 | c++ | 由 `xtensor/*:xsimd=True` 打开，编译期下发 `XTENSOR_USE_XSIMD` |
+| `gtest` | conan `gtest/1.18.0`（`test_requires`） | C++ 用例断言 | c++ | 只用于 `*_test.cpp`，不进库产物 |
+| 标准库 `<cmath>` / `<cstdint>` / `<stdexcept>` | C++20 | 数学函数、定宽标量、异常 | c++ | 除 xtensor 外不引入第三方运行时依赖 |
 | `github.com/stretchr/testify` | v1.11.1 | 测试断言（仅 `*_test.go`） | go | 只用于用例，不进运行时路径 |
 
 **入向依赖（谁依赖本模块）**：
 
 | 调用方 | 用途 | 备注 |
 | --- | --- | --- |
-| 仓库外部使用者 | 直接以 `github.com/quant1x/num` 作为门面调用 | 仓库内**无**其它包 import 本包（`x32/` / `x64/` / `internal/` 均不反向依赖），无循环依赖风险 |
+| 仓库外部使用者 | 直接以 `github.com/quant1x/num`（Go）或 `num_core`（C++）作为门面调用 | 仓库内**无**其它包 import 本包（`x32/` / `x64/` / `internal/` 均不反向依赖），无循环依赖风险 |
 
 ## 4. 测试
 
@@ -153,66 +144,73 @@
 | 语言 | 测试文件 | 用例数 | 运行命令 |
 | --- | --- | --- | --- |
 | Python（spec） | 未落地 | — | — |
-| C++ | 未落地 | — | — |
+| C++ | 仓库根 `*_test.cpp`（12 个文件，与语义族同名） | 111 个 `TEST` | `ctest --preset release-static`（实测 `100% tests passed out of 111`，Debug 预设同数） |
 | Rust | 未落地 | — | — |
 | Go | 仓库根 `*_test.go`（49 个文件，与实现同名） | 82 个 `Test` + 46 个 `Benchmark` | `go test .`（实测 `ok github.com/quant1x/num 0.491s`） |
 
-用例与实现同目录同包；`window_test.go` 只有基准、无用例，见 §5 TODO。本包用例**未**按
-[§7](CONTRIBUTING.md#7-测试规范) 的 `accel` 两遍跑（`functions.Info().Acceleration` 在 82 个 `Test` 里无引用，
-只有 `align` / `repeat` / `diff` 的基准用 `SetAvx2Enabled` 切换），见 §4.6 与 §5 TODO。
+用例与实现同目录；`window_test.go` 只有基准、无用例，见 §5 TODO。本包 Go 用例**未**按 [§7](CONTRIBUTING.md#7-测试规范) 的 `accel` 两遍跑（`functions.Info().Acceleration` 在 82 个 `Test` 里无引用，只有 `align` / `repeat` / `diff` 的基准用 `SetAvx2Enabled` 切换），见 §4.6 与 §5 TODO。
+
+C++ 用例按**语义族**合并成 6 个文件（`arithmetics_test.cpp` / `aggregates_test.cpp` / `logic_test.cpp` / `construct_test.cpp` / `ndarray_test.cpp` / `decimals_test.cpp`），每个 `TEST` 由 `gtest_discover_tests` 注册成一条 ctest 用例；覆盖 f32 / f64 两条宽度、空输入、长度不齐、`NaN` / `±Inf` / `±0`。C++ 侧无 `accel` 两遍跑可言（没有运行期加速开关）。
 
 ### 4.2 覆盖率
 
-口径为 Go 语句覆盖，只在 Go 内比较，无跨语言可比性。
+口径为 Go 语句覆盖，只在 Go 内比较，无跨语言可比性；C++ 侧尚未接入覆盖率工具。
 
 | 语言 | 工具 | 门槛 | 运行命令 |
 | --- | --- | --- | --- |
 | Go | `go test -cover` | 仓库未设门槛 | `go test -cover .` |
+| C++ | 未接入（见 §5 TODO） | 仓库未设门槛 | — |
 
-**实测**：`42.1% of statements`（`go test -count=1 -cover .`，HEAD `04e2d1f` + 工作树未提交改动）。
-覆盖率缺口与未设门槛一并登记在 §5 TODO。
+**实测**：`42.1% of statements`（`go test -count=1 -cover .`，HEAD `04e2d1f` + 工作树未提交改动）。覆盖率缺口与未设门槛一并登记在 §5 TODO。
 
 ### 4.3 重复度
 
-本模块不涉及：仓库尚未引入重复度检测工具（无 `.jscpd.json` 等配置），按 §6.3 保留本节并说明。引入后须
-在此登记工具、阈值与扫描范围。
+本模块不涉及：仓库尚未引入重复度检测工具（无 `.jscpd.json` 等配置），按 §6.3 保留本节并说明。引入后须在此登记工具、阈值与扫描范围。
 
 ### 4.4 静态检查
 
 | 语言 | 工具 | 运行命令 | 备注 |
 | --- | --- | --- | --- |
 | Go | `gofmt -l` ＋ `go vet` | `gofmt -l .`、`go vet .` | `gofmt -l` 实测无输出；`go vet .` **未通过**，报 5 处 `unreachable code`，见 §5 TODO |
+| C++ | MSVC `/W4`（构建期即检查） | `cmake --build --preset release-static` | 实测 0 警告；`/utf-8` 必开（无 BOM 的 UTF-8 源文件在中文 Windows 上会被按 GBK 误读）；41 个根头文件另各自单独成 TU 编译（`cl /Zs /W4`），实测 0 error / 0 warning —— 没有"靠别的头间接带入 include"的隐患 |
 
-`go vet .` 当前输出：`type.go:211`、`type.go:296`、`type_float64.go:134`、`type_integer.go:75`、
-`type_strings.go:188`。
+`go vet .` 当前输出：`type.go:211`、`type.go:296`、`type_float64.go:134`、`type_integer.go:75`、`type_strings.go:188`。
 
 ### 4.5 基准测试
 
 | 语言 | 基准路径 | 指标 | 基线（含环境与 commit） | 运行命令 |
 | --- | --- | --- | --- | --- |
 | Go | 仓库根 `*_test.go` 内的 46 个 `Benchmark*`（`align` / `diff` / `repeat` / `shift` / 算术等） | `ns/op`、`B/op`、`allocs/op` | 未登记（见 §5 TODO） | `go test -run=NONE -bench=. -benchmem .` |
+| C++ | 未落地（见 §5 TODO） | `ns/op`（Google Benchmark） | 未登记 | — |
 
-基准按 `avx2` / `noavx2` 分组命名（如 `BenchmarkRepeat_release_avx2_float64` /
-`BenchmarkRepeat_release_noavx2_float64`），切换时用 `SetAvx2Enabled` 并在 `defer` 里复位。无基线值时
-只看同机同提交内的相对差异。
+基准按 `avx2` / `noavx2` 分组命名（如 `BenchmarkRepeat_release_avx2_float64` / `BenchmarkRepeat_release_noavx2_float64`），切换时用 `SetAvx2Enabled` 并在 `defer` 里复位。无基线值时只看同机同提交内的相对差异。
 
 ### 4.6 契约 / 一致性测试
 
-本模块不涉及跨语言互操作（只有 Go 落地）；跨**架构**一致性由 `x32/` / `x64/` 与 `internal/functions/`
-的用例承担，不在本包：
+跨**架构**一致性由 `x32/` / `x64/` 与 `internal/functions/` 的用例承担，不在本包；跨**语言**一致性（C++ 与 Go 逐值对拍）尚无自动化手段，见 §5 TODO：
 
 | 场景 | 测试位置 | 断言内容 | 运行命令 |
 | --- | --- | --- | --- |
 | AVX2（amd64） / NEON（arm64） 与 Go 路径等价 | `x32/*_test.go`、`x64/*_test.go`、`internal/functions/*_test.go` | 逐元素相等；长度 1、块大小 ±1；`NaN` / `±Inf` / `±0` | `go test ./x32/ ./x64/ ./internal/functions/` |
-| 门面层两条路径 | 本包用例（**缺**） | `UseAVX2 = false` 与 `true` 下结果一致 | 见 §5 TODO |
+| 门面层两条路径 | 本包 Go 用例（**缺**） | `UseAVX2 = false` 与 `true` 下结果一致 | 见 §5 TODO |
+| C++ 与 Go 逐值一致 | 本包 C++ 用例（**缺对拍**） | 同一输入下两语言输出逐值相等（含 NaN 位置） | 见 §5 TODO |
 
 ## 5. TODO
 
 | 待办项 | 缺什么 | 卡在哪 | 关联章节 | 关联 issue | 优先级 |
 | --- | --- | --- | --- | --- | --- |
-| 补 Python spec | 整包无 `.py`，语义准绳缺失，§2 全部 62 行均缺 python 列 | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
-| 补 C++ 生产实现 | 整包无 `.h` / `.cpp` | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
+| 补齐 C++ 剩余算子 | 已落地 41 个功能行（§2 有 c++ 符号的行）；缺 `Median`（语义待定）/ `Shape` / `Concat1D` / `Transpose2D` / 窗口族（`Rolling` / `RollingApply` / `RollingWindow`）/ `Periods` / `PeeksAndValleys`（Go 侧空实现）/ 二维点积族 / `Inverse` / `PolyFit` / `PolyVal` / 正态分布表 / 类型转换族 | 二维族等 `Matrix` 层语义定案；其余按语义族分批推进 | §1 / §2 | #11 | 高 |
+| `cross` 的相等口径 | 判据是**前一根与当前根都严格分居两侧**，任一格相等即不记；"先触碰再穿越"的常见写法会多记一根 | 需在补 Python spec 时确认这是意图还是历史写法 | §2 | 待建单 | 低 |
+| `fit_line` 的失败返回 | 单点输入返回 `intercept = y[0]` 的水平线同时标记失败（`std::pair<Line,bool>`），C++ 照此保留 | 补 spec 时确认失败位与半成品是否都要保留 | §2 | 待建单 | 低 |
+| 补 Python spec | 整包无 `.py`，语义准绳缺失 | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
 | 补 Rust 对齐实现 | 整包无 `.rs` | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
+| C++ 与 Go 逐值对拍 | 无跨语言对拍用例：C++ 侧断言按文档口径手写，未与 Go 输出自动比对 | 需要一套统一的输入/期望样本（JSON 或头文件表）与两侧共用的比对脚本 | §4.6 | #11 | 中 |
+| C++ 打包与导出 | `conan create` 与 `cmake --install` 未落地，`num_core` 只能源码内使用 | 安装布局要与扁平目录一起设计（头文件按 `num/` 前缀导出） | §3 | #11 | 中 |
+| C++ 指令集分发 | 只按编译器基线下发，未做运行期多版本分发（Go 侧有 `UseAVX2` 开关与两套内核） | 需要 CMake 多目标编译 + 运行期 `__builtin_cpu_supports` / `IsProcessorFeaturePresent` 探测；会牺牲老 CPU 兼容，须先定策略 | §2 精度与平台 | #11 | 中 |
+| `shift(s, 0)` 口径统一 | C++ 返回原序列，Go 的 `v3Shift` 返回全零数组 | 需与 Go 侧确认后统一（C++ 未复制该缺陷） | §2 缺失值填充 | #11 | 中 |
+| `diff` 方向文档化核对 | C++ 已按 Go 口径实现为 `s[i-n] - s[i]`（与 pandas 相反），但 Go 侧无文档说明 | 需确认是设计意图还是历史包袱 | §2 | #11 | 低 |
+| 根包 `Median` 未排序 | Go 的 `Median` 取中间两元素却不排序，空输入返 `NaN`、单元素返 `0` | 语义未定，C++ 暂不移植 | §2 | 待建单 | 中 |
+| C++ 覆盖率与基准 | 无覆盖率工具接入、无 Google Benchmark 用例与基线 | 需要在 CMake 侧引入 `llvm-cov` / `benchmark` | §4.2 / §4.5 | #11 | 低 |
 | 清 `go vet` 报错 | 5 处 `unreachable code`：`type.go:211`、`type.go:296`、`type_float64.go:134`、`type_integer.go:75`、`type_strings.go:188` | 无技术阻塞；需逐个确认是死分支还是 `panic` 之后的正常不可达 | §4.4 | 待建单 | 中 |
 | 根包用例按 `accel` 两遍跑 | 82 个 `Test` 均未引用 `functions.Info().Acceleration`，`UseAVX2 = false` 分支在根包层无用例（`x32` / `x64` 的用例已按 §7 跑两遍） | 无技术阻塞，待排期 | §4.1 / §4.6 | 待建单 | 中 |
 | 提升覆盖率并设门槛 | 语句覆盖 42.1%，仓库未设门槛；`window_test.go` 只有基准、无 `Test` | 无技术阻塞，待排期 | §4.2 | 待建单 | 中 |

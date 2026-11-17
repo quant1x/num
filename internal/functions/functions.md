@@ -17,7 +17,9 @@
 
 **当前位置与下一步**：Go 侧两套架构都已落地 —— amd64 的 AVX2（`accel_avx2_amd64.s`，11579 行）与 arm64 的
 NEON（`accel_neon_arm64.s`，1695 行 / 28 个 `TEXT` 符号），其余平台由 `accel_noasm.go` 提供桩并在
-`UseAVX2 = false` 下不被调用。Python / C++ / Rust 均未落地，按
+`UseAVX2 = false` 下不被调用。Python / Rust 均未落地；C++ 侧**不设本层**（模板 + xsimd 把参考实现与加速
+内核合成一份代码，对应语义在仓库根门面层落地，见
+[§3.8](../../CONTRIBUTING.md#38-c单层扁平无-include--src)），故本表的 c++ 列一律留 `—`。按
 [§6.4](../../CONTRIBUTING.md#64-落地状态与配套纪律) 现判 **部分落地（缺 python / c++ / rust）**。下一个里程碑：
 补 Python spec 作为内核语义准绳（归约顺序、未命中返回值、NaN 传播），再按
 [§2.3](../../CONTRIBUTING.md#23-语言角色与演进顺序) 推广。
@@ -28,7 +30,7 @@ NEON（`accel_neon_arm64.s`，1695 行 / 28 个 `TEXT` 符号），其余平台�
 | 阶段 | 语言（角色） | 载体 / 文件 | 状态 | 说明 |
 | --- | --- | --- | --- | --- |
 | spec 定语义 | Python（spec） | `internal/functions/*.py` | 未落地 | 见 §5 TODO |
-| 生产实现 | C++（生产） | `internal/functions/*.h` / `*.cpp` | 未落地 | 见 §5 TODO |
+| 生产实现 | C++（生产） | —（不设本层） | — | 对应语义在仓库根门面层，见 [§3.8](../../CONTRIBUTING.md#38-c单层扁平无-include--src) |
 | 对齐实现 | Rust（对齐） | `internal/functions/*.rs` | 未落地 | 见 §5 TODO |
 | 对齐实现 | Go（对齐） | `internal/functions/*.go`（39 个）＋ 2 个 `.s` | 已落地 | amd64 AVX2 ＋ arm64 NEON ＋ 其余平台桩 |
 

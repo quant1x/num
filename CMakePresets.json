@@ -1,0 +1,78 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 30,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "release-static",
+            "displayName": "Release 静态CRT (/MT)",
+            "description": "conan: -s build_type=Release -s compiler.runtime=static",
+            "generator": "Visual Studio 17 2022",
+            "toolset": {
+                "value": "v143",
+                "strategy": "external"
+            },
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "toolchainFile": "${sourceDir}/build/release-static/generators/conan_toolchain.cmake",
+            "binaryDir": "${sourceDir}/build/release-static",
+            "cacheVariables": {
+                "CMAKE_CONFIGURATION_TYPES": "Release"
+            }
+        },
+        {
+            "name": "debug-static",
+            "displayName": "Debug 静态CRT (/MTd)",
+            "description": "conan: -s build_type=Debug -s compiler.runtime=static",
+            "generator": "Visual Studio 17 2022",
+            "toolset": {
+                "value": "v143",
+                "strategy": "external"
+            },
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "toolchainFile": "${sourceDir}/build/debug-static/generators/conan_toolchain.cmake",
+            "binaryDir": "${sourceDir}/build/debug-static",
+            "cacheVariables": {
+                "CMAKE_CONFIGURATION_TYPES": "Debug"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "release-static",
+            "configurePreset": "release-static",
+            "configuration": "Release"
+        },
+        {
+            "name": "debug-static",
+            "configurePreset": "debug-static",
+            "configuration": "Debug"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "release-static",
+            "configurePreset": "release-static",
+            "configuration": "Release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "debug-static",
+            "configurePreset": "debug-static",
+            "configuration": "Debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ]
+}

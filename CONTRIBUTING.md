@@ -49,7 +49,9 @@ num 是**多语言平行实现**的数值计算库（NumPy 风格）：同一份
 - **AI 友好**：高一致的目录与命名，为跨语言阅读与代码生成提供稳定上下文。
 
 **落地现状**：Go 已落地（门面层 `package num` + 适配层 `x32` / `x64` + 内核层
-`internal/functions` + 汇编内核）；Python / C++ / Rust / Zig / Java 均**未落地**，在对照表里写 `—`。
+`internal/functions` + 汇编内核）；C++ 已立起构建链路并落地**第一批算子**（算术、归约、逻辑比较、
+构造与整形、舍入、指数对数、填充、一维点积、趋势与几何，共 41 个功能行），其余算子与 Python / Rust /
+Zig / Java 均**未落地**，在对照表里写 `—`。
 Go 落地期间承担"事实上的 spec"，但**不得**据此把自己特有的结构、函数名或行为写成跨语言语义。
 
 ## 2. 语言与版本基线
@@ -61,7 +63,7 @@ Go 落地期间承担"事实上的 spec"，但**不得**据此把自己特有的
 | 语言 | 最低版本 | 依据 |
 | --- | --- | --- |
 | Python | 3.8+ | 尚未落地；落地时以 `pyproject.toml` 的 `requires-python` 为准（建议 3.12+） |
-| C / C++ | C17 / C++20 | 尚未落地；落地时以 CMake 配置为准（与 quant1x 同口径） |
+| C / C++ | C++20；CMake 3.30+ | `CMakeLists.txt` 的 `CMAKE_CXX_STANDARD` / `cmake_minimum_required`（不符在配置期 `FATAL_ERROR`） |
 | Rust | 1.100.0+ | 尚未落地；落地时以 `rust-toolchain.toml` 为准（Edition 2024） |
 | Go | **1.27.3** | `go.mod` 的 `go` 指令（当前唯一清单文件） |
 | Zig | 0.17+ | 尚未落地 |
@@ -79,14 +81,17 @@ Go 落地期间承担"事实上的 spec"，但**不得**据此把自己特有的
 | Linux / 其他 Unix | **GCC 13+** | 不使用 Clang |
 | macOS | **Apple Clang** | 系统工具链 |
 
-C++ 侧尚未落地，本节固定编译器口径，落地时按此配置并在 CMake 配置阶段对不符的编译器直接报错。
+本节口径已在 `CMakeLists.txt` 落地：不符的编译器在**配置阶段**直接 `FATAL_ERROR`，不留"能编就行"的口子。
+另有两条与编译器绑定的固定项：MSVC 必开 `/utf-8`（源文件是无 BOM 的 UTF-8，见 §5.8，中文 Windows 上默认按
+GBK 解析会切碎注释并连带吃换行）、`CMAKE_MSVC_RUNTIME_LIBRARY` 恒为 `MultiThreaded[/Debug]`（与 conan 的
+`compiler.runtime=static` 同档，否则链接期 `LNK2038`）。
 
 ### 2.3 语言角色与演进顺序
 
 | 顺序 | 语言（角色） | 职责 | 当前状态 |
 | --- | --- | --- | --- |
 | 1 | **Python（spec）** | 先行实现，确定语义、API 与默认行为；其余语言的语义参照 | 未落地 |
-| 2 | **C++（生产）** | spec 确定后落地；性能与内存的第一形态 | 未落地 |
+| 2 | **C++（生产）** | spec 确定后落地；性能与内存的第一形态 | **部分落地**（41 个功能行） |
 | 3 | **Rust / Go（对齐）** | 与 spec 逐词对应；语义以 Python 为准，可对照 C++ 实现阅读 | **Go 已落地**，Rust 未落地 |
 | 4 | **Zig（扩展）** | 与 Go 同级，都是扩展语言；当前只承载小功能实现 | 未落地 |
 | 5 | **Java（扩展）** | 仅承载对照实现与基准 | 未落地 |
@@ -96,7 +101,8 @@ C++ 侧尚未落地，本节固定编译器口径，落地时按此配置并在 
 - **表格列序固定** `python → c++ → rust → go → zig → java`；`java` 固定在末尾作可选列，新增语言插在它之前，
   不因角色调整改列序。
 - **必做与可选**：`python`（spec）、`c++`、`rust`、`go` 是**目标必做语言**；`zig`、`java` 为扩展，未落地时对照表
-  留 `—`，不影响该行状态。**现阶段只要求 Go 落地**，其余必做语言落地后该行才按四门判定。
+  留 `—`，不影响该行状态。四门按行判定：该行有 Go + C++ 实现判「部分落地（缺 python / rust）」，只有 Go
+  判「部分落地（缺 python / c++ / rust）」。
 - **跨语言差异先从 Python 定案**，再推广到 C++，最后到 Rust / Go / Zig；Python 缺某能力而其它语言已有，
   先补 Python spec，不得反向让 spec 迁就实现。
 - 文档、注释与 API 对照表描述语言时沿用上表列序；**不得把某一门语言当成全部语言的语义源头**
@@ -131,11 +137,12 @@ C++ 侧尚未落地，本节固定编译器口径，落地时按此配置并在 
 - **现阶段**：仓库根**即实现根**。Go 的公开包平铺在根目录（`sum.go` / `dot.go` / `matrix.go` …），
   内部包在 `internal/`，工具包为一级目录（`x32/` / `x64/` / `math32/` / `math64/` / `binary/` / `kind/` /
   `vectors/` / `labs/`）。
-- 仓库根只放构建与打包入口（`go.mod`，将来落地其它语言时补 `CMakeLists.txt` / `Cargo.toml` /
-  `pyproject.toml` / `pom.xml`）与跨语言基础设施（`docs/`、`tests/`、`benches/`、`tools/`）。
+- 仓库根只放构建与打包入口（`go.mod`；C++ 的 `conanfile.py` / `CMakeLists.txt` / `CMakePresets.json`；
+  将来补 `Cargo.toml` / `pyproject.toml` / `pom.xml`）与跨语言基础设施（`docs/`、`tests/`、`benches/`、
+  `tools/`）。
 - **导入 / 包含路径本身属于语义**：同一功能在各语言的模块路径必须对位。Go 的包路径即
-  `github.com/quant1x/num/<目录>`，将来 C++ 用 `<num/<模块>/<头文件>.h>`、Python 用 `<包>.<模块>.<子模块>`，
-  三段式对位关系在模块 `.md` 的对照表里登记。
+  `github.com/quant1x/num/<目录>`，C++ 用 `<num/<模块>/<头文件>.h>`（包含根是仓库根的上一级），Python 用
+  `<包>.<模块>.<子模块>`，三段式对位关系在模块 `.md` 的对照表里登记。
 
 ### 3.2 同一功能平铺、同名不同后缀
 
@@ -145,7 +152,7 @@ C++ 侧尚未落地，本节固定编译器口径，落地时按此配置并在 
 internal/functions/
 ├── arithmetic.md       # 文档（Spec / 对照表）
 ├── arithmetic.py       # Python（spec，未落地时只占位）
-├── arithmetic.h        # C++ 头（未落地）
+├── arithmetic.h        # C++（模板在头，非模板实现落同名 .cpp）
 ├── arithmetic.rs       # Rust（未落地）
 ├── arithmetic.go       # Go（package functions）
 └── accel_*.{go,s}      # 各语言自己的加速实现，随语言后缀
@@ -231,6 +238,37 @@ internal/functions/
   （见 [BUILDING.md](BUILDING.md) §4.1），不看 `./...` 的失败项。
 - 不许顺手"修好"它：这些 fork 早已停止维护，改动它不产生交付价值，只会制造新的差异。
 - 实验结论（生成命令、参数、坑）写进 [BUILDING.md](BUILDING.md) §5，不写进源码注释。
+
+### 3.8 C++：单层扁平，无 `include/` / `src/`
+
+C++ 侧**不设** `include/` 与 `src/` 两级目录：文件与同语义的 `.go` 同目录、同名词干、只差扩展名
+（`sum.go` ↔ `sum.h`），包含形态与 Go 的包路径对位（`#include <num/sum.h>`）。
+
+分层也与 Go 不同 —— **只有一层**：
+
+| 维度 | Go | C++ |
+| --- | --- | --- |
+| f32 / f64 两条宽度 | `x32/` + `x64/` 两套强类型 API | 模板 `Vector<T>` 一次覆盖 |
+| 参考实现 vs 加速内核 | `internal/functions` 的 `Xxx_Go` + `Xxx_AVX2_*` | xtensor 表达式 + xsimd 后端，同一份代码 |
+| 运行时类型分派 | `UnaryOperations` / `BinaryOperations` 按 `any` 分派 | 编译期实例化，不设分派层 |
+
+因此 C++ 侧**不建** `x32/` / `x64/` / `internal/functions/` 的对应文件：那会让同一语义并存两份实现，
+与"实现异构、语义相同"的本意相反。
+
+约定：
+
+- **头文件承载模板，`.cpp` 只承载非模板实现**（如 `decimals.cpp` 里的 `decimal`）。不为对齐目录而给每个
+  算子造空的编译单元；用例是 `*_test.cpp`，与实现同目录。
+- **失败约定用异常**：Go 的 `panic` 对应 `num::Error` 的派生类（`UnsupportedType` / `TypeError` /
+  `RangeError` / `InvalidWindow` / `LengthMismatch` / `EmptyInput`），文案与 Go 逐字对应，调用方按类型
+  `catch`，不解析文案。非浮点类型进 `sqrt` / `stddev` 一类算子时由 `static_assert` **在编译期**拒绝，
+  不留运行期分支。
+- **关键字与限定名避让**：`and` / `or` / `not` 是 C++ 关键字，对应 `logic_and` / `logic_or` / `logic_not`；
+  `std` 不能作函数名（会遮蔽同命名空间内所有 `std::` 限定名），Go 的 `Std` 在 C++ 侧叫 `stddev`。
+  这两类偏差登记在模块 `.md` 的对照表里。
+- **编译清单显式登记**：新增算子同时在 `CMakeLists.txt` 的 `num_core` 与 `num_cpp_tests` 里逐文件登记，
+  不用 `file(GLOB ...)`（见 [BUILDING.md](BUILDING.md) §3.4）。
+- 构建命令、预设与 conan 约定见 [BUILDING.md](BUILDING.md) §6.2。
 
 ## 4. 命名与数据契约
 
@@ -480,7 +518,7 @@ type VectorStat struct {
 | 泛型约束 | `internal/constraints`、根包 `Number` / `BaseType` 等 |
 
 - 只有确实没有对应能力时才在本地实现，并在注释里说明为何不复用。
-- 具体签名以对应包的 Go 文档为准；Python / Rust / C++ 侧落地时用同语义名对齐。
+- 具体签名以对应包的 Go 文档为准；C++ 已落地部分见 `num.md` §2，Python / Rust 侧落地时用同语义名对齐。
 
 ### 5.8 文件编码与行尾
 
@@ -590,8 +628,9 @@ API 都要在同一次提交里更新该 `.md`。
 ### 6.4 落地状态与配套纪律
 
 - 落地状态只写三种：`已落地`、`部分落地`（**必须注明缺什么**：缺语言 / 缺语义 / 缺用例）、`未落地`；
-  `java` 不参与判定。不写"计划中"这类无承诺的占位，待办放 §5 TODO。**现阶段**：只有 Go 已落地的行，
-  状态按"Go 侧可用且有用例"判 `部分落地（缺 python / c++ / rust）`，并把这句话写清楚。
+  `java` 不参与判定。不写"计划中"这类无承诺的占位，待办放 §5 TODO。**现阶段**：Go 全落地、C++ 部分落地，
+  状态按"该行有哪几门语言的可用实现 + 有用例"判 —— 有 Go + C++ 判 `部分落地（缺 python / rust）`，
+  只有 Go 判 `部分落地（缺 python / c++ / rust）`，并把这句话写清楚。
 - 跨语言差异、失败约定、平台差异等**语义判据**写进模块 `.md`；本文件只放跨模块通用的约定。
 - **多语言模块的头注释只写 `spec`**：`// spec    : <该语义的 Python 文件>` 一行足够，**不再罗列兄弟语言
   的路径** —— 同目录同名后缀与模块 `.md` 的逐语言状态表已经表达这层关系，手工清单会随新增语言腐烂。

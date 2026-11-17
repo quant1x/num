@@ -6,14 +6,14 @@ num 是**多语言平行实现**的数值计算库：Python / C++ / Rust / Go �
 FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构建链路，互不依赖；跨语言之间只通过同名接口、
 统一的数据契约和同一组黄金测试向量保持一致。
 
-**现阶段只有 Go 落地**，本文 §2 ~ §5 是可执行的部分；其余语言章节保留骨架，命令随落地补齐。
+**现阶段 Go 全落地、C++ 部分落地**：本文 §2 ~ §5 是可执行的 Go 部分，§6.2 是可执行的 C++ 部分；其余语言章节保留骨架，命令随落地补齐。
 
 | 构建单元 | 构建入口 | 产物 | 当前状态 |
 | --- | --- | --- | --- |
 | Go | `go.mod` | 库（无命令行入口） | **已落地** |
 | 汇编内核（amd64 / arm64） | 随 Go 包编译 | `.s` 编进库 | **已落地** |
 | Python | `pyproject.toml`（未建） | 包 | 未落地 |
-| C/C++ | `CMakeLists.txt`（未建） | 静态库 | 未落地 |
+| C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | 部分落地（41 个功能行） |
 | Rust | `Cargo.toml`（未建） | 库 | 未落地 |
 | Zig / Java | 无清单文件 | — | 未落地（扩展语言） |
 
@@ -27,7 +27,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | --- | --- | --- |
 | Go | `go.mod` | **1.27.3**（以 `go` 指令为准） |
 | Python | `pyproject.toml`（未建） | 落地后以 `requires-python` 为准（与 quant1x 同口径：3.8+，建议 3.12+） |
-| C/C++ | CMake 配置（未建） | 落地后按 C17 / C++20；Windows 用 MSVC v143，Linux 用 GCC 13+ |
+| C/C++ | `CMakeLists.txt`（`cmake_minimum_required`） | **C++20**（`CMAKE_CXX_STANDARD 20`，`CXX_EXTENSIONS OFF`）；**CMake ≥ 3.30**；Windows 用 MSVC v143（19.30+，统一 `/MT` 静态 CRT），Linux 用 GCC 13+，macOS 用 AppleClang。基线不符**配置期**直接 `FATAL_ERROR`，不是告警 |
 | Rust | `rust-toolchain.toml`（未建） | 落地后按 1.100.0 / Edition 2024 |
 | Zig | 无清单文件 | 落地后按 0.17+ |
 | Java | `pom.xml`（未建） | 落地后按 Java 8 字节码目标 |
@@ -42,6 +42,8 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | `temp/` | 临时产物 | 验证脚本、交叉编译二进制（`*.test`）、导出数据；层级复刻源码结构，不入库 |
 | `coverage.txt` / `coverage.out` | 覆盖率产物 | `go.test.sh` 生成，已在 `.gitignore` |
 | `*.test` | 测试二进制 | `go test -c` 的产物，已在 `.gitignore`；不要留在包目录 |
+| `build/` | C++ 构建产物 | conan 的 `generators/` 与 CMake 的中间件、用例二进制；**整目录不入库**（已在 `.gitignore`） |
+| `CMakeUserPresets.json` | C++ 预设台账 | conan 默认写在仓库根的台账文件，本仓不用（预设收进各自的 `build/<配置>/generators/`），已在 `.gitignore` |
 | Go build cache / `GOMODCACHE` | 工具缓存 | 由工具管理，不手工清理挪动 |
 
 临时验证脚本与一次性产物**放 `temp/`**，不要污染源码树；产物与产生它的脚本同目录。
@@ -128,6 +130,21 @@ go env -w GOPRIVATE=github.com/quant1x
 2. 该目录补 `README.md`（[CONTRIBUTING.md §6.1](CONTRIBUTING.md#61-每个目录必须有-readme-md)）；
 3. 若它属于新的一层（如将来的 `tests/`、`docs/`），同步 [CONTRIBUTING.md §3.1](CONTRIBUTING.md#31-仓库根与实现根)。
 
+C++ 侧另有一条：新增算子必须在 `CMakeLists.txt` 里**逐文件显式登记**（`num_core` 的源清单与
+`num_cpp_tests` 的用例清单各一处），不用 `file(GLOB ...)` —— glob 的结果依赖配置时刻的目录快照，
+新增文件不重配就静默漏编。
+
+### 3.5 C++ 目标
+
+| 目标 | 类型 | 内容 | 说明 |
+| --- | --- | --- | --- |
+| `num_core`（别名 `num::num_core`） | `STATIC` | 仓库根的 `*.h` + `decimals.cpp` | 门面实现。以 header-only 模板为主，只有非模板实现（`decimal`）落编译单元 |
+| `num_cpp_tests` | `EXECUTABLE` | 仓库根的 12 个 `*_test.cpp` | 链接 `num_core` 与 `GTest::gtest_main`，由 `gtest_discover_tests` 逐 `TEST` 注册到 ctest |
+
+包含根是**仓库根的上一级**，故公共头的包含形态为 `<num/<模块>/<头文件>.h>`（根目录的 `sum.h` →
+`#include <num/sum.h>`）；与 [CONTRIBUTING.md §3.1](CONTRIBUTING.md#31-仓库根与实现根) 登记的三段式对位，
+将来补安装导出时布局照此形（`include/num/...`）。
+
 ---
 
 ## 4. 测试与回归判定
@@ -144,6 +161,13 @@ go test ./internal/functions/ -run TestSumProd -v
 # 静态检查（核心包）
 go vet ./internal/functions/ ./x32/ ./x64/ ./vectors/ ./kind/
 gofmt -l .
+```
+
+C++ 侧：
+
+```bash
+ctest --preset release-static      # 111 个用例，Release + /MT
+ctest --preset debug-static        # 同一批用例，Debug + /MTd
 ```
 
 **不要用 `go test ./...` 的失败项下结论**：`asm/` 是实验目录，它的用例本来就是红的（见 §4.2）。
@@ -305,7 +329,7 @@ wsl -d Debian bash -lc "cd /mnt/d/projects/quant1x/num && chmod +x temp/internal
 
 ---
 
-## 6. 其它语言（未落地）
+## 6. 其它语言
 
 各语言的构建章节随着落地补齐，骨架与口径先固定：
 
@@ -316,8 +340,33 @@ Python 是 spec 锚点，**新语义先在这里定案**。
 
 ### 6.2 C/C++
 
-落地后按 quant1x 同口径：Conan 2 取依赖、CMake ≥ 3.30 配置、Windows 用 MSVC（`/MT`）、
-Linux 用 GCC 13+；测试用 `ctest`，基准用 `benchmark`。新增源文件必须在 CMake 清单里显式登记。
+依赖走 Conan 2（`conanfile.py`：`xtensor/0.27.1` 带 `xsimd`，`gtest/1.18.0` 走 `test_requires`），构建走
+CMake 预设（`CMakePresets.json`）。Windows 用 MSVC + `/MT`，Linux 用 GCC 13+，C++20。
+
+```bash
+# 1) 取依赖并生成 toolchain：两套配置各一次
+conan install . -s build_type=Release -s compiler.runtime=static
+conan install . -s build_type=Debug   -s compiler.runtime=static
+
+# 2) 配置 + 编译
+cmake --preset release-static
+cmake --build --preset release-static
+
+# 3) 用例
+ctest --preset release-static
+```
+
+- 预设名与 `conanfile.py` 的 `layout()` 一一对应：`Release + static` → `build/release-static`，
+  `Debug + static` → `build/debug-static`。`compiler.runtime` 必须与 `CMakeLists.txt` 固化的
+  `CMAKE_MSVC_RUNTIME_LIBRARY` 同档，否则链接期报 `LNK2038`（gtest 与 `num_core` 的 CRT 不一致）。
+- Linux / macOS 上去掉 `-s compiler.runtime=static`（无 CRT 之分），预设名与目录不变。
+- 不加 `--build=missing` 时只用缓存里的二进制包；本机 `CONAN_HOME` 已有三者的静态 CRT 包，可离线完成。
+- `conan install` **不要**把预设写回仓库根的 `CMakeUserPresets.json`：VS 是多配置生成器，两套构建目录的
+  预设同名（`conan-default`），先后装两个 `build_type` 后 CMake 一读档就报同名冲突。本仓已让 conan 把台账
+  收进各自的 `build/<配置>/generators/`，入口只有根目录的 `CMakePresets.json`（直接指向
+  `conan_toolchain.cmake`）。改 `conanfile.py` 的 `generate()` 时不要动这一行。
+- 新增算子按 §3.4 的 C++ 条款在 `CMakeLists.txt` 显式登记。
+- 打包（`conan create` / `cmake --install` 导出）与 C++ 基准（`benchmark`）未落地，见 `num.md` §5 TODO。
 
 ### 6.3 Rust
 
@@ -364,6 +413,10 @@ Go 侧当前的落地形态是**包内对拍**：`Xxx_Go` 作为期望值，`Xxx
 | 中文注释显示成「姹傚拰」 | 历史遗留的编码损坏（UTF-8 → GBK 误解码）；新增注释写正常中文，只在正在改的函数内顺手修 |
 | README 徽章说 1.21+，`go.mod` 是 1.27.3 | 徽章滞后，以 `go.mod` 为准 |
 | Windows 下 `git commit -m "中文"` 变乱码 | 改走 `-F` 文件（[CONTRIBUTING.md §8.2](CONTRIBUTING.md#82-windows-下提交信息的传递必须走文件)） |
+| C++ 编译出成片语法错误（`C4819` 后面跟着 `C4430` / `C2143`） | 源文件是无 BOM 的 UTF-8，而中文 Windows 上 MSVC 默认按 GBK 读，中文注释被切碎并吃掉换行。`CMakeLists.txt` 已固化 `/utf-8`，别删；手写编译命令时也要带 |
+| `cmake --preset` 报 `Invalid "configurePreset": "conan-debug"` 或预设同名冲突 | 仓库根出现了 conan 写的 `CMakeUserPresets.json`（把两套构建目录的 `conan-default` 都 include 进来了）。删掉该文件，并按 §6.2 让 conan 把台账收进构建目录 |
+| `ctest --preset <名字>` 报找不到 test preset | 先跑同名的 `cmake --preset` 配置；预设的 `binaryDir` 不存在时 ctest 没有可读的 CTest 清单 |
+| conan 报 `unexpected keyword argument 'auto_refresh'` 之类 | 依赖版本与预期不符：本仓只钉 `xtensor/0.27.1` / `gtest/1.18.0`，先看 `conanfile.py` 而不是改调用方 |
 
 ---
 
