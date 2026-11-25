@@ -33,6 +33,8 @@
   Rust 未实现的语义写 `—`。
 - `python` 列登记 `模块.函数`（模块是仓库根的 `.py` 文件名），由 `TestNameMapPythonSymbols`
   校验「文件存在且含 `def 函数名(`」；Python 未实现的语义写 `—`。
+- python 列写 `—` 的两种情形都要在 `note` 里写明：**未实现**（待排期）或**不适用**
+  （如 `avx2_switch` 的运行期开关、`abs_int` / `abs_float` 的定宽类型）。
 - 新增公开函数时二选一：在 `NAME-MAP.tsv` 补一行，或在 `NAME-MAP-EXCLUDED.tsv` 写明排除理由。
 - `tests/contract` 只读当前工作树，不联网、不读写 `temp/`。
 

@@ -164,7 +164,7 @@ G1 ◄─ G2
 
 | 项 | 缺口 | 卡在哪 | 影响批次 | 优先级 |
 | --- | --- | --- | --- | --- |
-| Python spec 未落地 | 113 个语义已落地并通过 160 个 npz 样本，`authority` 已按行切到 `python`；其余语义仍以 Go 为临时基准 | 按 [提案 0002](proposals/0002-python-package-layout.md) 的布局逐批补实现并继续切换 | M5 | 中 |
+| Python spec 未落地 | 所有有 fixture 的 113 个语义已落地并通过 160 个 npz 样本；其余 21 行无 fixture 或对 Python 不适用（理由写在 note） | 按 [提案 0002](proposals/0002-python-package-layout.md) 的布局逐批补实现并继续切换 | M5 | 中 |
 | C++ 覆盖不全 | ~~25 个 `.cpp` / 59 个 `.h` 对 Go 全量算子仍有缺口~~ | 已补齐 `distance` / `manhattan_distance` / `cosine_similarity` / `sincos`，160 个样本全量对拍通过；余下差异见 CPP-GAPS §1 | M5 | 已解决 |
 | 无 fixture 机制 | ~~跨语言一致性只能人工比对~~ | 已由 C2 生成器与 C3 三语言读取器解决；新增算子仍需补样本 | M1 | 已解决 |
 | 无交换格式规范 | ~~各语言输出各写各的~~ | 已由 `docs/DATA-FORMAT.md`（D1）定稿 | M3 | 已解决 |

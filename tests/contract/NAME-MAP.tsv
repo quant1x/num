@@ -5,8 +5,8 @@
 # semantic	min_params	defaults	nan_convention	return_shape	python	cpp	rust	go	zig	java	authority	note
 # --- N2 逐元素：取绝对值与算术 ---
 abs	x:array	—	no_special	same_as(x)	abs.abs	abs	abs	num:Abs, x32:Abs, x64:Abs	—	—	python	无符号输入门面层原样返回
-abs_int	n:int	—	—	scalar	—	abs_int, abs_int8, abs_int16, abs_int32, abs_int64	—	num:AbsInt, num:AbsInt8, num:AbsInt16, num:AbsInt32, num:AbsInt64	—	—	go	有符号整型绝对值
-abs_float	n:f32/f64	—	propagate	scalar	—	abs_float32, abs_float64	—	num:AbsFloat32, num:AbsFloat64	—	—	go	浮点标量绝对值
+abs_int	n:int	—	—	scalar	—	abs_int, abs_int8, abs_int16, abs_int32, abs_int64	—	num:AbsInt, num:AbsInt8, num:AbsInt16, num:AbsInt32, num:AbsInt64	—	—	go	有符号整型绝对值；有符号整型绝对值；Python 无定宽整型，语义并入 abs
+abs_float	n:f32/f64	—	propagate	scalar	—	abs_float32, abs_float64	—	num:AbsFloat32, num:AbsFloat64	—	—	go	浮点标量绝对值；浮点标量绝对值；Python 只有 f64，语义并入 abs
 neg	x:array	—	propagate	same_as(x)	x32.vek.neg	neg	neg	x32:Neg, x64:Neg	—	—	python	门面无对应入口
 inv	x:array	—	propagate	same_as(x)	x32.vek.inv	inv	inv	x32:Inv, x64:Inv	—	—	python	倒数，0 得 ±Inf
 sqrt	x:array	—	propagate	same_as(x)	sqrt.sqrt	sqrt	sqrt	num:Sqrt, x32:Sqrt, x64:Sqrt	—	—	python	负数得 NaN；非浮点编译期拒绝（C++）/ panic（Go）
@@ -28,7 +28,7 @@ floor	x:array	—	propagate	same_as(x)	x32.vek.floor	floor	floor	x32:Floor, x64:
 round	x:array	—	propagate	same_as(x)	x32.vek.round	round	round	x32:Round, x64:Round	—	—	python	门面无对应入口；半数远离零
 sin	x:array	—	propagate	same_as(x)	x32.vek.sin	sin	sin	x32:Sin	—	—	python	x64 缺同名实现
 cos	x:array	—	propagate	same_as(x)	x32.vek.cos	cos	cos	x32:Cos	—	—	python	x64 缺同名实现
-sincos	x:array	—	propagate	tuple	—	sincos	—	x32:SinCos_Into	—	—	go	仅原地双输出形态
+sincos	x:array	—	propagate	tuple	—	sincos	—	x32:SinCos_Into	—	—	go	仅原地双输出形态；仅原地双输出形态；Python 用 (sin, cos) 两次调用表达，不单设符号
 exp	x:array	—	propagate	same_as(x)	x32.vek.exp	exp	exp	x32:Exp	—	—	python	x64 缺同名实现
 log	x:array	—	propagate	same_as(x)	x32.vek.log	log	log	x32:Log	—	—	python	x64 缺同名实现
 log2	x:array	—	propagate	same_as(x)	x32.vek.log2	log2	log2	x32:Log2	—	—	python	x64 缺同名实现
@@ -75,7 +75,7 @@ shift	series:array, n:int|int[]	—	—	same_as(series)	shift.shift	shift	shift	
 rolling	series:array, window:int|int[], min_periods:int?	—	—	[n][window]	rolling.rolling	rolling	rolling	num:Rolling	—	—	python	不传 min_periods 时窗口不足返回空切片；传入后按 partial window 计算，min_periods > window 不产生窗口
 rolling_apply	series:array, window:int|int[], apply:func	—	—	same_as(series)	rolling.rolling_apply	rolling_apply	rolling_apply	num:RollingApply	—	—	python	逐窗口求值
 rolling_window	values:array, capacity:scalar	—	—	tuple	—	Window, rolling_window	—	num:RollingWindow, num:Any2Window	—	—	go	返回 Window；At / IsConst 为方法，不在函数粒度契约内
-periods	n:int|any	—	—	tuple	—	Periods	—	num:AnyToPeriod	—	—	go	周期序列；Min 字段由 Rolling 的 min_periods 参数写入
+periods	n:int|any	—	—	tuple	—	Periods	—	num:AnyToPeriod	—	—	go	周期序列；Min 字段由 Rolling 的 min_periods 参数写入；窗口周期序列；Python 侧由 rolling 的 window / min_periods 参数承担
 # --- N6 构造与整形 ---
 zeros	shape:int	—	—	[n]	zeros.zeros	zeros	zeros	num:Zeros, x32:Zeros, x64:Zeros	—	—	python	全零
 ones	shape:int	—	—	[n]	zeros.ones	ones	ones	num:Ones, x32:Ones, x64:Ones	—	—	python	全一；Go 门面按入参切片长度生成，不接受形状整数
@@ -109,7 +109,7 @@ degrees_to_slope	x:f64	—	propagate	scalar	slope.degrees_to_slope	degrees_to_sl
 triangle_bevel	slope:f64, x1:int, y1:f64, xn:int	—	propagate	scalar	slope.triangle_bevel	triangle_bevel	triangle_bevel	num:TriangleBevel	—	—	python	三角斜边
 calculate_line_equation	point1:Point, point2:Point	—	propagate	tuple	line.calculate_line_equation	calculate_line_equation	calculate_line_equation	num:CalculateLineEquation	—	—	python	两点直线方程
 fit_line	x:array, y:array	—	no_special	tuple	line.fit_line	fit_line	fit_line	num:FitLine	—	—	python	返回 (Line, 成功位)；单点返回水平线且标记失败
-point	x:number, y:number	—	—	tuple	—	new_point, Point, DataPoint	—	num:NewPoint	—	—	go	点构造
+point	x:number, y:number	—	—	tuple	—	new_point, Point, DataPoint	—	num:NewPoint	—	—	go	点构造；点构造；Python 用元组 / Line 的参数表达，不单设符号
 cross	a:array, b:array	—	comparison_false	[n]	cross.cross	cross, LinerTrend, TrendState	cross	num:Cross	—	—	python	判据为前后两根都严格分居两侧
 # --- 统计与时间 ---
 find_percent	zscore:f64	—	propagate	scalar	—	find_percent	—	num:FindPercent	—	—	go	正态分布分位
@@ -144,4 +144,4 @@ to_int64	x:array	—	—	i64[n]	x32.vek.to_int64	to_int64	to_int64	x32:ToInt64, 
 to_float32	x:array	—	—	f32[n]	x32.vek.to_float32	to_float32	to_float32	x64:ToFloat32	—	—	python	浮点宽度互转
 to_float64	x:array	—	—	f64[n]	x32.vek.to_float64	to_float64	to_float64	x32:ToFloat64	—	—	python	浮点宽度互转
 string_check	s:string	—	—	scalar	—	is_empty, string_is_true, string_is_false, string_is_nan	—	num:IsEmpty, num:StringIsTrue, num:StringIsFalse, num:StringIsNaN	—	—	go	字符串判空 / 判真 / 判 NaN
-avx2_switch	enabled:bool	—	—	—	—	—	—	num:GetAvx2Enabled, num:SetAvx2Enabled	—	—	go	非线程安全，仅限用例与基准
+avx2_switch	enabled:bool	—	—	—	—	—	—	num:GetAvx2Enabled, num:SetAvx2Enabled	—	—	go	非线程安全，仅限用例与基准；Go 的运行期 SIMD 开关；Python 无此概念，不适用
