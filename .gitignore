@@ -21,7 +21,8 @@ coverage.out
 # test
 test-*-w*
 
-# Rust 工具 crate 的构建产物（tests/fixtures/read_rs、tests/io/rs，不参与发布）
+# Rust 构建产物
+/target/
 tests/fixtures/read_rs/target/
 tests/io/rs/target/
 

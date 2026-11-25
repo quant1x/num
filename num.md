@@ -8,7 +8,7 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 
 ## 1. 路线图
 
-**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件），覆盖算术、归约、逻辑比较、数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。C++ 侧已立起构建链路并落地**第一批算子**（算术、归约、逻辑比较、构造与整形、舍入、指数对数、填充、滑动窗口、线代与几何，§2 中 59 个功能行有 C++ 实现），余下只有反射族（`AnyToGeneric` 的反射部分 / `AnyToSlice` / `CheckoutRawType` / `ExtractValueFromPointer`）与 Go 侧本身就是空实现的 `PeeksAndValleys`。Python spec 与 Rust 均未落地，按 [CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律) 现阶段整包判为**部分落地（缺 python / rust）**。下一个里程碑：按 §5 TODO 的顺序补齐 C++ 剩余算子，同时补 Python spec 作为语义准绳。
+**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件），覆盖算术、归约、逻辑比较、数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。C++ 侧已立起构建链路并落地**第一批算子**（算术、归约、逻辑比较、构造与整形、舍入、指数对数、填充、滑动窗口、线代与几何，§2 中 59 个功能行有 C++ 实现），余下只有反射族（`AnyToGeneric` 的反射部分 / `AnyToSlice` / `CheckoutRawType` / `ExtractValueFromPointer`）与 Go 侧本身就是空实现的 `PeeksAndValleys`。Python spec 未落地；Rust 已落地 fixture 覆盖的 N1 ~ N4、N6 语义（根 `Cargo.toml` + `src/`），按 [CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律) 整包仍判为**部分落地（缺 python，Rust 仅覆盖子集）**。下一个里程碑：按 §5 TODO 的顺序补齐 C++ 剩余算子、扩 Rust 覆盖面，同时补 Python spec 作为语义准绳。
 
 **临时基准**：本仓对标 NumPy，算法与数值口径以它为准；Python spec 未落地期间，本文件、NumPy 语义与 Go 用例共同充当临时基准（[§9.3](CONTRIBUTING.md#93-spec--实现--验证)），Python 落地后以其为准。Go 是最早落地的一份实现，可作可执行对照，但不是 spec。
 
@@ -16,7 +16,7 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 | --- | --- | --- | --- | --- |
 | spec 定语义 | Python（spec） | 仓库根 `*.py`（与 `.go` 同名） | 未落地 | 语义源头，见 §5 TODO |
 | 生产实现 | C++（生产） | 仓库根 `*.h` / `*.cpp`（与 `.go` 同名） | 部分落地 | 59 个功能行，见 §2 / §5 TODO |
-| 对齐实现 | Rust（对齐） | 仓库根 `*.rs` | 未落地 | 见 §5 TODO |
+| 对齐实现 | Rust（对齐） | 根 `Cargo.toml` + `src/*.rs` | 部分落地 | N1 ~ N4、N6 的 fixture 语义，见 §5 TODO |
 | 对齐实现 | Go（对齐） | 仓库根 `*.go`（`package num`，64 个实现文件） | 已落地 | 用例见 §4.1 |
 
 ## 2. 功能清单
@@ -100,7 +100,7 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 | 格式化与诊断 | — | 异常族 `Error` / `UnsupportedType` / `TypeError` / `RangeError` / `InvalidWindow` / `LengthMismatch` / `EmptyInput` / `DomainError` | — | `DefaultFormatter` / `PrintString` / `PanicTrace` / `TypeError` / `ErrUnsupportedType` / `ErrRange` / `ErrInvalidWindow` | — | — | 部分落地（缺 python / rust） |
 | 加速开关 | — | —（无运行期开关） | — | `GetAvx2Enabled` / `SetAvx2Enabled` | — | — | 部分落地（缺 python / c++ / rust） |
 
-**状态判据**：[CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律)。四门必做语言（python / c++ / rust / go）中 Go 全落地、C++ 落地第一批 59 个功能行，故带 c++ 符号的行判「部分落地（缺 python / rust）」，其余判「部分落地（缺 python / c++ / rust）」；`zig` / `java` 为扩展列，不参与判定。本表**未**逐函数审计用例覆盖度，包级覆盖率见 §4.2。
+**状态判据**：[CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律)。四门必做语言（python / c++ / rust / go）中 Go 全落地、C++ 落地第一批 59 个功能行、Rust 落地 fixture 覆盖的 N1 ~ N4 / N6 子集；本表按**全量 API** 记状态，故带 c++ 符号的行判「部分落地（缺 python / rust）」，其余判「部分落地（缺 python / c++ / rust）」，不因 Rust 子集改判。`zig` / `java` 为扩展列，不参与判定。本表**未**逐函数审计用例覆盖度，包级覆盖率见 §4.2。
 
 ### 2.1 两层 API 对照
 
@@ -108,8 +108,8 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 
 | 层 | 定位 | python（spec） | c++ | rust | go |
 | --- | --- | --- | --- | --- | --- |
-| 门面 API | 调用方默认入口，泛型 + `any`，跨类型统一签名 | — | 本包（`namespace num`，仓库根 `*.h` / `*.cpp`） | — | 本包（`package num`） |
-| 强类型 API | 需要固定 dtype 或直接控制加速路径时使用 | — | —（模板已覆盖两条宽度，不另设层） | — | `x32/` / `x64/`（`package x32` / `package x64`） |
+| 门面 API | 调用方默认入口，泛型 + `any`，跨类型统一签名 | — | 本包（`namespace num`，仓库根 `*.h` / `*.cpp`） | 根 crate（snake_case，无运行期分派） | 本包（`package num`） |
+| 强类型 API | 需要固定 dtype 或直接控制加速路径时使用 | — | —（模板已覆盖两条宽度，不另设层） | —（泛型 `Float` 覆盖两条宽度） | `x32/` / `x64/`（`package x32` / `package x64`） |
 
 ## 3. 依赖
 
@@ -145,7 +145,7 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 | --- | --- | --- | --- |
 | Python（spec） | 未落地 | — | — |
 | C++ | 仓库根 `*_test.cpp`（23 个文件，与语义族同名） | 221 个 `TEST` | `ctest --preset release-static`（实测 `100% tests passed out of 221`，Debug 预设同数） |
-| Rust | 未落地 | — | — |
+| Rust | `tests/conform.rs`（读 `tests/fixtures`） | 129 个 fixture | `cargo test` |
 | Go | 仓库根 `*_test.go`（49 个文件，与实现同名） | 84 个 `Test` + 46 个 `Benchmark` | `go test .`（实测 `ok github.com/quant1x/num 0.491s`） |
 
 用例与实现同目录；`window_test.go` 只有基准、无用例，见 §5 TODO。本包 Go 用例**未**按 [§7](CONTRIBUTING.md#7-测试规范) 的 `accel` 两遍跑（`functions.Info().Acceleration` 在 84 个 `Test` 里无引用，只有 `align` / `repeat` / `diff` 的基准用 `SetAvx2Enabled` 切换），见 §4.6 与 §5 TODO。
@@ -173,6 +173,7 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 | --- | --- | --- | --- |
 | Go | `gofmt -l` ＋ `go vet` | `gofmt -l .`、`go vet .` | `gofmt -l` 实测无输出；`go vet .` **未通过**，报 5 处 `unreachable code`，见 §5 TODO |
 | C++ | MSVC `/W4`（构建期即检查） | `cmake --build --preset release-static` | 实测 0 警告；`/utf-8` 必开（无 BOM 的 UTF-8 源文件在中文 Windows 上会被按 GBK 误读）；59 个根头文件另各自单独成 TU 编译（`cl /Zs /W4`），实测 0 error / 0 warning —— 没有"靠别的头间接带入 include"的隐患 |
+| Rust | `cargo clippy` ＋ `cargo fmt --check` | `cargo clippy --all-targets -- -D warnings`、`cargo fmt --check` | 实测 0 告警 |
 
 `go vet .` 当前输出：`type.go:211`、`type.go:296`、`type_float64.go:134`、`type_integer.go:75`、`type_strings.go:188`。
 
@@ -204,7 +205,7 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 | `cross` 的相等口径 | 判据是**前一根与当前根都严格分居两侧**，任一格相等即不记；"先触碰再穿越"的常见写法会多记一根 | 需在补 Python spec 时确认这是意图还是历史写法 | §2 | 待建单 | 低 |
 | `fit_line` 的失败返回 | 单点输入返回 `intercept = y[0]` 的水平线同时标记失败（`std::pair<Line,bool>`），C++ 照此保留 | 补 spec 时确认失败位与半成品是否都要保留 | §2 | 待建单 | 低 |
 | 补 Python spec | 整包无 `.py`，语义准绳缺失 | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
-| 补 Rust 对齐实现 | 整包无 `.rs` | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
+| 扩 Rust 覆盖面 | crate 已通过 129 个 fixture；线性代数、几何、时间与公式族未移植 | 按 `NAME-MAP.tsv` 逐行补，B3 在 pandas 仓库 | §1 / §2 | #21 | 中 |
 | C++ 与 Go 逐值对拍 | C++ 侧尚未接 `tests/fixtures`：样本与 Go 对拍用例已就绪，C++ 的 conform 目标未建 | 需要与 Go 的 `tests/fixtures/conform` 同构的 C++ 目标，按 `meta_semantic` 分派；缺口见 `tests/fixtures/CPP-GAPS.md` | §4.6 | #18 | 中 |
 | C++ 打包与导出 | `conan create` 与 `cmake --install` 未落地，`num_core` 只能源码内使用 | 安装布局要与扁平目录一起设计（头文件按 `num/` 前缀导出） | §3 | #11 | 中 |
 | C++ 指令集分发 | 只按编译器基线下发，未做运行期多版本分发（Go 侧有 `UseAVX2` 开关与两套内核） | 需要 CMake 多目标编译 + 运行期 `__builtin_cpu_supports` / `IsProcessorFeaturePresent` 探测；会牺牲老 CPU 兼容，须先定策略 | §2 精度与平台 | #11 | 中 |

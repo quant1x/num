@@ -7,3 +7,7 @@ publish = false
 [[bin]]
 name = "num-read-fixtures"
 path = "src/main.rs"
+
+[lib]
+name = "read_rs"
+path = "src/lib.rs"

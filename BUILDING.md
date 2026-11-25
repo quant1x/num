@@ -6,7 +6,8 @@ num 是**多语言平行实现**的数值计算库：Python / C++ / Rust / Go �
 FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构建链路，互不依赖；跨语言之间只通过同名接口、
 统一的数据契约和同一组黄金测试向量保持一致。
 
-**现阶段 Go 全落地、C++ 部分落地**：本文 §2 ~ §5 是可执行的 Go 部分，§6.2 是可执行的 C++ 部分；其余语言章节保留骨架，命令随落地补齐。
+**现阶段 Go 全落地、C++ 与 Rust 部分落地**：本文 §2 ~ §5 是可执行的 Go 部分，§6.2 是可执行的 C++ 部分，
+§6.3 是 Rust 部分；其余语言章节保留骨架，命令随落地补齐。
 
 | 构建单元 | 构建入口 | 产物 | 当前状态 |
 | --- | --- | --- | --- |
@@ -14,7 +15,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | 汇编内核（amd64 / arm64） | 随 Go 包编译 | `.s` 编进库 | **已落地** |
 | Python | `pyproject.toml`（未建） | 包 | 未落地 |
 | C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | 部分落地（59 个功能行） |
-| Rust | `Cargo.toml`（未建） | 库 | 未落地 |
+| Rust | `Cargo.toml` | 库 + 129 个 fixture 的对拍用例 | **已落地（fixture 覆盖子集）** |
 | Zig / Java | 无清单文件 | — | 未落地（扩展语言） |
 
 ---
@@ -28,7 +29,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | Go | `go.mod` | **1.27.3**（以 `go` 指令为准） |
 | Python | `pyproject.toml`（未建） | 落地后以 `requires-python` 为准（与 quant1x 同口径：3.8+，建议 3.12+） |
 | C/C++ | `CMakeLists.txt`（`cmake_minimum_required`） | **C++20**（`CMAKE_CXX_STANDARD 20`，`CXX_EXTENSIONS OFF`）；**CMake ≥ 3.30**；Windows 用 MSVC v143（19.30+，统一 `/MT` 静态 CRT），Linux 用 GCC 13+，macOS 用 AppleClang。基线不符**配置期**直接 `FATAL_ERROR`，不是告警 |
-| Rust | `rust-toolchain.toml`（未建） | 落地后按 1.100.0 / Edition 2024 |
+| Rust | `rust-toolchain.toml` | **1.100.0**，Edition 2024 |
 | Zig | 无清单文件 | 落地后按 0.17+ |
 | Java | `pom.xml`（未建） | 落地后按 Java 8 字节码目标 |
 
@@ -44,6 +45,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | `*.test` | 测试二进制 | `go test -c` 的产物，已在 `.gitignore`；不要留在包目录 |
 | `build/` | C++ 构建产物 | conan 的 `generators/` 与 CMake 的中间件、用例二进制；**整目录不入库**（已在 `.gitignore`） |
 | `tests/fixtures/read_rs/target/` | Rust 工具 crate 产物 | C3 读取器的 cargo 构建目录，已在 `.gitignore` |
+| `target/` | Rust 根 crate 产物 | `cargo build/test` 的输出，已在 `.gitignore` |
 | `CMakeUserPresets.json` | C++ 预设台账 | conan 默认写在仓库根的台账文件，本仓不用（预设收进各自的 `build/<配置>/generators/`），已在 `.gitignore` |
 | Go build cache / `GOMODCACHE` | 工具缓存 | 由工具管理，不手工清理挪动 |
 
@@ -408,8 +410,20 @@ cmake --preset ninja-compile-db
 
 ### 6.3 Rust
 
-落地后按 quant1x 同口径：`cargo build` / `cargo test` / `cargo clippy -- -D warnings` /
-`cargo fmt --check`，版本由 `rust-toolchain.toml` 锁定。
+版本由 `rust-toolchain.toml` 锁定（1.100.0 / Edition 2024），根 crate 为 `quant1x-num`（`publish = false`）。
+
+```bash
+cargo build
+cargo test                                   # 含 tests/conform.rs：129 个 fixture 对拍
+cargo clippy --all-targets -- -D warnings
+cargo fmt --check
+```
+
+- `tests/fixtures/read_rs` 与 `tests/io/rs` 是同仓的**工具 crate**，各自有 `Cargo.toml`，用
+  `--manifest-path` 单独构建，不参与根 crate 的发布。
+- 根 `Cargo.toml` 的 `version` 是 Cargo 必填的占位 `0.0.0`；正式版本由 tag / autochangelog 注入。
+- 语义以 Go 临时基准为准；与 Go 的已知差异（`median` 不排序、`fill` 连 Inf 填、`concat1d` n×3）
+  照搬，不按 NumPy 口径"修正"。
 
 ### 6.4 Zig / Java
 
@@ -417,16 +431,16 @@ cmake --preset ninja-compile-db
 
 ---
 
-## 7. 跨语言一致性验证（规划）
+## 7. 跨语言一致性验证
 
-各语言落地后，同一输入应给出 epsilon 内一致的结果：
+同一输入在各语言实现上应给出 epsilon 内一致的结果：
 
-1. 准备同一组输入与黄金输出（`tests/fixtures/`，**期望值只由 spec 生成**）；
-2. 分别运行各语言实现；
-3. 浮点按约定 epsilon 比较，结构体按字段逐一比较（字段名必须全小写 `snake_case`）。
+1. 输入与黄金输出在 `tests/fixtures/`（期望值由 Python 生成）；
+2. Go 用 `tests/fixtures/conform`、Rust 用 `tests/conform.rs` 读同一批 npz 并逐值对拍；
+3. 浮点按 fixture 的 `meta_tolerance` 比较（f64 默认 1e-12、f32 1e-6），布尔 / 整型严格相等。
 
-Go 侧当前的落地形态是**包内对拍**：`Xxx_Go` 作为期望值，`Xxx_AVX2_F32/F64` 作为被测对象
-（`internal/functions/*_test.go`）。跨语言 fixtures 目录随第二门语言落地一并建立。
+Go 侧另有**包内对拍**：`Xxx_Go` 作为期望值，`Xxx_AVX2_F32/F64` 作为被测对象
+（`internal/functions/*_test.go`）。C++ 的计算侧对拍尚未接入，缺口见 `tests/fixtures/CPP-GAPS.md`。
 
 ---
 

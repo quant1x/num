@@ -66,4 +66,5 @@ C++ 相对 Go 的缺口（缺哪些算子、哪些口径待核）见 [CPP-GAPS.m
 
 - 期望值只由 **Python（NumPy）** 生成；其它语言只读不写。Python spec 落地前，
   `NAME-MAP.tsv` 的 `note` 列与样本注释共同记录与 NumPy 的已知差异（如 `median` 不排序）。
-- 样本是 M1 内核对齐的输入；Go 侧对拍在 `conform/`，C++ / Rust 的对拍待补。算子实现不得反向修改样本去迁就当前输出。
+- 样本是 M1 内核对齐的输入；Go 对拍在 `conform/`，Rust 对拍在根 crate 的 `tests/conform.rs`，
+  C++ 对拍待补。算子实现不得反向修改样本去迁就当前输出。

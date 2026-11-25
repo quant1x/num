@@ -16,7 +16,8 @@ num 是类似 numpy 的数值工具包，按语言**平行实现、语义相同*
 - **Go**：已落地（门面层 + `x32` / `x64` 强类型层 + AVX2 / NEON 汇编内核）；
 - **C++**：已落地第一批算子（算术、归约、逻辑比较、构造与整形、舍入、指数对数、缺失值填充、滑动窗口、
   一维点积、直线与趋势），基于 `xtensor` + `xsimd`，构建走 conan2 + CMake，见 [BUILDING.md](BUILDING.md) §6.2；
-- **Python / Rust**：待落地。
+- **Rust**：已落地 fixture 覆盖的 N1 ~ N4、N6 语义（`Cargo.toml`，见 [BUILDING.md](BUILDING.md) §6.3）；
+- **Python**：待落地。
 
 各语言的算子对照、统一口径与落地缺口见 [num.md](num.md)。
 

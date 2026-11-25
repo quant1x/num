@@ -39,12 +39,12 @@
 
 | ID | 模块 | 载体 | 语言 | 交付物 | 现状 |
 | --- | --- | --- | --- | --- | --- |
-| N1 | 标量与类型边界 | 根包 + `kind/` | Go / C++ / Rust | `DType` ↔ f32 / f64 / i8..u64 映射、NaN / ±Inf / ±0 约定 | Go 已落地，C++ 部分 |
-| N2 | 逐元素算子 | 根包 + `x32/` + `x64/` | Go / C++ / Rust | 算术、比较、逻辑、取整、三角 | Go 已落地，C++ 部分 |
-| N3 | 归约族 | 根包 + `internal/functions/` | Go / C++ / Rust | sum / mean / std / var / min / max / argmin / argmax | Go 已落地，C++ 部分 |
-| N4 | 窗口与滚动族 | `internal/functions/` | Go / C++ / Rust | rolling / apply / min_periods / 移动统计 | Go 已落地，C++ 部分（缺 min_periods） |
+| N1 | 标量与类型边界 | 根包 + `kind/` | Go / C++ / Rust | `DType` ↔ f32 / f64 / i8..u64 映射、NaN / ±Inf / ±0 约定 | Go 已落地，C++ 部分，Rust 部分（fixture 子集） |
+| N2 | 逐元素算子 | 根包 + `x32/` + `x64/` | Go / C++ / Rust | 算术、比较、逻辑、取整、三角 | Go 已落地，C++ 部分，Rust 部分（fixture 子集） |
+| N3 | 归约族 | 根包 + `internal/functions/` | Go / C++ / Rust | sum / mean / std / var / min / max / argmin / argmax | Go 已落地，C++ 部分，Rust 部分（fixture 子集） |
+| N4 | 窗口与滚动族 | `internal/functions/` | Go / C++ / Rust | rolling / apply / min_periods / 移动统计 | Go 已落地，C++ 部分（缺 min_periods），Rust 部分（fixture 子集） |
 | N5 | 向量化内核 | `x32/*_amd64.s`、`*_arm64.s` | Go / C++ | `Xxx_AVX2_F32/F64` 双架构实现；C++ 走 xsimd | Go 已落地 |
-| N6 | 向量与容器 | `vectors/`、`binary/` | Go / C++ / Rust | 序列裁剪、对齐、字节序读写 | Go 已落地 |
+| N6 | 向量与容器 | `vectors/`、`binary/` | Go / C++ / Rust | 序列裁剪、对齐、字节序读写 | Go 已落地，Rust 部分（fixture 子集） |
 
 **语言分工**（不是降级，是承载不同交付面）：
 
@@ -144,7 +144,7 @@ G1 ◄─ G2
 | **M1 内核对齐** | N1、N2、N3、N6 | M0 | N1 ~ N3、N6 的 fixture 全绿；产出 C++ 相对 Go 的缺口清单 | 已完成 |
 | **M2 窗口与向量化** | N4、N5 | M1 | 滚动族 fixture 全绿；AVX2 / NEON 与标量路径对拍通过 | 已完成 |
 | **M3 交换格式落地** | D2、D3 | M0（D2）、M1/M2（D3） | Go / C++ / Rust 互读互写同一 CSV：Go 产 Python 读、Python 产 Go 与 C++ 读，值逐元素一致；发布物含版本号 | 进行中（D2 完成；D3 待 M4 与发布流水线） |
-| **M4 Rust 定型** | Rust crate、B3 | M1（与 M2 并行） | crate 按 NAME-MAP 暴露符号并通过同一批 fixture；命名与最小参数集对位 | 未开始 |
+| **M4 Rust 定型** | Rust crate、B3 | M1（与 M2 并行） | crate 按 NAME-MAP 暴露符号并通过同一批 fixture；命名与最小参数集对位 | 已完成（B3 属 pandas 仓库，未在本仓） |
 | **M5 公式族跨语言** | B1、B2、B3、B4 | M1、M3 | 通达信口径用例在 4 门语言同值；`formula/README.md` 每行状态更新；研究脚本只产 fixture 不与生产耦合 | 未开始 |
 | **M6 数据管道** | B5 | M3 | 读 `D1` 格式、按主键覆盖、重复执行幂等；Arrow / Parquet 作为可选扩展单独验收 | 未开始 |
 | **M7 Go 工程侧** | G1、G2 | M1 | Go 服务与管道可独立部署（单二进制、无 Python 运行时）；数值路径完整可用 | 未开始 |
@@ -163,14 +163,14 @@ G1 ◄─ G2
 
 | 项 | 缺口 | 卡在哪 | 影响批次 | 优先级 |
 | --- | --- | --- | --- | --- |
-| Python spec 未落地 | 语义源头仍是 Go 实现 + NumPy 语义推断；C1 的 `authority` 只能标 `go`（临时基准） | 无技术阻塞，待排期（需 `pyproject.toml` 与包骨架） | M4 / M5 | 高 |
+| Python spec 未落地 | 语义源头仍是 Go 实现 + NumPy 语义推断；C1 的 `authority` 只能标 `go`（临时基准） | 无技术阻塞，待排期（需 `pyproject.toml` 与包骨架） | M5 | 高 |
 | C++ 覆盖不全 | 25 个 `.cpp` / 59 个 `.h` 对 Go 全量算子仍有缺口；缺口清单见 `tests/fixtures/CPP-GAPS.md` | 无技术阻塞，补齐待排期 | M5 | 高 |
 | 无 fixture 机制 | ~~跨语言一致性只能人工比对~~ | 已由 C2 生成器与 C3 三语言读取器解决；新增算子仍需补样本 | M1 | 已解决 |
 | 无交换格式规范 | ~~各语言输出各写各的~~ | 已由 `docs/DATA-FORMAT.md`（D1）定稿 | M3 | 已解决 |
 | 表头方言污染 | 引入自带 `列名:类型` 表头的三方 dataframe 库会使 CSV 无法被 Python / Go 通用读取器直接消费 | 靠 D1 红线约束；选库时逐项核对表头约定 | M6 | 高 |
 | C++ 缺 min_periods | Go 的 `rolling` 已支持 partial window（`min_periods`），C++ 仍只有完整窗口入口 | 补 C++ 形参并复用同一 fixture 口径 | M5 | 中 |
-| D3 发布物未落地 | Go 单二进制、C++ 静态库与头文件已有；Rust 生产 crate 未建，版本号只能由 autochangelog / tag 注入 | 依赖 M4 的 Rust crate 与发布流水线；不在代码里制造版本字符串 | M4 | 中 |
-| Rust 无 crate | `Cargo.toml` 与 module 结构均未定 | 依赖 C1 定名 | M4 | 中 |
+| D3 发布物未落地 | Go 单二进制、C++ 静态库与头文件、Rust crate 均已存在；版本号仍只能由 autochangelog / tag 注入 | 待发布流水线；不在代码里制造版本字符串 | 发布 | 中 |
+| Rust 覆盖不全 | crate 已通过 129 个 fixture；线性代数、几何、时间与公式族尚未移植 | 按 `NAME-MAP.tsv` 逐行补齐，B3 在 pandas 仓库 | M5 | 中 |
 | Go 侧数值与 C++ 有差距 | 缺 AVX-512、迭代器开销、GC 峰值 | 属语言特性，不以牺牲 Go 交付面为代价硬追 | M7 | 低 |
 | 重复实现风险 | 同名功能可能在两个包各写一套 | C1 已定“权威实现语言”列并由 `name_map_test.go` 校验符号覆盖；CI 自动校验尚未接入 | 全程 | 中 |
 | Python 源码外流 | 研究侧代码一旦进入交付链路即等于交出算法 | 交付物只含二进制 + 数据文件；评审项挂进发版检查 | 全程 | 高 |

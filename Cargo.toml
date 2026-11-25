@@ -1,0 +1,12 @@
+[package]
+name = "quant1x-num"
+version = "0.0.0" # 占位；正式版本由 tag / autochangelog 注入
+edition = "2024"
+publish = false
+
+[lib]
+name = "quant1x_num"
+path = "src/lib.rs"
+
+[dev-dependencies]
+read_rs = { package = "num-read-fixtures", path = "tests/fixtures/read_rs" }
