@@ -36,6 +36,19 @@ def matrix_of(data: np.lib.npyio.NpzFile, name: str):
     return array.tolist()
 
 
+def window_of(data: np.lib.npyio.NpzFile, name: str):
+    array = np.asarray(data[name])
+    if array.ndim == 0:
+        return int(array)
+    return [int(value) for value in array.reshape(-1).tolist()]
+
+
+def optional_int(data: np.lib.npyio.NpzFile, name: str):
+    if name not in data.files:
+        return None
+    return int(np.asarray(data[name]).reshape(-1)[0])
+
+
 def flatten(value) -> list:
     if isinstance(value, (list, tuple)):
         out: list = []
@@ -163,6 +176,12 @@ DISPATCH = {
         bool(np.asarray(data["endpoint"]).reshape(-1)[0]),
     ),
     "range": lambda data: sequence.range(int(np.asarray(data["n"]).reshape(-1)[0])),
+    "rolling": lambda data: num.rolling(
+        values_of(data, "x"), window_of(data, "window"), optional_int(data, "min_periods")
+    ),
+    "rolling_apply": lambda data: num.rolling_apply(
+        values_of(data, "x"), window_of(data, "window"), num.mean
+    ),
 }
 
 
@@ -175,8 +194,16 @@ class FixtureConformance(unittest.TestCase):
                 if semantic not in DISPATCH:
                     continue
                 tolerance = float(np.asarray(data["meta_tolerance"]))
-                expected = np.asarray(data["expected"]).reshape(-1).tolist()
-                actual = flatten(DISPATCH[semantic](data))
+                expected_key = "expected" if "expected" in data.files else "expected_flat"
+                expected = np.asarray(data[expected_key]).reshape(-1).tolist()
+                raw = DISPATCH[semantic](data)
+                if semantic == "rolling":
+                    lengths = [int(value) for value in values_of(data, "expected_lengths")]
+                    self.assertEqual(
+                        [len(block) for block in raw], lengths,
+                        f"{Path(path).name}: 每个位置的窗口长度不对",
+                    )
+                actual = flatten(raw)
                 self.assertEqual(
                     len(actual), len(expected),
                     f"{Path(path).name}: 长度 {len(actual)} != {len(expected)}",
@@ -187,7 +214,7 @@ class FixtureConformance(unittest.TestCase):
                         f"{Path(path).name} {semantic}: 第 {index} 位 {got} != {want}",
                     )
                 covered += 1
-        self.assertGreaterEqual(covered, 100, f"只覆盖了 {covered} 个样本")
+        self.assertGreaterEqual(covered, 107, f"只覆盖了 {covered} 个样本")
 
 
 class EmptyInputs(unittest.TestCase):

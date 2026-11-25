@@ -72,8 +72,8 @@ cumsum	x:array	—	propagate	same_as(x)	cumsum.cumsum	cumsum, cumsum_inplace	cum
 cumprod	x:array	—	propagate	same_as(x)	x32.vek.cumprod	cumprod	cumprod	x32:CumProd, x64:CumProd	—	—	python	门面无对应入口
 diff	series:array, n:int	—	propagate	same_as(series)	diff.diff	diff	diff	num:Diff, num:V2Diff	—	—	python	方向为 s[i-n]-s[i]（与 pandas 相反）；n=0 返回全 0
 shift	series:array, n:int|int[]	—	—	same_as(series)	shift.shift	shift	shift	num:Shift	—	—	python	越界位填类型默认值；n=0 返回原序列
-rolling	series:array, window:int|int[], min_periods:int?	—	—	[n][window]	—	rolling	rolling	num:Rolling	—	—	go	不传 min_periods 时窗口不足返回空切片；传入后按 partial window 计算，min_periods > window 不产生窗口
-rolling_apply	series:array, window:int|int[], apply:func	—	—	same_as(series)	—	rolling_apply	rolling_apply	num:RollingApply	—	—	go	逐窗口求值
+rolling	series:array, window:int|int[], min_periods:int?	—	—	[n][window]	rolling.rolling	rolling	rolling	num:Rolling	—	—	python	不传 min_periods 时窗口不足返回空切片；传入后按 partial window 计算，min_periods > window 不产生窗口
+rolling_apply	series:array, window:int|int[], apply:func	—	—	same_as(series)	rolling.rolling_apply	rolling_apply	rolling_apply	num:RollingApply	—	—	python	逐窗口求值
 rolling_window	values:array, capacity:scalar	—	—	tuple	—	Window, rolling_window	—	num:RollingWindow, num:Any2Window	—	—	go	返回 Window；At / IsConst 为方法，不在函数粒度契约内
 periods	n:int|any	—	—	tuple	—	Periods	—	num:AnyToPeriod	—	—	go	周期序列；Min 字段由 Rolling 的 min_periods 参数写入
 # --- N6 构造与整形 ---

@@ -32,6 +32,7 @@ from .median import median
 from .min import min
 from .minimum import minimum
 from .repeat import repeat
+from .rolling import rolling, rolling_apply
 from .shift import shift
 from .sqrt import sqrt
 from .stddev import std
@@ -45,6 +46,7 @@ __all__ = [
     "abs", "add", "align", "all", "any", "argmax", "argmin", "bool_to_float64", "bool_to_int64",
     "count", "covariance", "cumsum", "decimal", "diff", "div", "dot1d", "dtype2int", "equal",
     "expm1", "gt", "gte", "is_nan", "log1p", "logic_and", "logic_not", "logic_or", "lt", "lte",
-    "max", "maximum", "mean", "median", "min", "minimum", "mul", "not_equal", "repeat", "shift",
+    "max", "maximum", "mean", "median", "min", "minimum", "mul", "not_equal", "repeat", "rolling",
+    "rolling_apply", "shift",
     "sqrt", "std", "sub", "sum", "variance", "where", "zeros",
 ]

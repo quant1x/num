@@ -276,7 +276,7 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
 ```
 
 - 依赖：`requires-python >= 3.11`；实现本身不依赖 NumPy，NumPy 只用于生成器与对拍用例；
-- 覆盖：67 个语义 —— 归约（`sum` / `mean` / `std` / `variance` / `covariance` / `max` / `min` /
+- 覆盖：69 个语义 —— 归约（`sum` / `mean` / `std` / `variance` / `covariance` / `max` / `min` /
   `argmax` / `argmin` / `count` / `median`）、逐元素（`abs` / `sqrt` / `maximum` / `minimum` /
   `add` / `sub` / `mul` / `div` / `expm1` / `log1p` / `decimal`）、比较与逻辑（`equal` / `not_equal` /
   `gt` / `gte` / `lt` / `lte` / `logic_and` / `logic_or` / `logic_not` / `all` / `any`）、
@@ -285,7 +285,8 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
   向量算子（`num.x32.vek`：`neg` / `inv` / `prod` / `cumprod` / `quantile` / `norm` / `manhattan_norm` /
   `distance` / `manhattan_distance` / `cosine_similarity` / `logic_xor` / `none`）、
   矩阵与序列（`shape` / `concat1d` / `transpose2d` / `dot2d` / `dot2d1` / `matmul` / `inverse` /
-  `mat4mul` / `arange` / `linspace` / `range`），对应 `tests/fixtures` 的 100 个样本；
+  `mat4mul` / `arange` / `linspace` / `range`）、滚动（`rolling` / `rolling_apply`），
+  对应 `tests/fixtures` 的 107 个样本；
 - `NAME-MAP.tsv` 的 `authority` 仍是 `go`：逐批把语义切到 python，未切的继续以 Go 为临时基准。
 
 ---
