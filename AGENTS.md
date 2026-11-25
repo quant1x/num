@@ -85,6 +85,7 @@
 | C++ 取依赖 / 配置 / 编译 | `conan install . -s build_type=Release -s compiler.runtime=static`、`cmake --preset release-static`、`cmake --build --preset release-static` |
 | C++ 用例 | `ctest --preset release-static`（235 个用例，Debug 用 `debug-static`） |
 | Rust 编译 / 用例 / 检查 | `cargo build`、`cargo test`、`cargo clippy --all-targets -- -D warnings`、`cargo fmt --check` |
+| 单二进制（命令行） | `CGO_ENABLED=0 go build -o numctl ./cmd/numctl`；`go test ./cmd/numctl/` |
 | Python / Zig / Java | **尚未落地**：命令随各语言落地时补进 [BUILDING.md](BUILDING.md) 对应章节，此处不写未验证的命令 |
 
 ## 5. 交付前自检

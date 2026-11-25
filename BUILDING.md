@@ -72,7 +72,12 @@ go build ./...
 go build . ./x32/ ./x64/ ./math32/ ./math64/ ./binary/ ./kind/ ./vectors/
 ```
 
-本库不产出命令行程序；需要试算时写临时用例（`temp/` 下）或用 `go test -run`。
+库代码不产出命令行程序；需要试算时写临时用例（`temp/` 下）或用 `go test -run`。唯一的命令行入口是
+`cmd/numctl`（CSV 交换与统计），构建方式：
+
+```bash
+CGO_ENABLED=0 go build -o numctl ./cmd/numctl
+```
 
 平台与架构：
 
@@ -166,6 +171,12 @@ C++ 侧另有一条：新增算子必须在 `CMakeLists.txt` 里**逐文件显�
 | `tests/fixtures/read_cpp` | C++ 源文件 | C3 C++ 读取器，目标是 `num_fixture_check` |
 | `tests/fixtures/read_rs` | 独立 crate | C3 Rust 读取器，不进生产 crate |
 | `tests/io` | Python + 三个工具 | D2 互读互写与 B5 按主键合并，见 `tests/io/README.md` |
+
+### 3.7 命令行入口
+
+| 目标 | 路径 | 职责 | 构建 |
+| --- | --- | --- | --- |
+| `numctl` | `cmd/numctl/` | CSV 往返 / 按主键合并 / 数值统计，单二进制、无 Python 运行时 | `CGO_ENABLED=0 go build -o numctl ./cmd/numctl` |
 
 新增验收目录时同批补 `README.md`，并在本节登记。
 

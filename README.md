@@ -65,6 +65,18 @@ blocks2 := Rolling(xs, p)
 - `Periods` 仍保留作为实现细节，推荐使用 `Rolling(S,N,min)` 或 `RollingApply`。
 
 
+## numctl 命令行
+
+Go 侧的单二进制入口，不依赖 Python 运行时：
+
+```bash
+CGO_ENABLED=0 go build -o numctl ./cmd/numctl
+./numctl csv stats account:s,close:f,volume:i data.csv close
+./numctl csv merge account:s,close:f,volume:i data.csv delta.csv account
+```
+
+见 [cmd/numctl/README.md](cmd/numctl/README.md)。
+
 # 4. 参考及依赖
 
 - 级别说明: 0-引用, 1-fork引入有调整, 2-参考和复制部分代码
