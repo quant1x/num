@@ -5,6 +5,7 @@ import (
 	"fmt"
 	stdio "io"
 	"os"
+	"runtime/debug"
 
 	"github.com/quant1x/num"
 	numio "github.com/quant1x/num/io"
@@ -14,6 +15,7 @@ const usage = `usage:
   numctl csv roundtrip <schema> <in.csv> <out.csv>
   numctl csv merge     <schema> <path> <delta.csv> <key>
   numctl csv stats     <schema> <file.csv> <column>
+  numctl version
 
 schema: name:f|i|b|s|t,...（f=f64，i=i64，b=bool，s=string，t=time）`
 
@@ -25,7 +27,21 @@ func main() {
 }
 
 func run(args []string, out stdio.Writer) error {
-	if len(args) < 2 || args[0] != "csv" {
+	if len(args) == 0 {
+		return fmt.Errorf("%s", usage)
+	}
+	if args[0] == "version" {
+		if len(args) != 1 {
+			return fmt.Errorf("%s", usage)
+		}
+		info, ok := debug.ReadBuildInfo()
+		if !ok || info.Main.Version == "" {
+			return fmt.Errorf("构建信息不可用")
+		}
+		_, err := fmt.Fprintln(out, info.Main.Version)
+		return err
+	}
+	if args[0] != "csv" || len(args) < 2 {
 		return fmt.Errorf("%s", usage)
 	}
 	switch args[1] {

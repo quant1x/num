@@ -398,9 +398,15 @@ cmake --build --preset release-static
 # 3) 用例
 ctest --preset release-static
 
-# 4) 编辑器索引用的编译数据库（可选，见下条）
+# 4) 安装导出（D3）：静态库 + include/num + CMake 包
+cmake --install build/release-static --prefix dist/cpp
+
+# 5) 编辑器索引用的编译数据库（可选，见下条）
 cmake --preset ninja-compile-db
 ```
+
+- 安装包版本从**精确匹配的 git tag** 派生（`vX.Y.Z` → `X.Y.Z`），未打 tag 为 `0.0.0`；
+  详见 [docs/RELEASE.md](docs/RELEASE.md)。
 
 - 预设名与 `conanfile.py` 的 `layout()` 一一对应：`Release + static` → `build/release-static`，
   `Debug + static` → `build/debug-static`。`compiler.runtime` 必须与 `CMakeLists.txt` 固化的
@@ -487,6 +493,7 @@ Go 侧另有**包内对拍**：`Xxx_Go` 作为期望值，`Xxx_AVX2_F32/F64` 作
 ## 10. 相关文档
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) — 规范源：分层、命名、内核契约、测试、提交
+- [docs/RELEASE.md](docs/RELEASE.md) — 编译产物、安装导出与版本派生（D3）
 - [AGENTS.md](AGENTS.md) — AI 入口：读什么、硬约束、交付前自检
 - [README.md](README.md) — 项目介绍与 `Rolling` / `min_period` 用法
 - `asm/README.md` — 实验链路的原始记录（clang + c2goasm 命令）

@@ -116,6 +116,16 @@ func TestCSVStatsRejectsNonNumeric(t *testing.T) {
 	}
 }
 
+func TestVersion(t *testing.T) {
+	var buf bytes.Buffer
+	if err := run([]string{"version"}, &buf); err != nil {
+		t.Fatalf("version: %v", err)
+	}
+	if buf.Len() == 0 {
+		t.Fatal("version 输出为空")
+	}
+}
+
 func TestUsage(t *testing.T) {
 	for _, args := range [][]string{{}, {"csv"}, {"csv", "unknown"}, {"csv", "stats", "a:f"}} {
 		if err := run(args, os.Stdout); err == nil {

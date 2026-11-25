@@ -62,7 +62,7 @@
 | --- | --- | --- | --- | --- | --- |
 | D1 | 交换格式规范 | `docs/DATA-FORMAT.md` | 与语言无关 | CSV 基线：UTF-8 无 BOM、逗号分隔、**表头只写纯列名**、缺失值空字段、时间 ISO 8601、数值用十进制文本（可选科学计数）。可选扩展：JSON Lines、二进制（含 dtype 与 shape 头） | 已落地 |
 | D2 | 各语言 CSV 读写 | Go `encoding/csv`；C++ 最小 reader/writer；Rust `csv` crate | Go / C++ / Rust | 各语言原生读写，互读互写结果一致 | 已落地（Rust 为 `tests/io/rs` 工具，生产 crate 待 M4） |
-| D3 | 编译产物分发 | 各仓库发布物 | Go / C++ / Rust | Go 单二进制；C++ / Rust 静态库 + 头文件 + 版本号 | 未落地 |
+| D3 | 编译产物分发 | 各仓库发布物 | Go / C++ / Rust | Go 单二进制；C++ / Rust 静态库 + 头文件 + 版本号 | 已落地（Go 由 build info、C++ 从 tag 派生；Rust 版本由 autochangelog 改写） |
 | D4 | 绘图边界 | 无代码 | — | 1x 只产出 `D1` 格式数据；图形由使用方（研究侧 Python、业务侧前端）自行绘制 | 约定完成 |
 
 **表头红线**：`D1` 的列名只允许标识符（字母、数字、下划线）。任何形如 `price:double`、`close@f64`、命名空间前缀的写法都属于库私有方言，禁止进入交换层 —— 一旦写进文件，Python / Go 的通用 CSV 读取器就都得为它写特例，跨语言交换立刻失效。
@@ -143,7 +143,7 @@ G1 ◄─ G2
 | **M0 契约地基** | C1 → C2 → C3；D1 并行 | 无 | NAME-MAP 覆盖已落地的 Go 公开符号；`DATA-FORMAT.md` 定稿；3 门语言读同一个 npz 且断言通过 | 已完成 |
 | **M1 内核对齐** | N1、N2、N3、N6 | M0 | N1 ~ N3、N6 的 fixture 全绿；产出 C++ 相对 Go 的缺口清单 | 已完成 |
 | **M2 窗口与向量化** | N4、N5 | M1 | 滚动族 fixture 全绿；AVX2 / NEON 与标量路径对拍通过 | 已完成 |
-| **M3 交换格式落地** | D2、D3 | M0（D2）、M1/M2（D3） | Go / C++ / Rust 互读互写同一 CSV：Go 产 Python 读、Python 产 Go 与 C++ 读，值逐元素一致；发布物含版本号 | 进行中（D2 完成；D3 待 M4 与发布流水线） |
+| **M3 交换格式落地** | D2、D3 | M0（D2）、M1/M2（D3） | Go / C++ / Rust 互读互写同一 CSV：Go 产 Python 读、Python 产 Go 与 C++ 读，值逐元素一致；发布物含版本号 | 已完成 |
 | **M4 Rust 定型** | Rust crate、B3 | M1（与 M2 并行） | crate 按 NAME-MAP 暴露符号并通过同一批 fixture；命名与最小参数集对位 | 已完成（B3 属 pandas 仓库，未在本仓） |
 | **M5 公式族跨语言** | B1、B2、B3、B4 | M1、M3 | 通达信口径用例在 4 门语言同值；`formula/README.md` 每行状态更新；研究脚本只产 fixture 不与生产耦合 | 未开始 |
 | **M6 数据管道** | B5 | M3 | 读 `D1` 格式、按主键覆盖、重复执行幂等；Arrow / Parquet 作为可选扩展单独验收 | 已完成（Arrow / Parquet 未做） |
@@ -169,7 +169,7 @@ G1 ◄─ G2
 | 无交换格式规范 | ~~各语言输出各写各的~~ | 已由 `docs/DATA-FORMAT.md`（D1）定稿 | M3 | 已解决 |
 | 表头方言污染 | 引入自带 `列名:类型` 表头的三方 dataframe 库会使 CSV 无法被 Python / Go 通用读取器直接消费 | 靠 D1 红线约束；选库时逐项核对表头约定 | M6 | 高 |
 | C++ 缺 min_periods | Go 的 `rolling` 已支持 partial window（`min_periods`），C++ 仍只有完整窗口入口 | 补 C++ 形参并复用同一 fixture 口径 | M5 | 中 |
-| D3 发布物未落地 | Go 单二进制、C++ 静态库与头文件、Rust crate 均已存在；版本号仍只能由 autochangelog / tag 注入 | 待发布流水线；不在代码里制造版本字符串 | 发布 | 中 |
+| D3 发布物未落地 | ~~版本号只能由 autochangelog / tag 注入~~ | 已由 `docs/RELEASE.md` 的安装导出与 tag 派生链路解决；实际发版仍由 autochangelog 执行 | 发布 | 已解决 |
 | Rust 覆盖不全 | crate 已通过 129 个 fixture；线性代数、几何、时间与公式族尚未移植 | 按 `NAME-MAP.tsv` 逐行补齐，B3 在 pandas 仓库 | M5 | 中 |
 | Go 侧数值与 C++ 有差距 | 缺 AVX-512、迭代器开销、GC 峰值 | 属语言特性，不以牺牲 Go 交付面为代价硬追 | M7 | 低 |
 | 重复实现风险 | 同名功能可能在两个包各写一套 | C1 已定“权威实现语言”列并由 `name_map_test.go` 校验符号覆盖；CI 自动校验尚未接入 | 全程 | 中 |

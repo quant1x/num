@@ -154,11 +154,60 @@ add_library(num_core STATIC
 # 包含根是仓库根的上一级：公共头的包含形态为 <num/<模块>/<头文件>.h>，
 # 与 CONTRIBUTING.md §3.1 登记的三段式对位一致（安装布局将来同此形）。
 target_include_directories(num_core PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/..>)
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/..>
+        $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(num_core PUBLIC xtensor)
 
 add_library(num::num_core ALIAS num_core)
+
+# ============================================================
+# 安装与导出（D3）：静态库 + 公共头 + CMake 包配置。
+# 包版本只从"精确匹配的 git tag"派生；未打 tag 时是 0.0.0，不在源码里维护版本。
+# ============================================================
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+set(NUM_PACKAGE_VERSION "0.0.0")
+execute_process(COMMAND git describe --tags --exact-match
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        OUTPUT_VARIABLE NUM_GIT_TAG
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        RESULT_VARIABLE NUM_GIT_RESULT
+        ERROR_QUIET)
+if(NUM_GIT_RESULT EQUAL 0 AND NUM_GIT_TAG MATCHES "^v?([0-9]+\.[0-9]+\.[0-9]+)$")
+    set(NUM_PACKAGE_VERSION "${CMAKE_MATCH_1}")
+endif()
+
+get_target_property(NUM_CORE_SOURCES num_core SOURCES)
+set(NUM_CORE_HEADERS "")
+foreach(source IN LISTS NUM_CORE_SOURCES)
+    if(source MATCHES "\.h$")
+        list(APPEND NUM_CORE_HEADERS "${source}")
+    endif()
+endforeach()
+
+install(TARGETS num_core EXPORT numTargets
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+install(FILES ${NUM_CORE_HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/num")
+install(EXPORT numTargets NAMESPACE num:: DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/num")
+
+configure_package_config_file(
+        "${CMAKE_SOURCE_DIR}/cmake/numConfig.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/numConfig.cmake"
+        INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/num")
+write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/numConfigVersion.cmake"
+        VERSION "${NUM_PACKAGE_VERSION}"
+        COMPATIBILITY SameMajorVersion)
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/numConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/numConfigVersion.cmake"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/num")
+
+
 
 # ============================================================
 # C3 fixture 读取器（tests/fixtures/read_cpp）：只依赖标准库，

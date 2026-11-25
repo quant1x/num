@@ -15,12 +15,14 @@ CGO_ENABLED=0 go build -o numctl ./cmd/numctl
 numctl csv roundtrip <schema> <in.csv> <out.csv>
 numctl csv merge     <schema> <path> <delta.csv> <key>
 numctl csv stats     <schema> <file.csv> <column>
+numctl version
 ```
 
 - `schema`：`name:f|i|b|s|t,...`（f=f64，i=i64，b=bool，s=string，t=time），见 `io/README.md`。
 - `roundtrip`：读入再按 D1 写出，用于验证交换格式。
 - `merge`：读已有文件（不存在则直接写），按 `key` 更新已有行、追加新键；重复执行幂等。
 - `stats`：对数值列输出 `count / sum / mean / std / min / max`（总体标准差，跳过缺失行）。
+- `version`：输出 `runtime/debug.ReadBuildInfo()` 的主模块版本；源码里没有版本常量，发布版本由 tag 决定。
 
 ## 退出码与边界
 
