@@ -4,7 +4,7 @@ num
 [![Sourcegraph](https://sourcegraph.com/github.com/quant1x/num/-/badge.svg)](https://sourcegraph.com/github.com/quant1x/num?badge)
 [![Build Status](https://api.travis-ci.com/repos/quant1x/num.png)](https://travis-ci.com/quant1x/num)
 [![codecov](https://codecov.io/gh/quant1x/num/branch/master/graph/badge.svg)](https://codecov.io/gh/quant1x/num)
-![Golang 1.21.8+](https://img.shields.io/badge/Golang-1.21+-orange.svg?style=flat)
+![Golang 1.27.3+](https://img.shields.io/badge/Golang-1.27.3+-orange.svg?style=flat)
 ![tag](https://img.shields.io/github/tag/quant1x/num.svg?style=flat)
 ![license](https://img.shields.io/github/license/quant1x/num.svg)
 
@@ -14,10 +14,16 @@ num
 num 是类似 numpy 的数值工具包，按语言**平行实现、语义相同**：
 
 - **Go**：已落地（门面层 + `x32` / `x64` 强类型层 + AVX2 / NEON 汇编内核）；
-- **C++**：已落地第一批算子（算术、归约、逻辑比较、构造与整形、舍入、指数对数、缺失值填充、滑动窗口、
-  一维点积、直线与趋势），基于 `xtensor` + `xsimd`，构建走 conan2 + CMake，见 [BUILDING.md](BUILDING.md) §6.2；
+- **C++**：已落地（算术、归约、逻辑比较、构造与整形、舍入、指数对数、缺失值填充、滑动窗口、
+  一维点积、向量距离 / 余弦、直线与趋势），基于 `xtensor` + `xsimd`，构建走 conan2 + CMake，
+  见 [BUILDING.md](BUILDING.md) §6.2；
 - **Rust**：已落地 fixture 覆盖的 N1 ~ N4、N6 语义（`Cargo.toml`，见 [BUILDING.md](BUILDING.md) §6.3）；
-- **Python**：待落地。
+- **Python**：已落地 spec（`pyproject.toml`，包即仓库根），覆盖契约表 134 行中的 122 行，
+  见 [BUILDING.md](BUILDING.md) §4.5。
+
+一致性由 `tests/fixtures` 的 160 个 npz 样本 + `.numb` 黄金样本承担：Go / C++ / Rust / Python 读同一批
+输入、逐值比对；`NAME-MAP.tsv` 的 `authority` 逐行标出当前以哪门语言为准（已切 python 122 行，
+其余以 Go 为临时基准，理由写在 note）。
 
 各语言的算子对照、统一口径与落地缺口见 [num.md](num.md)。
 
