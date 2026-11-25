@@ -9,7 +9,8 @@
 | `slope-to-degrees-f64` | `slope_to_degrees` | 斜率 1 → 45° |
 | `degrees-to-slope-f64` | `degrees_to_slope` | 45° → 1 |
 | `triangle-bevel-f64` | `triangle_bevel` | `slope*(xn-x1)+y1` |
+| `polyfit-f64` | `poly_fit` | 二次最小二乘拟合，正规方程；容差 1e-10 |
 | `polyval-f64` | `poly_val` | 系数最高次在前，Horner 法 |
 
-`poly_fit`、`calculate_line_equation`、`fit_line`、`cross` 等结构体返回与 `find_percent` / `find_zscore`
+`calculate_line_equation`、`fit_line`、`cross` 等结构体返回与 `find_percent` / `find_zscore`
 未纳入本组：算法口径或数据表需先确认，另行建单。

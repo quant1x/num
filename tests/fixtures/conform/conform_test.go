@@ -418,6 +418,20 @@ func compute(fixture *readgo.File) ([]float64, error) {
 			return nil, err
 		}
 		return []float64{num.TriangleBevel(slope, x1, y1, xn)}, nil
+	case "poly_fit":
+		x, err := floats(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		y, err := floats(fixture, "y")
+		if err != nil {
+			return nil, err
+		}
+		deg, err := scalarInt(fixture, "deg")
+		if err != nil {
+			return nil, err
+		}
+		return num.PolyFit(x, y, deg), nil
 	case "poly_val":
 		p, err := floats(fixture, "p")
 		if err != nil {

@@ -543,6 +543,12 @@ def geometry_layer(out_dir: str) -> None:
     save(out_dir, group, "triangle-bevel-f64", "triangle_bevel",
          {"slope": np.array(2.5), "x1": np.array(1, dtype=np.int64), "y1": np.array(10.0),
           "xn": np.array(5, dtype=np.int64), "expected": np.array(20.0)})
+    fit_x = f64([0.0, 1.0, 2.0, 3.0])
+    fit_y = f64([1.0, 3.0, 7.0, 13.0])
+    save(out_dir, group, "polyfit-f64", "poly_fit",
+         {"x": fit_x, "y": fit_y, "deg": np.array(2, dtype=np.int64),
+          "expected": np.polyfit(fit_x, fit_y, 2)}, tolerance=1e-10)
+
     coefficients = f64([2.0, -3.0, 1.0])
     xs = f64([0.0, 1.0, 2.0, 3.0])
     save(out_dir, group, "polyval-f64", "poly_val",

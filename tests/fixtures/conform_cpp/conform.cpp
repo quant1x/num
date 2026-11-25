@@ -728,6 +728,12 @@ bool compute(const File &fixture, std::vector<double> &out, std::string &reason)
                                    scalar_f64(fixture, "y1"), scalar_i64(fixture, "xn"))};
         return true;
     }
+    if (name == "poly_fit") {
+        out = to_doubles(num::poly_fit(make_vector<double>(floats(fixture, "x")),
+                                       make_vector<double>(floats(fixture, "y")),
+                                       scalar_i64(fixture, "deg")));
+        return true;
+    }
     if (name == "poly_val") {
         out = to_doubles(num::poly_val(make_vector<double>(floats(fixture, "p")),
                                        make_vector<double>(floats(fixture, "x"))));

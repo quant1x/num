@@ -418,6 +418,11 @@ fn compute(fixture: &Fixture) -> Result<Vec<f64>, String> {
             scalar_f64(fixture, "y1")?,
             scalar_i64(fixture, "xn")?,
         )]),
+        "poly_fit" => Ok(poly_fit(
+            &floats(fixture, "x")?,
+            &floats(fixture, "y")?,
+            scalar_i64(fixture, "deg")?,
+        )),
         "poly_val" => Ok(poly_val(&floats(fixture, "p")?, &floats(fixture, "x")?)),
         "zeros" => Ok(zeros::<f64>(scalar_i64(fixture, "n")? as usize)),
         "ones" => Ok(ones::<f64>(scalar_i64(fixture, "n")? as usize)),
