@@ -43,6 +43,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | `coverage.txt` / `coverage.out` | 覆盖率产物 | `go.test.sh` 生成，已在 `.gitignore` |
 | `*.test` | 测试二进制 | `go test -c` 的产物，已在 `.gitignore`；不要留在包目录 |
 | `build/` | C++ 构建产物 | conan 的 `generators/` 与 CMake 的中间件、用例二进制；**整目录不入库**（已在 `.gitignore`） |
+| `tests/fixtures/read_rs/target/` | Rust 工具 crate 产物 | C3 读取器的 cargo 构建目录，已在 `.gitignore` |
 | `CMakeUserPresets.json` | C++ 预设台账 | conan 默认写在仓库根的台账文件，本仓不用（预设收进各自的 `build/<配置>/generators/`），已在 `.gitignore` |
 | Go build cache / `GOMODCACHE` | 工具缓存 | 由工具管理，不手工清理挪动 |
 
@@ -145,6 +146,24 @@ C++ 侧另有一条：新增算子必须在 `CMakeLists.txt` 里**逐文件显�
 `#include <num/sum.h>`）；与 [CONTRIBUTING.md §3.1](CONTRIBUTING.md#31-仓库根与实现根) 登记的三段式对位，
 将来补安装导出时布局照此形（`include/num/...`）。
 
+`num_fixture_check` 是 C3 的 fixture 读取器（`tests/fixtures/read_cpp/`），只依赖标准库、不链接
+`num_core`；`NUM_BUILD_TESTS=ON` 时由 ctest 以 `fixtures_npz_read_cpp` 注册。
+
+### 3.6 验收目录（`tests/`）
+
+`tests/` 不属于实现包，收跨语言验收资产；Go 侧只有 `tests/contract` 是包（校验用例），其余是
+工具与数据。
+
+| 路径 | 形式 | 职责 |
+| --- | --- | --- |
+| `tests/contract` | Go 包 `contract` | C1 契约表与覆盖校验（`go test ./tests/contract/`） |
+| `tests/fixtures/gen` | Python 脚本 | C2 生成器，需要 NumPy |
+| `tests/fixtures/read_go` | Go 包 `read_go` | C3 Go 读取器与用例 |
+| `tests/fixtures/read_cpp` | C++ 源文件 | C3 C++ 读取器，目标是 `num_fixture_check` |
+| `tests/fixtures/read_rs` | 独立 crate | C3 Rust 读取器，不进生产 crate |
+
+新增验收目录时同批补 `README.md`，并在本节登记。
+
 ---
 
 ## 4. 测试与回归判定
@@ -154,6 +173,9 @@ C++ 侧另有一条：新增算子必须在 `CMakeLists.txt` 里**逐文件显�
 ```bash
 # 核心包：日常回归用这一组，必须全绿
 go test ./internal/functions/ ./internal/partial/ ./x32/ ./x64/ ./vectors/ ./kind/ ./binary/ . 
+
+# 契约与 fixture（C1 / C3）
+go test ./tests/contract/ ./tests/fixtures/read_go/
 
 # 单条用例
 go test ./internal/functions/ -run TestSumProd -v
@@ -166,7 +188,7 @@ gofmt -l .
 C++ 侧：
 
 ```bash
-ctest --preset release-static      # 221 个用例，Release + /MT
+ctest --preset release-static      # 222 个用例，Release + /MT
 ctest --preset debug-static        # 同一批用例，Debug + /MTd
 ```
 

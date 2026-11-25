@@ -83,7 +83,7 @@
 | 提交（Windows） | 写入 `.git/commit-msg.tmp` 后 `git commit -F .git/commit-msg.tmp` |
 | 建 / 查 / 关工单 | `labs-git-issue`（不传 `--host` / `--repo`，按 `origin` 自动识别），正文模板见 [§9.1](CONTRIBUTING.md#91-先建单再动手) |
 | C++ 取依赖 / 配置 / 编译 | `conan install . -s build_type=Release -s compiler.runtime=static`、`cmake --preset release-static`、`cmake --build --preset release-static` |
-| C++ 用例 | `ctest --preset release-static`（221 个用例，Debug 用 `debug-static`） |
+| C++ 用例 | `ctest --preset release-static`（222 个用例，Debug 用 `debug-static`） |
 | Python / Rust / Zig / Java | **尚未落地**：命令随各语言落地时补进 [BUILDING.md](BUILDING.md) 对应章节，此处不写未验证的命令 |
 
 ## 5. 交付前自检

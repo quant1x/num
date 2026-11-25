@@ -159,6 +159,16 @@ target_link_libraries(num_core PUBLIC xtensor)
 add_library(num::num_core ALIAS num_core)
 
 # ============================================================
+# C3 fixture 读取器（tests/fixtures/read_cpp）：只依赖标准库，
+# 校验 C2 产出的 npz。与 num_core 无链接关系，单独成目标。
+# ============================================================
+add_executable(num_fixture_check
+        tests/fixtures/read_cpp/npz.cpp
+        tests/fixtures/read_cpp/main.cpp
+)
+target_include_directories(num_fixture_check PRIVATE tests/fixtures/read_cpp)
+
+# ============================================================
 # 用例：与实现同目录、同名不同后缀（<模块>_test.cpp ↔ <模块>_test.go），
 # 由 ctest 驱动（gtest_discover_tests 把每个 TEST 注册成一条 ctest 用例）。
 # ============================================================
@@ -216,4 +226,7 @@ if(NUM_BUILD_TESTS)
 
     include(GoogleTest)
     gtest_discover_tests(num_cpp_tests)
+
+    add_test(NAME fixtures_npz_read_cpp
+            COMMAND num_fixture_check ${CMAKE_SOURCE_DIR}/tests/fixtures)
 endif()

@@ -1,0 +1,21 @@
+# 未纳入跨语言数值契约的 Go 公开符号。说明见 README.md。
+# 排除的是不构成独立跨语言数值语义的符号；工具包整包排除用 *。
+# pkg	symbol	reason
+num	UnaryOperations	一元运算的运行时类型分派内核，语义由其调用的算子承担
+num	UnaryOperations1	同上，标量返回形态
+num	UnaryOperations2	同上，泛型返回形态
+num	BinaryOperations	二元运算的运行时类型分派内核
+num	BinaryOperations2	同上，泛型返回形态
+num	AnyToGeneric	reflect 路径的 any 取值，不构成数值语义
+num	AnyToSlice	reflect 路径的 any 转切片，不构成数值语义
+num	CheckoutRawType	reflect 类型探查工具
+num	ExtractValueFromPointer	reflect 指针解引用工具
+num	DefaultFormatter	诊断输出的格式化器
+num	PrintString	诊断输出
+num	PanicTrace	诊断输出
+num	TypeError	错误对象构造，不是数值算子
+kind	*	类型判别与默认值的底层实现，由 num.TypeDefault 承担对外语义
+vectors	*	切片小工具，供 Repeat 等内部复用，不单独构成跨语言语义
+binary	*	内存视图与字节序工具，供 Repeat 等内部复用，不单独构成跨语言语义
+math32	*	标量数学工具（chewxy/math32 fork），各语言由标准库同名函数承担
+math64	*	float64 位级工具，各语言由标准库承担
