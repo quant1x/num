@@ -57,6 +57,12 @@ def expected_code(data: np.lib.npyio.NpzFile) -> str:
     return DTYPE_CODES.get(str(array.dtype), str(array.dtype))
 
 
+def strings_of(data: np.lib.npyio.NpzFile, name: str) -> list[str]:
+    array = np.asarray(data[name])
+    return [item.decode("ascii") if isinstance(item, bytes) else str(item)
+            for item in array.reshape(-1).tolist()]
+
+
 def flatten(value) -> list:
     if isinstance(value, (list, tuple)):
         out: list = []
@@ -230,6 +236,12 @@ DISPATCH = {
     ],
     "cross": lambda data: num.cross(values_of(data, "a"), values_of(data, "b")),
     "fit_line": lambda data: num.fit_line(values_of(data, "x"), values_of(data, "y")),
+    "parse_freq": lambda data: [num.parse_freq(item) for item in strings_of(data, "freq")],
+    "date_range": lambda data: num.date_range(
+        int(np.asarray(data["start"]).reshape(-1)[0]),
+        int(np.asarray(data["periods"]).reshape(-1)[0]),
+        strings_of(data, "freq")[0],
+    ),
     "calculate_line_equation": lambda data: (
         num.calculate_line_equation(
             values_of(data, "x1")[0],
@@ -299,7 +311,7 @@ class FixtureConformance(unittest.TestCase):
                         f"{Path(path).name} {semantic}: 第 {index} 位 {got} != {want}",
                     )
                 covered += 1
-        self.assertGreaterEqual(covered, 138, f"只覆盖了 {covered} 个样本")
+        self.assertGreaterEqual(covered, 140, f"只覆盖了 {covered} 个样本")
 
 
 class EmptyInputs(unittest.TestCase):

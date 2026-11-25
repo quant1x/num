@@ -116,8 +116,8 @@ find_percent	zscore:f64	—	propagate	scalar	—	find_percent	—	num:FindPercen
 find_zscore	percent:f64	—	propagate	scalar	—	find_zscore	—	num:FindZScore	—	—	go	分位转 z 值
 confidence_interval_to_zscore	interval:f64	—	propagate	scalar	—	confidence_interval_to_zscore	—	num:ConfidenceIntervalToZscore	—	—	go	置信区间转 z 值
 zscore_to_confidence_interval	zscore:f64	—	propagate	scalar	—	zscore_to_confidence_interval	—	num:ZscoreToConfidenceInterval	—	—	go	z 值转置信区间
-parse_freq	freq:string	—	—	scalar	—	parse_freq	parse_freq	num:ParseFreq	—	—	go	返回 time.Duration 与 error
-date_range	start:time, periods:int, freq:string	—	—	[n]	—	date_range	date_range	num:DateRange	—	—	go	返回时间序列与 error
+parse_freq	freq:string	—	—	scalar	freq.parse_freq	parse_freq	parse_freq	num:ParseFreq	—	—	python	返回 time.Duration 与 error
+date_range	start:time, periods:int, freq:string	—	—	[n]	freq.date_range	date_range	date_range	num:DateRange	—	—	python	返回时间序列与 error
 peeks_and_valleys	x:array	—	—	tuple	—	arg_rel_extrema	—	num:PeeksAndValleys, num:ArgRelExtrema	—	—	go	PeeksAndValleys 目前为空实现返回 nil
 # --- 类型、转换与开关 ---
 type_default	—	—	—	scalar	type_dtype.type_default	type_default	type_default	num:TypeDefault	—	—	python	浮点 NaN、整型 0、bool false、string "NaN"
