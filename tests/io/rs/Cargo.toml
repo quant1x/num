@@ -1,0 +1,9 @@
+[package]
+name = "num-csv-roundtrip"
+version = "0.0.0" # 内部工具，不参与发布版本
+edition = "2024"
+publish = false
+
+[[bin]]
+name = "num-csv-roundtrip"
+path = "src/main.rs"

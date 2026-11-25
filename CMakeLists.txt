@@ -60,6 +60,8 @@ add_library(num_core STATIC
         # 基础
         type.h
         errors.h
+        csv.h
+        csv.cpp
 
         # 算术
         abs.h
@@ -168,6 +170,10 @@ add_executable(num_fixture_check
 )
 target_include_directories(num_fixture_check PRIVATE tests/fixtures/read_cpp)
 
+# D2 跨语言 CSV 往返工具（tests/io/roundtrip.py 调用）
+add_executable(num_csv_roundtrip tests/io/cpp_roundtrip/main.cpp)
+target_link_libraries(num_csv_roundtrip PRIVATE num_core)
+
 # ============================================================
 # 用例：与实现同目录、同名不同后缀（<模块>_test.cpp ↔ <模块>_test.go），
 # 由 ctest 驱动（gtest_discover_tests 把每个 TEST 注册成一条 ctest 用例）。
@@ -189,6 +195,8 @@ if(NUM_BUILD_TESTS)
             ndarray_test.cpp
             # 标量工具：decimal / change_rate / net_change_rate
             decimals_test.cpp
+            # CSV 读写：D1 基线
+            csv_test.cpp
             # 指数 / 对数：log1p / expm1
             log_test.cpp
             # 填充：fill / fill_na

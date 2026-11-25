@@ -137,7 +137,7 @@ GBK 解析会切碎注释并连带吃换行）、`CMAKE_MSVC_RUNTIME_LIBRARY` �
 
 - **现阶段**：仓库根**即实现根**。Go 的公开包平铺在根目录（`sum.go` / `dot.go` / `matrix.go` …），
   内部包在 `internal/`，工具包为一级目录（`x32/` / `x64/` / `math32/` / `math64/` / `binary/` / `kind/` /
-  `vectors/` / `labs/`）。
+  `vectors/` / `labs/` / `io/`）。
 - 仓库根只放构建与打包入口（`go.mod`；C++ 的 `conanfile.py` / `CMakeLists.txt` / `CMakePresets.json`；
   将来补 `Cargo.toml` / `pyproject.toml` / `pom.xml`）与跨语言基础设施（`docs/`、`tests/`、`benches/`、
   `tools/`）。
