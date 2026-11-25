@@ -123,6 +123,51 @@ func TestNameMapCoversGoSymbols(t *testing.T) {
 	}
 }
 
+// TestNameMapRustSymbols 校验 rust 列登记的符号确实出现在 src/ 的 pub fn 中。
+func TestNameMapRustSymbols(t *testing.T) {
+	rows := readTable(t, "NAME-MAP.tsv", nameMapColumns)
+	symbols := rustPublicFunctions(t)
+	for i, row := range rows {
+		cell := row[7]
+		if cell == "—" {
+			continue
+		}
+		for _, name := range strings.Split(cell, ", ") {
+			if !symbols[strings.TrimSpace(name)] {
+				t.Errorf("第 %d 行 rust 符号 %q 在 src/ 中不存在（语义 %s）", i+2, name, row[0])
+			}
+		}
+	}
+}
+
+// rustPublicFunctions 枚举 src/*.rs 里的顶层 pub fn 名称。
+func rustPublicFunctions(t *testing.T) map[string]bool {
+	t.Helper()
+	pattern := regexp.MustCompile(`(?m)^\s*pub fn ([A-Za-z0-9_]+)`)
+	out := make(map[string]bool)
+	dir := filepath.Join(repoRoot, "src")
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("读取 %s: %v", dir, err)
+	}
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".rs") {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(dir, entry.Name()))
+		if err != nil {
+			t.Fatalf("读取 %s: %v", entry.Name(), err)
+		}
+		for _, match := range pattern.FindAllStringSubmatch(string(data), -1) {
+			out[match[1]] = true
+		}
+	}
+	if len(out) == 0 {
+		t.Fatal("src/ 未枚举到 pub fn")
+	}
+	return out
+}
+
 func TestTableEncoding(t *testing.T) {
 	for _, name := range []string{"NAME-MAP.tsv", "NAME-MAP-EXCLUDED.tsv"} {
 		data, err := os.ReadFile(name)

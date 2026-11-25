@@ -29,6 +29,8 @@
 - `go` 列登记**基础符号**即可；`_Inplace` / `_Into` / `Inplace` / `Number` 等写入与标量变体由
   校验用例按后缀视为同一功能。
 - 校验只枚举**导出顶层函数**；方法（`Line.Angle`、`Window.At` 等）不在函数粒度契约内。
+- `rust` 列登记 `src/*.rs` 里的 `pub fn` 名称（逗号分隔），由 `TestNameMapRustSymbols` 校验存在性；
+  Rust 未实现的语义写 `—`。
 - 新增公开函数时二选一：在 `NAME-MAP.tsv` 补一行，或在 `NAME-MAP-EXCLUDED.tsv` 写明排除理由。
 - `tests/contract` 只读当前工作树，不联网、不读写 `temp/`。
 
@@ -38,4 +40,5 @@
 go test ./tests/contract/
 ```
 
-失败信息会列出两类问题：`未登记契约表`（新增符号漏登记）与 `登记的符号不存在`（改名或删除后未同步）。
+失败信息会列出三类问题：`未登记契约表`（新增符号漏登记）、`登记的符号不存在`（Go 改名或删除后未同步）
+与 `rust 符号在 src/ 中不存在`（Rust 列写错或函数被删除）。
