@@ -276,7 +276,7 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
 ```
 
 - 依赖：`requires-python >= 3.11`；实现本身不依赖 NumPy，NumPy 只用于生成器与对拍用例；
-- 覆盖：94 个语义 —— 归约（`sum` / `mean` / `std` / `variance` / `covariance` / `max` / `min` /
+- 覆盖：113 个语义 —— 归约（`sum` / `mean` / `std` / `variance` / `covariance` / `max` / `min` /
   `argmax` / `argmin` / `count` / `median`）、逐元素（`abs` / `sqrt` / `maximum` / `minimum` /
   `add` / `sub` / `mul` / `div` / `expm1` / `log1p` / `decimal`）、比较与逻辑（`equal` / `not_equal` /
   `gt` / `gte` / `lt` / `lte` / `logic_and` / `logic_or` / `logic_not` / `all` / `any`）、
@@ -290,7 +290,10 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
   `to_float32` / `to_float64` / `slice_float_to_int` / `slice_to_float64` / `type_default`），
   几何与多项式（`slope` / `slope_to_degrees` / `degrees_to_slope` / `triangle_bevel` / `cross` /
   `poly_fit` / `poly_val` / `fit_line` / `calculate_line_equation`）、填充（`fill` / `fill_na`），
-  日期（`parse_freq` / `date_range`），对应 `tests/fixtures` 的 140 个样本；
+  日期（`parse_freq` / `date_range`）、其余逐元素（`ceil` / `floor` / `round` / `sin` / `cos` / `exp` /
+  `log` / `log2` / `log10` / `pow_float` / `pow_integer` / `change_rate` / `net_change_rate`）、
+  索引（`find` / `gather` / `select` / `scatter`）、构造补全（`ones` / `range_float`），
+  对应 `tests/fixtures` 的 160 个样本；
 - `NAME-MAP.tsv` 的 `authority` 仍是 `go`：逐批把语义切到 python，未切的继续以 Go 为临时基准。
 
 ---

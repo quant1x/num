@@ -18,7 +18,7 @@ from .count import count
 from .cross import cross
 from .covariance import covariance, variance
 from .cumsum import cumsum
-from .decimals import decimal, is_nan
+from .decimals import change_rate, decimal, is_nan, net_change_rate
 from .diff import diff
 from .fillna import fill, fill_na
 from .freq import date_range, parse_freq
@@ -46,14 +46,15 @@ from .sum import sum
 from .type_bool import bool_to_float64, bool_to_int64
 from .type_dtype import dtype2int, type_default
 from .where import where
-from .zeros import zeros
+from .range import range_float
+from .zeros import ones, zeros
 
 __all__ = [
     "abs", "add", "align", "all", "any", "argmax", "argmin", "bool_to_float64", "bool_to_int64",
-    "count", "covariance", "cross", "cumsum", "decimal", "degrees_to_slope", "diff", "div",
+    "change_rate", "count", "covariance", "cross", "cumsum", "decimal", "degrees_to_slope", "diff", "div",
     "dot1d", "dtype2int", "equal",
     "expm1", "date_range", "fill", "fill_na", "parse_freq", "gt", "gte", "is_nan", "log1p", "logic_and", "logic_not", "logic_or", "lt", "lte", "Line", "calculate_line_equation", "fit_line",
-    "max", "maximum", "mean", "median", "min", "minimum", "mul", "not_equal", "poly_fit", "poly_val", "repeat", "rolling",
+    "max", "maximum", "mean", "median", "min", "minimum", "mul", "net_change_rate", "not_equal", "ones", "range_float", "poly_fit", "poly_val", "repeat", "rolling",
     "rolling_apply", "shift", "slope", "slope_to_degrees",
     "sqrt", "std", "sub", "sum", "triangle_bevel", "type_default", "variance", "where", "zeros",
 ]

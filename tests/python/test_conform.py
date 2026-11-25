@@ -236,6 +236,39 @@ DISPATCH = {
     ],
     "cross": lambda data: num.cross(values_of(data, "a"), values_of(data, "b")),
     "fit_line": lambda data: num.fit_line(values_of(data, "x"), values_of(data, "y")),
+    "ones": lambda data: num.ones(int(np.asarray(data["n"]).reshape(-1)[0])),
+    "range_float": lambda data: num.range_float(
+        values_of(data, "a")[0], values_of(data, "b")[0]
+    ),
+    "ceil": lambda data: vek.ceil(values_of(data, "x")),
+    "floor": lambda data: vek.floor(values_of(data, "x")),
+    "round": lambda data: vek.round(values_of(data, "x")),
+    "sin": lambda data: vek.to_float32(vek.sin(values_of(data, "x"))),
+    "cos": lambda data: vek.to_float32(vek.cos(values_of(data, "x"))),
+    "exp": lambda data: vek.to_float32(vek.exp(values_of(data, "x"))),
+    "log": lambda data: vek.to_float32(vek.log(values_of(data, "x"))),
+    "log2": lambda data: vek.to_float32(vek.log2(values_of(data, "x"))),
+    "log10": lambda data: vek.to_float32(vek.log10(values_of(data, "x"))),
+    "pow_float": lambda data: vek.pow_float(values_of(data, "x"), values_of(data, "y")),
+    "pow_integer": lambda data: vek.pow_integer(values_of(data, "x"), 2),
+    "find": lambda data: [vek.find(values_of(data, "x"), values_of(data, "value")[0])],
+    "gather": lambda data: vek.gather(
+        values_of(data, "x"), [int(value) for value in values_of(data, "idx")]
+    ),
+    "select": lambda data: vek.select(
+        values_of(data, "x"), [bool(value) for value in values_of(data, "mask")]
+    ),
+    "scatter": lambda data: vek.scatter(
+        values_of(data, "x"),
+        [int(value) for value in values_of(data, "idx")],
+        int(np.asarray(data["size"]).reshape(-1)[0]),
+    ),
+    "change_rate": lambda data: [
+        num.change_rate(values_of(data, "base")[0], values_of(data, "current")[0])
+    ],
+    "net_change_rate": lambda data: [
+        num.net_change_rate(values_of(data, "base")[0], values_of(data, "current")[0])
+    ],
     "parse_freq": lambda data: [num.parse_freq(item) for item in strings_of(data, "freq")],
     "date_range": lambda data: num.date_range(
         int(np.asarray(data["start"]).reshape(-1)[0]),
@@ -311,7 +344,7 @@ class FixtureConformance(unittest.TestCase):
                         f"{Path(path).name} {semantic}: 第 {index} 位 {got} != {want}",
                     )
                 covered += 1
-        self.assertGreaterEqual(covered, 140, f"只覆盖了 {covered} 个样本")
+        self.assertGreaterEqual(covered, 160, f"只覆盖了 {covered} 个样本")
 
 
 class EmptyInputs(unittest.TestCase):

@@ -21,6 +21,16 @@ def is_nan(value: float) -> bool:
     return math.isnan(value) or math.isinf(value)
 
 
+def change_rate(base: float, current: float) -> float:
+    """增长率 `current / base`。"""
+    return current / base
+
+
+def net_change_rate(base: float, current: float) -> float:
+    """净增长率百分比：`(current/base - 1) * 100`。"""
+    return (change_rate(base, current) - 1.0) * 100.0
+
+
 def decimal(value: float, digits: int = 2) -> float:
     """把 value 保留 digits 位小数（半程远离零）。"""
     if digits < 0:

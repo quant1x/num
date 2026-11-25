@@ -32,6 +32,11 @@ def linspace(start: float, end: float, n: int, endpoint: bool = True) -> list[fl
     return [start + index * step for index in builtins.range(n)]
 
 
+def range_float(a: float, b: float) -> list[float]:
+    """返回 [a, b) 上的浮点序列（步长 1）。"""
+    return arange(a, b, 1.0)
+
+
 def range(n: int) -> list[int]:  # noqa: A001 - 与合同名 RANGE 保持一致
     """返回 0 .. n-1。"""
     if n <= 0:

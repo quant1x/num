@@ -6,6 +6,13 @@
 from __future__ import annotations
 
 
+def ones(n: int) -> list[float]:
+    """返回 n 个 1.0。"""
+    if n < 1:
+        return []
+    return [1.0] * n
+
+
 def zeros(n: int) -> list[float]:
     """返回 n 个 0.0。"""
     if n < 1:

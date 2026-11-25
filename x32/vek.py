@@ -195,6 +195,109 @@ def slice_to_float64(x: Sequence[float | int | bool]) -> list[float]:
     return [float(value) for value in x]
 
 
+def ceil(x: Sequence[float]) -> list[float]:
+    """逐元素向上取整。"""
+    return [_math.ceil(value) for value in x]
+
+
+def floor(x: Sequence[float]) -> list[float]:
+    """逐元素向下取整。"""
+    return [_math.floor(value) for value in x]
+
+
+def round(x: Sequence[float]) -> list[float]:  # noqa: A001 - 与合同名 ROUND 保持一致
+    """逐元素四舍五入（半程远离零，与 Go 的 `math.Round` 一致）。"""
+    return [_round_half_away(value) for value in x]
+
+
+def _round_half_away(value: float) -> float:
+    if _math.isnan(value) or _math.isinf(value):
+        return value
+    return _math.floor(value + 0.5) if value >= 0 else _math.ceil(value - 0.5)
+
+
+def sin(x: Sequence[float]) -> list[float]:
+    """逐元素正弦。"""
+    return [_math.sin(value) for value in x]
+
+
+def cos(x: Sequence[float]) -> list[float]:
+    """逐元素余弦。"""
+    return [_math.cos(value) for value in x]
+
+
+def exp(x: Sequence[float]) -> list[float]:
+    """逐元素指数。"""
+    return [_math.exp(value) for value in x]
+
+
+def log(x: Sequence[float]) -> list[float]:
+    """逐元素自然对数（非正数给 -Inf / NaN，与 IEEE 754 一致）。"""
+    return [_log_of(value, _math.log) for value in x]
+
+
+def log2(x: Sequence[float]) -> list[float]:
+    """逐元素以 2 为底的对数。"""
+    return [_log_of(value, _math.log2) for value in x]
+
+
+def log10(x: Sequence[float]) -> list[float]:
+    """逐元素以 10 为底的对数。"""
+    return [_log_of(value, _math.log10) for value in x]
+
+
+def _log_of(value: float, func) -> float:
+    if _math.isnan(value):
+        return _math.nan
+    if value < 0:
+        return _math.nan
+    if value == 0:
+        return -_math.inf
+    return func(value)
+
+
+def pow_float(x: Sequence[float], y: Sequence[float]) -> list[float]:
+    """逐元素浮点幂。"""
+    if len(x) != len(y):
+        raise ValueError("pow_float: 两条序列长度不一致")
+    return [_math.pow(base, exponent) for base, exponent in zip(x, y)]
+
+
+def pow_integer(x: Sequence[float], n: int) -> list[float]:
+    """逐元素整数次幂。"""
+    return [_math.pow(value, n) for value in x]
+
+
+def find(x: Sequence[float], value: float) -> int:
+    """返回首次出现的下标；未命中返回 -1。"""
+    for index, item in enumerate(x):
+        if item == value:
+            return index
+    return -1
+
+
+def gather(x: Sequence[float], idx: Sequence[int]) -> list[float]:
+    """按索引取值。"""
+    return [x[index] for index in idx]
+
+
+def select(x: Sequence[float], mask: Sequence[bool]) -> list[float]:
+    """按掩码过滤。"""
+    if len(x) != len(mask):
+        raise ValueError("select: 长度不一致")
+    return [value for value, keep in zip(x, mask) if keep]
+
+
+def scatter(x: Sequence[float], idx: Sequence[int], size: int) -> list[float]:
+    """把 x 按索引散落到长度为 size 的零序列。"""
+    if len(x) != len(idx):
+        raise ValueError("scatter: 值与索引长度不一致")
+    out = [0.0] * size
+    for value, position in zip(x, idx):
+        out[position] = value
+    return out
+
+
 def none(x: Sequence[bool]) -> bool:
     """是否全部为假；空输入为 True。"""
     return not builtins.any(bool(value) for value in x)
