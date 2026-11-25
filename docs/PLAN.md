@@ -174,7 +174,7 @@ G1 ◄─ G2
 | D3 发布物未落地 | ~~版本号只能由 autochangelog / tag 注入~~ | 已由 `docs/RELEASE.md` 的安装导出与 tag 派生链路解决；实际发版仍由 autochangelog 执行 | 发布 | 已解决 |
 | Rust 覆盖不全 | crate 已通过 160 个 fixture；线性代数、几何、时间与公式族尚未移植 | 按 `NAME-MAP.tsv` 逐行补齐，B3 在 pandas 仓库 | M5 | 中 |
 | Go 侧数值与 C++ 有差距 | 缺 AVX-512、迭代器开销、GC 峰值 | 属语言特性，不以牺牲 Go 交付面为代价硬追 | M7 | 低 |
-| ONNX 运行时 | Rust 侧已接（`ort` + `load-dynamic`，本地用 onnxruntime 动态库跑通 `mlp.onnx` 与 `pred_mlp` 逐值一致）；C++ / Go 仍缺头文件与导入库 | C++ / Go 需 onnxruntime 的 C API 头与 lib（官方包或 `ort-sys` 自带头），GitHub 不可达时无法获取 | M8 | 中 |
+| ONNX 运行时 | Rust 侧已接（`ort` + `load-dynamic`，本地用 onnxruntime 动态库跑通 `mlp.onnx` 与 `pred_mlp` 逐值一致，并已并入 pandas 的一键验收）；C++ / Go 仍缺 `onnxruntime_c_api.h` 与导入库 | pip 的 wheel 只带 dll、不带头/库；`ort-sys` 用的是预生成 Rust 绑定也没有 C 头；GitHub 不可达时只能等官方包或内网镜像 | M8 | 中 |
 | `LAST` 窗口不足口径不一 | ~~Go 填 1，C++ / Rust / Zig 取 NaN~~ | 已统一为 NaN（滚动族统一口径），Go 侧去掉 `num.Fill` 并补断言与 fixture 行 | M5 | 已解决 |
 | 重复实现风险 | 同名功能可能在两个包各写一套 | C1 已定“权威实现语言”列并由 `name_map_test.go` 校验符号覆盖；CI 自动校验尚未接入 | 全程 | 中 |
 | Python 源码外流 | 研究侧代码一旦进入交付链路即等于交出算法 | 交付物只含二进制 + 数据文件；评审项挂进发版检查 | 全程 | 高 |
