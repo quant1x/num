@@ -23,11 +23,26 @@ if str(ROOT.parent) not in sys.path:
     sys.path.insert(0, str(ROOT.parent))
 
 import num  # noqa: E402  (路径注入后再导入)
+from num import matrix, range as sequence, shape as shape_module  # noqa: E402
 from num.x32 import vek  # noqa: E402
 
 
 def semantic_of(data: np.lib.npyio.NpzFile) -> str:
     return bytes(data["meta_semantic"]).rstrip(b"\x00").decode("ascii")
+
+
+def matrix_of(data: np.lib.npyio.NpzFile, name: str):
+    array = np.asarray(data[name])
+    return array.tolist()
+
+
+def flatten(value) -> list:
+    if isinstance(value, (list, tuple)):
+        out: list = []
+        for item in value:
+            out.extend(flatten(item))
+        return out
+    return [value]
 
 
 def values_of(data: np.lib.npyio.NpzFile, name: str) -> list[float]:
@@ -126,6 +141,28 @@ DISPATCH = {
     "quantile": lambda data: vek.quantile(
         values_of(data, "x"), float(np.asarray(data["q"]).reshape(-1)[0])
     ),
+    "shape": lambda data: shape_module.shape(matrix_of(data, "x")),
+    "concat1d": lambda data: matrix.concat1d(
+        values_of(data, "a"), values_of(data, "b"), values_of(data, "c")
+    ),
+    "transpose2d": lambda data: matrix.transpose2d(matrix_of(data, "x")),
+    "dot2d": lambda data: matrix.dot2d(matrix_of(data, "a"), matrix_of(data, "b")),
+    "dot2d1": lambda data: matrix.dot2d1(matrix_of(data, "a"), values_of(data, "v")),
+    "matmul": lambda data: matrix.matmul(matrix_of(data, "x"), matrix_of(data, "y")),
+    "inverse": lambda data: matrix.inverse(matrix_of(data, "a")),
+    "mat4mul": lambda data: matrix.mat4mul(matrix_of(data, "x"), matrix_of(data, "y")),
+    "arange": lambda data: sequence.arange(
+        float(np.asarray(data["start"]).reshape(-1)[0]),
+        float(np.asarray(data["end"]).reshape(-1)[0]),
+        float(np.asarray(data["step"]).reshape(-1)[0]),
+    ),
+    "linspace": lambda data: sequence.linspace(
+        float(np.asarray(data["start"]).reshape(-1)[0]),
+        float(np.asarray(data["end"]).reshape(-1)[0]),
+        int(np.asarray(data["n"]).reshape(-1)[0]),
+        bool(np.asarray(data["endpoint"]).reshape(-1)[0]),
+    ),
+    "range": lambda data: sequence.range(int(np.asarray(data["n"]).reshape(-1)[0])),
 }
 
 
@@ -139,9 +176,7 @@ class FixtureConformance(unittest.TestCase):
                     continue
                 tolerance = float(np.asarray(data["meta_tolerance"]))
                 expected = np.asarray(data["expected"]).reshape(-1).tolist()
-                actual = DISPATCH[semantic](data)
-                if not isinstance(actual, list):
-                    actual = [actual]
+                actual = flatten(DISPATCH[semantic](data))
                 self.assertEqual(
                     len(actual), len(expected),
                     f"{Path(path).name}: 长度 {len(actual)} != {len(expected)}",
@@ -152,7 +187,7 @@ class FixtureConformance(unittest.TestCase):
                         f"{Path(path).name} {semantic}: 第 {index} 位 {got} != {want}",
                     )
                 covered += 1
-        self.assertGreaterEqual(covered, 85, f"只覆盖了 {covered} 个样本")
+        self.assertGreaterEqual(covered, 100, f"只覆盖了 {covered} 个样本")
 
 
 class EmptyInputs(unittest.TestCase):

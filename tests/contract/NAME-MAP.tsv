@@ -79,24 +79,24 @@ periods	n:int|any	—	—	tuple	—	Periods	—	num:AnyToPeriod	—	—	go	周�
 # --- N6 构造与整形 ---
 zeros	shape:int	—	—	[n]	zeros.zeros	zeros	zeros	num:Zeros, x32:Zeros, x64:Zeros	—	—	python	全零
 ones	shape:int	—	—	[n]	—	ones	ones	num:Ones, x32:Ones, x64:Ones	—	—	go	全一；Go 门面按入参切片长度生成，不接受形状整数
-arange	start:number, end:number, step:number?	step=1	—	[n]	—	arange	arange_f64, arange_i64	num:Arange	—	—	go	不含 end
-linspace	start:number, end:number, n:int, endpoint:bool?	endpoint=true	—	[n]	—	linspace	linspace	num:Linspace	—	—	go	含 end（endpoint=true）
-range	n:int	—	—	[n]	—	range	range_i64	num:Range	—	—	go	0..n
+arange	start:number, end:number, step:number?	step=1	—	[n]	range.arange	arange	arange_f64, arange_i64	num:Arange	—	—	python	不含 end
+linspace	start:number, end:number, n:int, endpoint:bool?	endpoint=true	—	[n]	range.linspace	linspace	linspace	num:Linspace	—	—	python	含 end（endpoint=true）
+range	n:int	—	—	[n]	range.range	range	range_i64	num:Range	—	—	python	0..n
 range_float	a:f64, b:f64	—	—	[n]	—	range	range_float	x32:Range, x64:Range	—	—	go	浮点区间；门面无对应入口
 repeat	value:scalar, n:int	—	—	[n]	repeat.repeat	repeat, repeat_into	repeat	num:Repeat, num:RepeatInto, x32:Repeat, x64:Repeat	—	—	python	同值重复
 align	x:array, value:scalar, n:int	—	—	[n]	align.align	align	align	num:Align	—	—	python	补默认值到指定长度
-shape	x:any	—	—	tuple	—	shape	shape, shape_2d	num:Shape	—	—	go	返回 (行, 列)
-concat1d	a:array, b:array, c:array	—	—	[n][3]	—	concat1d	concat1d	num:Concat1D	—	—	go	逐元素拼成 n×3（列式），不是 NumPy 的按行拼接
-transpose2d	x:matrix	—	—	[m][n]	—	transpose2d	transpose2d	num:Transpose2D	—	—	go	二维转置
+shape	x:any	—	—	tuple	shape.shape	shape	shape, shape_2d	num:Shape	—	—	python	返回 (行, 列)
+concat1d	a:array, b:array, c:array	—	—	[n][3]	matrix.concat1d	concat1d	concat1d	num:Concat1D	—	—	python	逐元素拼成 n×3（列式），不是 NumPy 的按行拼接
+transpose2d	x:matrix	—	—	[m][n]	matrix.transpose2d	transpose2d	transpose2d	num:Transpose2D	—	—	python	二维转置
 fill	v:array, d:scalar, inplace:bool?	inplace=false	—	same_as(v)	—	fill, fill_inplace	fill	num:Fill	—	—	go	默认复制入参再填
 fill_na	x:array, v:any	inplace=false	—	same_as(x)	—	fill_na, fill_na_inplace	fill_na	num:FillNa	—	—	go	按 NaN 判定填充
 # --- 线代与几何 ---
 dot1d	a:array, b:array	—	propagate	scalar	dot.dot1d	dot1d	dot1d	num:Dot1D, x32:Dot, x64:Dot	—	—	python	一维点积
-dot2d	a:matrix, b:matrix	—	propagate	[n][m]	—	dot2d, dot2d_v1, dot2d1	dot2d	num:Dot, num:Dot2D, num:Dot2D_V1, num:Dot_v1	—	—	go	二维矩阵乘
-dot2d1	a:matrix, b:array	—	propagate	[n]	—	dot2d1	dot2d1	num:Dot2D1, num:Dot2D1_v2	—	—	go	矩阵乘向量
-matmul	x:array, y:array, n:int	—	propagate	[n][n]	—	matmul	matmul	x32:MatMul, x64:MatMul	—	—	go	定长方阵乘；门面无对应入口
-mat4mul	x:array, y:array	—	propagate	[4][4]	—	mat4mul	mat4mul	x32:Mat4Mul, x64:Mat4Mul	—	—	go	4x4 矩阵乘
-inverse	a:matrix	—	propagate	[n][n]	—	inverse	inverse	num:Inverse	—	—	go	矩阵求逆
+dot2d	a:matrix, b:matrix	—	propagate	[n][m]	matrix.dot2d	dot2d, dot2d_v1, dot2d1	dot2d	num:Dot, num:Dot2D, num:Dot2D_V1, num:Dot_v1	—	—	python	二维矩阵乘
+dot2d1	a:matrix, b:array	—	propagate	[n]	matrix.dot2d1	dot2d1	dot2d1	num:Dot2D1, num:Dot2D1_v2	—	—	python	矩阵乘向量
+matmul	x:array, y:array, n:int	—	propagate	[n][n]	matrix.matmul	matmul	matmul	x32:MatMul, x64:MatMul	—	—	python	定长方阵乘；门面无对应入口
+mat4mul	x:array, y:array	—	propagate	[4][4]	matrix.mat4mul	mat4mul	mat4mul	x32:Mat4Mul, x64:Mat4Mul	—	—	python	4x4 矩阵乘
+inverse	a:matrix	—	propagate	[n][n]	matrix.inverse	inverse	inverse	num:Inverse	—	—	python	矩阵求逆
 poly_fit	x:array, y:array, deg:int	—	propagate	[deg+1]	—	poly_fit	poly_fit	num:PolyFit	—	—	go	多项式拟合系数
 poly_val	p:array, x:array	—	propagate	same_as(x)	—	poly_val	poly_val	num:PolyVal	—	—	go	多项式求值
 distance	x:array, y:array	—	propagate	scalar	x32.vek.distance	distance	distance	x32:Distance, x64:Distance	—	—	python	欧氏距离
