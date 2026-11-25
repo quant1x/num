@@ -7,10 +7,13 @@ Python 写出一份 D1 格式的 CSV，Go / C++ / Rust 各自读入并按同一�
 
 | 路径 | 用途 |
 | --- | --- |
-| `roundtrip.py` | 驱动器：写样本、调用三种语言、比较值、检查幂等 |
-| `go_roundtrip/` | Go 命令行工具（`go run`，使用 `io/` 包） |
-| `cpp_roundtrip/` | C++ 命令行工具（`num_csv_roundtrip`，链接 `num_core`） |
-| `rs/` | Rust 独立工具 crate（无三方依赖；生产 crate 属 M4） |
+| `roundtrip.py` | D2 驱动器：写样本、调用三种语言、比较值、检查幂等 |
+| `pipeline.py` | M6 驱动器：基线 + 增量 → 三门按主键合并 → 比较值、检查幂等 |
+| `go_roundtrip/` | Go 往返工具（`go run`，使用 `io/` 包） |
+| `go_merge/` | Go 合并工具（`io.WriteByKey`） |
+| `cpp_roundtrip/` | C++ 往返工具（`num_csv_roundtrip`，链接 `num_core`） |
+| `cpp_merge/` | C++ 合并工具（`num_csv_merge`） |
+| `rs/` | Rust 独立工具 crate：lib + `num-csv-roundtrip` / `num-csv-merge` 两个 bin |
 
 样本与临时产物落在 `temp/tests/io/roundtrip/`，不入库。
 
@@ -18,17 +21,23 @@ Python 写出一份 D1 格式的 CSV，Go / C++ / Rust 各自读入并按同一�
 
 ```bash
 # 1) 先构建 C++ 工具
-cmake --build --preset release-static --target num_csv_roundtrip
+cmake --build --preset release-static --target num_csv_roundtrip num_csv_merge
 
-# 2) 跑互读互写
+# 2) 互读互写
 python tests/io/roundtrip.py
+
+# 3) 按主键覆盖 + 幂等
+python tests/io/pipeline.py
 ```
 
-输出 `ALL PASS` 表示：
+`roundtrip.py` 的 `ALL PASS` 表示：
 
 - Go / C++ / Rust 都能读 Python 产物，并按 D1 重写；
 - Python 能读 Go 产物；
 - 每门语言重复写出的文件逐字节一致。
+
+`pipeline.py` 的 `ALL PASS` 表示三门都能把增量按主键合并进基线（已有键更新、新键追加），
+且重复合并同一增量时产物逐字节一致。
 
 ## schema
 

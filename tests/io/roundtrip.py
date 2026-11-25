@@ -129,7 +129,7 @@ def main() -> None:
             [str(cpp_binary), SCHEMA_SPEC, str(in_path), str(out_path)], root),
         "rust": lambda in_path, out_path: run(
             ["cargo", "run", "--quiet", "--release", "--manifest-path", "tests/io/rs/Cargo.toml",
-             "--", SCHEMA_SPEC, str(in_path), str(out_path)], root),
+             "--bin", "num-csv-roundtrip", "--", SCHEMA_SPEC, str(in_path), str(out_path)], root),
     }
 
     outputs = {}

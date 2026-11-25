@@ -77,7 +77,7 @@
 | B2 | 公式族 C++ 版 | `pandas/cpp/formula/` | C++ | 与 B1 最小参数集一致、结果一致 | 未落地 |
 | B3 | 公式族 Rust 版 | `pandas-rust/Cargo.toml`（crate `quant1x_pandas`）+ `src/formula/` | Rust | 与 B1 最小参数集一致、结果一致 | 未落地 |
 | B4 | 研究侧脚本 | `pandas/scripts/` | Python | 因子研究与定型；产出 fixture 与策略报告，不参与交付 | 未落地 |
-| B5 | 数据管道与 IO | `pandas/io/`、`num/io/` | Go / C++ / Rust | 读 `D1` 格式、按主键覆盖；Arrow / Parquet 作为可选扩展（不是基线） | 未落地 |
+| B5 | 数据管道与 IO | `pandas/io/`、`num/io/` | Go / C++ / Rust | 读 `D1` 格式、按主键覆盖；Arrow / Parquet 作为可选扩展（不是基线） | 已落地（Go/C++ 生产实现，Rust 为 `tests/io/rs` 工具；Arrow/Parquet 未做，pandas/io 在另一仓库） |
 | G1 | Go 工程侧 | `num/labs/`、`pandas/` | Go | 服务、调度、指标计算管道、单二进制分发 | 部分（`labs/`） |
 | G2 | Go 完整数值路径 | `num/` 根包 | Go | 独立可用的数值实现，供只会 Go 的使用者直接落地 | 已落地 |
 | M1 | 特征 fixture | `pandas/tests/features/` | Python（研究侧） | 训练与推理同源的特征样本，落盘比对 | 未落地 |
@@ -146,7 +146,7 @@ G1 ◄─ G2
 | **M3 交换格式落地** | D2、D3 | M0（D2）、M1/M2（D3） | Go / C++ / Rust 互读互写同一 CSV：Go 产 Python 读、Python 产 Go 与 C++ 读，值逐元素一致；发布物含版本号 | 进行中（D2 完成；D3 待 M4 与发布流水线） |
 | **M4 Rust 定型** | Rust crate、B3 | M1（与 M2 并行） | crate 按 NAME-MAP 暴露符号并通过同一批 fixture；命名与最小参数集对位 | 已完成（B3 属 pandas 仓库，未在本仓） |
 | **M5 公式族跨语言** | B1、B2、B3、B4 | M1、M3 | 通达信口径用例在 4 门语言同值；`formula/README.md` 每行状态更新；研究脚本只产 fixture 不与生产耦合 | 未开始 |
-| **M6 数据管道** | B5 | M3 | 读 `D1` 格式、按主键覆盖、重复执行幂等；Arrow / Parquet 作为可选扩展单独验收 | 未开始 |
+| **M6 数据管道** | B5 | M3 | 读 `D1` 格式、按主键覆盖、重复执行幂等；Arrow / Parquet 作为可选扩展单独验收 | 已完成（Arrow / Parquet 未做） |
 | **M7 Go 工程侧** | G1、G2 | M1 | Go 服务与管道可独立部署（单二进制、无 Python 运行时）；数值路径完整可用 | 未开始 |
 | **M8 机器学习侧** | M1、M2、M3 | M5、M6 | 训练与推理同一份特征 fixture 一致；同一 ONNX 模型三侧输出一致 | 未开始 |
 

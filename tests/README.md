@@ -1,7 +1,7 @@
 # tests —— 跨语言一致性验收
 
 本目录收**与语言无关的验收资产**：符号契约表、fixture 生成器与读取器。它不是某个 Go 包的源码目录，
-而是 [docs/PLAN.md](../docs/PLAN.md) 中 C1 / C2 / C3 的落点。
+而是 [docs/PLAN.md](../docs/PLAN.md) 中 C1 / C2 / C3（契约与 fixture）与 D2 / B5（CSV 交换与数据管道）的落点。
 
 ## 职责与边界
 
@@ -16,6 +16,7 @@
 | --- | --- |
 | `contract/` | C1 符号与签名契约表 + 覆盖校验（`go test ./tests/contract/`） |
 | `fixtures/` | C2 生成器、C3 三语言读取器、Go 对拍用例（`conform/`）与 `CPP-GAPS.md`，按 `<分组>/<用例>.npz` 存放样本 |
+| `io/` | D2 跨语言 CSV 互读互写与 B5 按主键合并的驱动器与工具，见 `io/README.md` |
 
 ## 与上下层的关系
 
@@ -30,3 +31,4 @@
 | 契约表 | `—`（读取方） | 读取方 | 读取方 | `contract/name_map_test.go` |
 | fixture 生成 | `fixtures/gen/` | — | — | — |
 | fixture 读取 | — | `fixtures/read_cpp/` | `fixtures/read_rs/` | `fixtures/read_go/` |
+| CSV 读写 / 合并 | `io/roundtrip.py`、`io/pipeline.py` | `io/cpp_*` | `io/rs` | `io/` + `io/go_*` |

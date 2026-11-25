@@ -175,3 +175,89 @@ TEST(Csv, TimeColumn) {
     write_text(path, "ts\n2026-13-05\n");
     EXPECT_THROW(num::read_csv(path.string(), schema), std::runtime_error);
 }
+
+namespace {
+
+num::CsvTable pipeline_table(const std::vector<std::string> &ids,
+                             const std::vector<double> &closes,
+                             const std::vector<num::i64> &volumes) {
+    num::CsvTable table;
+    num::CsvColumn account;
+    account.name = "account";
+    account.kind = num::CsvKind::String;
+    account.strings = ids;
+    account.missing.assign(ids.size(), false);
+
+    num::CsvColumn close;
+    close.name = "close";
+    close.kind = num::CsvKind::Float64;
+    close.floats = closes;
+    close.missing.assign(ids.size(), false);
+
+    num::CsvColumn volume;
+    volume.name = "volume";
+    volume.kind = num::CsvKind::Int64;
+    volume.ints = volumes;
+    volume.missing.assign(ids.size(), false);
+
+    table.columns = {account, close, volume};
+    return table;
+}
+
+}  // namespace
+
+TEST(Csv, MergeByKey) {
+    const auto base = pipeline_table({"a", "b", "c"}, {1, 2, 3}, {10, 20, 30});
+    const auto delta = pipeline_table({"b", "d"}, {9, 4}, {99, 40});
+    const auto merged = num::merge_by_key(base, delta, "account");
+    EXPECT_EQ(merged.columns[0].strings, (std::vector<std::string>{"a", "b", "c", "d"}));
+    EXPECT_EQ(merged.columns[1].floats, (std::vector<double>{1, 9, 3, 4}));
+    EXPECT_EQ(merged.columns[2].ints, (std::vector<num::i64>{10, 99, 30, 40}));
+}
+
+TEST(Csv, MergeRejectsDuplicateIncomingKey) {
+    const auto base = pipeline_table({"a"}, {1}, {10});
+    const auto delta = pipeline_table({"b", "b"}, {2, 3}, {20, 30});
+    EXPECT_THROW(num::merge_by_key(base, delta, "account"), std::runtime_error);
+}
+
+TEST(Csv, MergeRejectsMissingKey) {
+    auto base = pipeline_table({"a"}, {1}, {10});
+    auto delta = pipeline_table({""}, {2}, {20});
+    delta.columns[0].missing[0] = true;
+    EXPECT_THROW(num::merge_by_key(base, delta, "account"), std::runtime_error);
+}
+
+TEST(Csv, MergeRejectsFloatKey) {
+    num::CsvTable table;
+    num::CsvColumn price;
+    price.name = "price";
+    price.kind = num::CsvKind::Float64;
+    price.floats = {1};
+    price.missing = {false};
+    table.columns = {price};
+    EXPECT_THROW(num::merge_by_key(table, table, "price"), std::runtime_error);
+}
+
+TEST(Csv, WriteByKeyIdempotent) {
+    const auto path = temp_path("pipeline.csv");
+    const auto base = pipeline_table({"a", "b"}, {1, 2}, {10, 20});
+    const auto delta = pipeline_table({"b", "c"}, {9, 3}, {99, 30});
+    std::filesystem::remove(path);
+    num::write_csv_by_key(path.string(), base, "account");
+    num::write_csv_by_key(path.string(), delta, "account");
+    const std::string first = read_text(path);
+    num::write_csv_by_key(path.string(), delta, "account");
+    EXPECT_EQ(read_text(path), first);
+
+    std::vector<num::CsvColumn> schema(3);
+    schema[0].name = "account";
+    schema[0].kind = num::CsvKind::String;
+    schema[1].name = "close";
+    schema[1].kind = num::CsvKind::Float64;
+    schema[2].name = "volume";
+    schema[2].kind = num::CsvKind::Int64;
+    const auto table = num::read_csv(path.string(), schema);
+    EXPECT_EQ(table.columns[0].strings, (std::vector<std::string>{"a", "b", "c"}));
+    EXPECT_EQ(table.columns[1].floats, (std::vector<double>{1, 9, 3}));
+}

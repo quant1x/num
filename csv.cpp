@@ -6,12 +6,14 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <fstream>
 #include <limits>
 #include <map>
 #include <stdexcept>
 #include <string>
 #include <system_error>
+#include <utility>
 #include <vector>
 
 namespace num {
@@ -289,6 +291,123 @@ std::string format_cell(const CsvColumn &column, std::size_t row) {
     return "";
 }
 
+
+std::size_t column_index(const CsvTable &table, const std::string &name) {
+    for (std::size_t i = 0; i < table.columns.size(); ++i) {
+        if (table.columns[i].name == name) {
+            return i;
+        }
+    }
+    throw std::runtime_error("主键列不存在: " + name);
+}
+
+void require_same_schema(const CsvTable &left, const CsvTable &right) {
+    if (left.columns.size() != right.columns.size()) {
+        throw std::runtime_error("列数不一致");
+    }
+    for (std::size_t i = 0; i < left.columns.size(); ++i) {
+        if (left.columns[i].name != right.columns[i].name || left.columns[i].kind != right.columns[i].kind) {
+            throw std::runtime_error("第 " + std::to_string(i + 1) + " 列模式不一致");
+        }
+    }
+}
+
+std::string key_text(const CsvColumn &column, std::size_t row) {
+    if (column.missing[row]) {
+        throw std::runtime_error("主键列 " + column.name + " 第 " + std::to_string(row + 1) + " 行缺失");
+    }
+    switch (column.kind) {
+        case CsvKind::String:
+        case CsvKind::Time:
+            return column.strings[row];
+        case CsvKind::Int64:
+            return std::to_string(column.ints[row]);
+        default:
+            throw std::runtime_error("主键列 " + column.name + " 类型不支持");
+    }
+}
+
+std::vector<CsvColumn> schema_of(const CsvTable &table) {
+    std::vector<CsvColumn> schema;
+    schema.reserve(table.columns.size());
+    for (const auto &column : table.columns) {
+        CsvColumn item;
+        item.name = column.name;
+        item.kind = column.kind;
+        schema.push_back(std::move(item));
+    }
+    return schema;
+}
+
+CsvTable clone_table(const CsvTable &table) {
+    CsvTable clone;
+    clone.columns = table.columns;
+    return clone;
+}
+
+void append_cell(CsvColumn &dst, const CsvColumn &src, std::size_t row) {
+    dst.missing.push_back(src.missing[row]);
+    switch (dst.kind) {
+        case CsvKind::Float64:
+            dst.floats.push_back(src.floats[row]);
+            break;
+        case CsvKind::Int64:
+            dst.ints.push_back(src.ints[row]);
+            break;
+        case CsvKind::Bool:
+            dst.bools.push_back(src.bools[row]);
+            break;
+        case CsvKind::String:
+        case CsvKind::Time:
+            dst.strings.push_back(src.strings[row]);
+            break;
+    }
+}
+
+void replace_cell(CsvColumn &dst, std::size_t dst_row, const CsvColumn &src, std::size_t src_row) {
+    dst.missing[dst_row] = src.missing[src_row];
+    switch (dst.kind) {
+        case CsvKind::Float64:
+            dst.floats[dst_row] = src.floats[src_row];
+            break;
+        case CsvKind::Int64:
+            dst.ints[dst_row] = src.ints[src_row];
+            break;
+        case CsvKind::Bool:
+            dst.bools[dst_row] = src.bools[src_row];
+            break;
+        case CsvKind::String:
+        case CsvKind::Time:
+            dst.strings[dst_row] = src.strings[src_row];
+            break;
+    }
+}
+
+void append_row(CsvTable &dst, const CsvTable &src, std::size_t row) {
+    for (std::size_t i = 0; i < dst.columns.size(); ++i) {
+        append_cell(dst.columns[i], src.columns[i], row);
+    }
+}
+
+void replace_row(CsvTable &dst, std::size_t dst_row, const CsvTable &src, std::size_t src_row) {
+    for (std::size_t i = 0; i < dst.columns.size(); ++i) {
+        replace_cell(dst.columns[i], dst_row, src.columns[i], src_row);
+    }
+}
+
+std::map<std::string, std::size_t> key_positions(const CsvTable &table, const std::string &key) {
+    const std::size_t index = column_index(table, key);
+    const std::size_t rows = csv_rows(table);
+    std::map<std::string, std::size_t> positions;
+    for (std::size_t row = 0; row < rows; ++row) {
+        const std::string value = key_text(table.columns[index], row);
+        if (!positions.emplace(value, row).second) {
+            throw std::runtime_error("主键重复: " + key + "=" + value);
+        }
+    }
+    return positions;
+}
+
 }  // namespace
 
 std::size_t csv_rows(const CsvTable &table) {
@@ -391,5 +510,43 @@ void write_csv(const std::string &path, const CsvTable &table) {
         throw std::runtime_error(path + ": 写入失败");
     }
 }
+
+CsvTable merge_by_key(const CsvTable &existing, const CsvTable &incoming, const std::string &key) {
+    require_same_schema(existing, incoming);
+    const std::size_t key_index = column_index(existing, key);
+    const CsvKind kind = existing.columns[key_index].kind;
+    if (kind != CsvKind::String && kind != CsvKind::Int64 && kind != CsvKind::Time) {
+        throw std::runtime_error("主键列 " + key + " 类型不支持");
+    }
+
+    auto positions = key_positions(existing, key);
+    key_positions(incoming, key);  // 只用于检出增量内的重复键
+
+    CsvTable merged = clone_table(existing);
+    const std::size_t rows = csv_rows(incoming);
+    for (std::size_t row = 0; row < rows; ++row) {
+        const std::string value = key_text(incoming.columns[key_index], row);
+        const auto found = positions.find(value);
+        if (found != positions.end()) {
+            replace_row(merged, found->second, incoming, row);
+            continue;
+        }
+        positions.emplace(value, csv_rows(merged));
+        append_row(merged, incoming, row);
+    }
+    return merged;
+}
+
+void write_csv_by_key(const std::string &path, const CsvTable &incoming, const std::string &key) {
+    column_index(incoming, key);
+    if (!std::filesystem::exists(path)) {
+        write_csv(path, incoming);
+        return;
+    }
+    const CsvTable existing = read_csv(path, schema_of(incoming));
+    const CsvTable merged = merge_by_key(existing, incoming, key);
+    write_csv(path, merged);
+}
+
 
 }  // namespace num

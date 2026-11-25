@@ -174,6 +174,10 @@ target_include_directories(num_fixture_check PRIVATE tests/fixtures/read_cpp)
 add_executable(num_csv_roundtrip tests/io/cpp_roundtrip/main.cpp)
 target_link_libraries(num_csv_roundtrip PRIVATE num_core)
 
+# M6 按主键合并工具（tests/io/pipeline.py 调用）
+add_executable(num_csv_merge tests/io/cpp_merge/main.cpp)
+target_link_libraries(num_csv_merge PRIVATE num_core)
+
 # ============================================================
 # 用例：与实现同目录、同名不同后缀（<模块>_test.cpp ↔ <模块>_test.go），
 # 由 ctest 驱动（gtest_discover_tests 把每个 TEST 注册成一条 ctest 用例）。

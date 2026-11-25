@@ -45,6 +45,13 @@ namespace num {
     // csv_rows 返回行数并校验各列长度一致。
     std::size_t csv_rows(const CsvTable &table);
 
+    // merge_by_key 按主键合并：已有键更新整行、新键按增量顺序追加。
+    // 主键只支持 String / Int64 / Time；键缺失或重复抛 std::runtime_error。
+    CsvTable merge_by_key(const CsvTable &existing, const CsvTable &incoming, const std::string &key);
+
+    // write_csv_by_key 读取已有文件（不存在则直接写），合并后整文件覆盖；重复执行幂等。
+    void write_csv_by_key(const std::string &path, const CsvTable &incoming, const std::string &key);
+
 }  // namespace num
 
 #endif  // NUM_CSV_H

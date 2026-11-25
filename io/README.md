@@ -33,6 +33,18 @@ err = numio.WriteFile("out.csv", table)
 `Column` 同时承载 schema（`Name` / `Kind`）与数据（`Floats` / `Ints` / `Bools` / `Strings` / `Times`），
 `Missing` 按行标记缺失；`Rows()` 以 `Missing` 的长度为准。
 
+## 按主键覆盖（B5）
+
+```go
+merged, err := numio.MergeByKey(existing, incoming, "account")
+err = numio.WriteByKey("data.csv", incoming, "account")
+```
+
+- 主键列只支持 `String` / `Int64` / `Time`；浮点相等受 NaN / 精度影响，不允许当键。
+- 已有键更新整行、新键按增量顺序追加，已有行顺序不变。
+- 主键缺失、增量内重复键、已有文件内重复键都返回错误（不做隐式去重）。
+- `WriteByKey` 读取已有文件 → 合并 → 整文件覆盖；同一增量重复执行，产物逐字节一致。
+
 ## 口径
 
 | 项 | 规则 |
@@ -50,5 +62,6 @@ err = numio.WriteFile("out.csv", table)
 go test ./io/
 ```
 
-覆盖读写往返、幂等、BOM 拒绝、非法表头、字段数不符、NaN 字面量拒绝、CRLF、时间归一化。
-跨语言互读互写见 `tests/io/roundtrip.py`。
+覆盖读写往返、幂等、BOM 拒绝、非法表头、字段数不符、NaN 字面量拒绝、CRLF、时间归一化，
+以及按主键合并的更新 / 追加 / 重复键 / 缺键 / 浮点键拒绝 / 幂等。
+跨语言互读互写见 `tests/io/roundtrip.py`，按主键覆盖见 `tests/io/pipeline.py`。

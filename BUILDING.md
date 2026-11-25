@@ -165,7 +165,7 @@ C++ 侧另有一条：新增算子必须在 `CMakeLists.txt` 里**逐文件显�
 | `tests/fixtures/read_go` | Go 包 `read_go` | C3 Go 读取器与用例 |
 | `tests/fixtures/read_cpp` | C++ 源文件 | C3 C++ 读取器，目标是 `num_fixture_check` |
 | `tests/fixtures/read_rs` | 独立 crate | C3 Rust 读取器，不进生产 crate |
-| `tests/io` | Python + 三个工具 | D2 跨语言 CSV 互读互写，见 `tests/io/README.md` |
+| `tests/io` | Python + 三个工具 | D2 互读互写与 B5 按主键合并，见 `tests/io/README.md` |
 
 新增验收目录时同批补 `README.md`，并在本节登记。
 
@@ -182,9 +182,10 @@ go test ./internal/functions/ ./internal/partial/ ./x32/ ./x64/ ./vectors/ ./kin
 # 契约与 fixture（C1 / C3）
 go test ./tests/contract/ ./tests/fixtures/conform/ ./tests/fixtures/read_go/
 
-# CSV 读写（D2）
+# CSV 读写（D2）与数据管道（B5）
 go test ./io/
 python tests/io/roundtrip.py   # 需先构建 num_csv_roundtrip，见 tests/io/README.md
+python tests/io/pipeline.py    # 需先构建 num_csv_merge
 
 # 单条用例
 go test ./internal/functions/ -run TestSumProd -v
@@ -197,7 +198,7 @@ gofmt -l .
 C++ 侧：
 
 ```bash
-ctest --preset release-static      # 230 个用例，Release + /MT
+ctest --preset release-static      # 235 个用例，Release + /MT
 ctest --preset debug-static        # 同一批用例，Debug + /MTd
 ```
 
