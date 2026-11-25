@@ -75,14 +75,14 @@
 | --- | --- | --- | --- | --- | --- |
 | B1 | 通达信公式族 | `pandas/formula/` | Python（研究口径）/ Go | ABS / REF / HHV / LLV / MA / EMA / SMA / DMA / WMA / STD / SUM / COUNT / CROSS …，口径以 `formula/README.md` 与注释为准 | Go 已落地 |
 | B2 | 公式族 C++ 版 | `pandas/cpp/` | C++ | 与 B1 最小参数集一致、结果一致 | 部分（39 个基础公式） |
-| B3 | 公式族 Rust 版 | `pandas-rust/Cargo.toml`（crate `quant1x_pandas`）+ `src/` | Rust | 与 B1 最小参数集一致、结果一致 | 部分（41 个基础公式） |
+| B3 | 公式族 Rust 版 | `pandas/Cargo.toml`（crate `quant1x_pandas`）+ `formula/lib.rs` | Rust | 与 B1 最小参数集一致、结果一致 | 部分（41 个基础公式） |
 | B4 | 研究侧脚本 | `pandas/scripts/` | Python | 因子研究与定型；产出 fixture 与策略报告，不参与交付 | 已落地（`factor_report.py` 产出 `report.csv`；不 import 生产实现） |
 | B5 | 数据管道与 IO | `pandas/io/`、`num/io/` | Go / C++ / Rust | 读 `D1` 格式、按主键覆盖；Arrow / Parquet 作为可选扩展（不是基线） | 已落地（Go/C++ 生产实现，Rust 为 `tests/io/rs` 工具；Arrow/Parquet 未做，pandas/io 在另一仓库） |
 | B6 | 公式族 Zig 版（扩展） | `pandas/zig/` | Zig | 与 B1 最小参数集一致、结果一致；只作扩展，不进交付主线 | 部分（实现 39 个，全部进 `tests/formula/cases.csv` 四端对拍） |
 | G1 | Go 工程侧 | `num/labs/`、`pandas/` | Go | 服务、调度、指标计算管道、单二进制分发 | 已落地（`cmd/numctl` 单二进制；pandas 侧服务在另一仓库） |
 | G2 | Go 完整数值路径 | `num/` 根包 | Go | 独立可用的数值实现，供只会 Go 的使用者直接落地 | 已落地 |
 | M1 | 特征 fixture | `pandas/tests/features/` | Python（生成器）/ Go / C++ / Rust（对拍） | 训练与推理同源的特征样本，落盘比对 | 已落地（40 根 Bar、11 个特征列 + 冻结模型的 `pred` 列，三端对拍） |
-| M2 | 模型推理侧 | `pandas/cpp/infer/`、`pandas-rust/src/infer/`、Go 侧 ONNX 加载 | C++ / Rust / Go | 同一 ONNX 文件（格式交换，非绑定）加载，输出与 Python 研究侧对齐 | 未落地 |
+| M2 | 模型推理侧 | `pandas/cpp/tests/onnx_test.cpp`、`pandas/formula/tests/onnx.rs`、Go 侧 `pandas/tests/features/onnx.go` | C++ / Rust / Go | 同一 ONNX 文件（格式交换，非绑定）加载，输出与 Python 研究侧对齐 | 未落地 |
 | M3 | 回测一致性验收 | `pandas/tests/backtest/` | 跨语言 | 同一策略在 Python 研究侧与生产实现下逐笔一致 | 未落地 |
 
 ## 3. 依赖关系
@@ -172,7 +172,7 @@ G1 ◄─ G2
 | 表头方言污染 | 引入自带 `列名:类型` 表头的三方 dataframe 库会使 CSV 无法被 Python / Go 通用读取器直接消费 | 靠 D1 红线约束；选库时逐项核对表头约定 | M6 | 高 |
 | C++ 缺 min_periods | ~~Go 已支持 partial window，C++ 仍只有完整窗口入口~~ | 已补齐并通过 163 个 fixture 对拍 | M5 | 已解决 |
 | D3 发布物未落地 | ~~版本号只能由 autochangelog / tag 注入~~ | 已由 `docs/RELEASE.md` 的安装导出与 tag 派生链路解决；实际发版仍由 autochangelog 执行 | 发布 | 已解决 |
-| Rust 覆盖不全 | ~~线性代数、几何、时间与公式族尚未移植~~ | 已补 `matrix` / `geometry` / `line` / `time` 等模块，163 个 fixture 全过；公式族在 pandas 仓的 `pandas-rust`（41 个公式） | M5 | 已解决 |
+| Rust 覆盖不全 | ~~线性代数、几何、时间与公式族尚未移植~~ | 已补 `matrix` / `geometry` / `line` / `time` 等模块，163 个 fixture 全过；公式族在 pandas 仓的 `formula/lib.rs`（41 个公式） | M5 | 已解决 |
 | Go 侧数值与 C++ 有差距 | 缺 AVX-512、迭代器开销、GC 峰值 | 属语言特性，不以牺牲 Go 交付面为代价硬追 | M7 | 低 |
 | ONNX 运行时 | ~~C++ / Go 缺 SDK~~ | 三侧都已接：SDK 走 NuGet `Microsoft.ML.OnnxRuntime`（含 include / lib / dll，不经 GitHub），C++ 用 CMake 选项、Go 用 cgo + 绝对路径加载；未提供 SDK 时各自跳过 | M8 | 已解决 |
 | `LAST` 窗口不足口径不一 | ~~Go 填 1，C++ / Rust / Zig 取 NaN~~ | 已统一为 NaN（滚动族统一口径），Go 侧去掉 `num.Fill` 并补断言与 fixture 行 | M5 | 已解决 |

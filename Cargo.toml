@@ -6,7 +6,8 @@ publish = false
 
 [lib]
 name = "quant1x_num"
-path = "src/lib.rs"
+# 与 Go 的同名 .go 平铺在仓库根，不单独开 src/ 这类语言目录（CONTRIBUTING §3.2）
+path = "lib.rs"
 
 [dev-dependencies]
 read_rs = { package = "num-read-fixtures", path = "tests/fixtures/read_rs" }

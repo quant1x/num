@@ -171,6 +171,11 @@ internal/functions/
 Python 的包边界由仓库根承担（见 §3.1），不需要再建 `num/` 这样的二级包目录；`import num.sum` 来自根目录的
 `sum.py`，`import num.x64.sum` 来自 `x64/sum.py`。
 
+Rust / Zig 同样适用：**不建 `src/`、`rust/`、`zig/`、`pandas-rust/` 这类语言目录**，源码与同名 `.go` 平铺在同一
+目录，构建入口（`Cargo.toml` / `build.zig`）放仓库根；Rust 的 crate 根用 `[lib] path` 指到具体文件，集成用例用
+`[[test]] path` 指到同目录下的 `tests/`。按家族聚合（如 `formula/lib.rs` 承载 41 个公式）时，家族名要与 Go 的
+目录或其主文件对得上，不得让读者跳目录才能对照。
+
 ### 3.3 Go 的目录与包名
 
 - **包边界 = 目录**：Go 没有跨目录的包。同一功能需要独立包时，在该功能目录内建**同名二级目录**承载其

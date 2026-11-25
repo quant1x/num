@@ -148,7 +148,7 @@ func rustPublicFunctions(t *testing.T) map[string]bool {
 	t.Helper()
 	pattern := regexp.MustCompile(`(?m)^\s*pub fn ([A-Za-z0-9_]+)`)
 	out := make(map[string]bool)
-	dir := filepath.Join(repoRoot, "src")
+	dir := repoRoot
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		t.Fatalf("读取 %s: %v", dir, err)

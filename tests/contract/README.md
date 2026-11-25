@@ -29,7 +29,7 @@
 - `go` 列登记**基础符号**即可；`_Inplace` / `_Into` / `Inplace` / `Number` 等写入与标量变体由
   校验用例按后缀视为同一功能。
 - 校验只枚举**导出顶层函数**；方法（`Line.Angle`、`Window.At` 等）不在函数粒度契约内。
-- `rust` 列登记 `src/*.rs` 里的 `pub fn` 名称（逗号分隔），由 `TestNameMapRustSymbols` 校验存在性；
+- `rust` 列登记仓库根 `*.rs` 里的 `pub fn` 名称（逗号分隔），由 `TestNameMapRustSymbols` 校验存在性；
   Rust 未实现的语义写 `—`。
 - `python` 列登记 `模块.函数`（模块是仓库根的 `.py` 文件名），由 `TestNameMapPythonSymbols`
   校验「文件存在且含 `def 函数名(`」；Python 未实现的语义写 `—`。
