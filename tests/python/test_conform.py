@@ -204,6 +204,31 @@ DISPATCH = {
     ),
     "slice_to_float64": lambda data: vek.slice_to_float64(values_of(data, "x")),
     "type_default": lambda data: [num.type_default(expected_code(data))],
+    "fill": lambda data: num.fill(values_of(data, "x"), values_of(data, "value")[0]),
+    "fill_na": lambda data: num.fill_na(values_of(data, "x"), values_of(data, "value")[0]),
+    "poly_fit": lambda data: num.poly_fit(
+        values_of(data, "x"), values_of(data, "y"), int(np.asarray(data["deg"]).reshape(-1)[0])
+    ),
+    "poly_val": lambda data: num.poly_val(values_of(data, "p"), values_of(data, "x")),
+    "slope": lambda data: [
+        num.slope(
+            int(np.asarray(data["x1"]).reshape(-1)[0]),
+            values_of(data, "y1")[0],
+            int(np.asarray(data["x2"]).reshape(-1)[0]),
+            values_of(data, "y2")[0],
+        )
+    ],
+    "slope_to_degrees": lambda data: [num.slope_to_degrees(values_of(data, "x")[0])],
+    "degrees_to_slope": lambda data: [num.degrees_to_slope(values_of(data, "x")[0])],
+    "triangle_bevel": lambda data: [
+        num.triangle_bevel(
+            values_of(data, "slope")[0],
+            int(np.asarray(data["x1"]).reshape(-1)[0]),
+            values_of(data, "y1")[0],
+            int(np.asarray(data["xn"]).reshape(-1)[0]),
+        )
+    ],
+    "cross": lambda data: num.cross(values_of(data, "a"), values_of(data, "b")),
 }
 
 
@@ -216,15 +241,22 @@ class FixtureConformance(unittest.TestCase):
                 if semantic not in DISPATCH:
                     continue
                 tolerance = float(np.asarray(data["meta_tolerance"]))
-                expected_key = "expected" if "expected" in data.files else "expected_flat"
-                expected = np.asarray(data[expected_key]).reshape(-1).tolist()
                 raw = DISPATCH[semantic](data)
+                if semantic == "cross":
+                    expected_x = [int(value) for value in values_of(data, "expected_x")]
+                    expected_state = [int(value) for value in values_of(data, "expected_state")]
+                    self.assertEqual([item[0] for item in raw], expected_x, f"{Path(path).name}: 穿点下标")
+                    self.assertEqual([item[1] for item in raw], expected_state, f"{Path(path).name}: 穿点方向")
+                    covered += 1
+                    continue
                 if semantic == "rolling":
                     lengths = [int(value) for value in values_of(data, "expected_lengths")]
                     self.assertEqual(
                         [len(block) for block in raw], lengths,
                         f"{Path(path).name}: 每个位置的窗口长度不对",
                     )
+                expected_key = "expected" if "expected" in data.files else "expected_flat"
+                expected = np.asarray(data[expected_key]).reshape(-1).tolist()
                 actual = flatten(raw)
                 self.assertEqual(
                     len(actual), len(expected),
@@ -236,7 +268,7 @@ class FixtureConformance(unittest.TestCase):
                         f"{Path(path).name} {semantic}: 第 {index} 位 {got} != {want}",
                     )
                 covered += 1
-        self.assertGreaterEqual(covered, 126, f"只覆盖了 {covered} 个样本")
+        self.assertGreaterEqual(covered, 135, f"只覆盖了 {covered} 个样本")
 
 
 class EmptyInputs(unittest.TestCase):

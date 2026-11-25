@@ -88,8 +88,8 @@ align	x:array, value:scalar, n:int	—	—	[n]	align.align	align	align	num:Align
 shape	x:any	—	—	tuple	shape.shape	shape	shape, shape_2d	num:Shape	—	—	python	返回 (行, 列)
 concat1d	a:array, b:array, c:array	—	—	[n][3]	matrix.concat1d	concat1d	concat1d	num:Concat1D	—	—	python	逐元素拼成 n×3（列式），不是 NumPy 的按行拼接
 transpose2d	x:matrix	—	—	[m][n]	matrix.transpose2d	transpose2d	transpose2d	num:Transpose2D	—	—	python	二维转置
-fill	v:array, d:scalar, inplace:bool?	inplace=false	—	same_as(v)	—	fill, fill_inplace	fill	num:Fill	—	—	go	默认复制入参再填
-fill_na	x:array, v:any	inplace=false	—	same_as(x)	—	fill_na, fill_na_inplace	fill_na	num:FillNa	—	—	go	按 NaN 判定填充
+fill	v:array, d:scalar, inplace:bool?	inplace=false	—	same_as(v)	fillna.fill	fill, fill_inplace	fill	num:Fill	—	—	python	默认复制入参再填
+fill_na	x:array, v:any	inplace=false	—	same_as(x)	fillna.fill_na	fill_na, fill_na_inplace	fill_na	num:FillNa	—	—	python	按 NaN 判定填充
 # --- 线代与几何 ---
 dot1d	a:array, b:array	—	propagate	scalar	dot.dot1d	dot1d	dot1d	num:Dot1D, x32:Dot, x64:Dot	—	—	python	一维点积
 dot2d	a:matrix, b:matrix	—	propagate	[n][m]	matrix.dot2d	dot2d, dot2d_v1, dot2d1	dot2d	num:Dot, num:Dot2D, num:Dot2D_V1, num:Dot_v1	—	—	python	二维矩阵乘
@@ -97,20 +97,20 @@ dot2d1	a:matrix, b:array	—	propagate	[n]	matrix.dot2d1	dot2d1	dot2d1	num:Dot2D
 matmul	x:array, y:array, n:int	—	propagate	[n][n]	matrix.matmul	matmul	matmul	x32:MatMul, x64:MatMul	—	—	python	定长方阵乘；门面无对应入口
 mat4mul	x:array, y:array	—	propagate	[4][4]	matrix.mat4mul	mat4mul	mat4mul	x32:Mat4Mul, x64:Mat4Mul	—	—	python	4x4 矩阵乘
 inverse	a:matrix	—	propagate	[n][n]	matrix.inverse	inverse	inverse	num:Inverse	—	—	python	矩阵求逆
-poly_fit	x:array, y:array, deg:int	—	propagate	[deg+1]	—	poly_fit	poly_fit	num:PolyFit	—	—	go	多项式拟合系数
-poly_val	p:array, x:array	—	propagate	same_as(x)	—	poly_val	poly_val	num:PolyVal	—	—	go	多项式求值
+poly_fit	x:array, y:array, deg:int	—	propagate	[deg+1]	polynomial.poly_fit	poly_fit	poly_fit	num:PolyFit	—	—	python	多项式拟合系数
+poly_val	p:array, x:array	—	propagate	same_as(x)	polynomial.poly_val	poly_val	poly_val	num:PolyVal	—	—	python	多项式求值
 distance	x:array, y:array	—	propagate	scalar	x32.vek.distance	distance	distance	x32:Distance, x64:Distance	—	—	python	欧氏距离
 manhattan_distance	x:array, y:array	—	propagate	scalar	x32.vek.manhattan_distance	manhattan_distance	manhattan_distance	x32:ManhattanDistance, x64:ManhattanDistance	—	—	python	曼哈顿距离
 manhattan_norm	x:array	—	propagate	scalar	x32.vek.manhattan_norm	manhattan_norm	manhattan_norm	x32:ManhattanNorm, x64:ManhattanNorm	—	—	python	曼哈顿范数
 cosine_similarity	x:array, y:array	—	propagate	scalar	x32.vek.cosine_similarity	cosine_similarity	cosine_similarity	x32:CosineSimilarity, x64:CosineSimilarity	—	—	python	余弦相似度
-slope	x1:int, y1:f64, x2:int, y2:f64	—	propagate	scalar	—	slope	slope	num:Slope	—	—	go	两点斜率
-slope_to_degrees	m:f64	—	propagate	scalar	—	slope_to_degrees	slope_to_degrees	num:SlopeToDegrees	—	—	go	斜率转角
-degrees_to_slope	x:f64	—	propagate	scalar	—	degrees_to_slope	degrees_to_slope	num:DegreesToSlope	—	—	go	角转斜率
-triangle_bevel	slope:f64, x1:int, y1:f64, xn:int	—	propagate	scalar	—	triangle_bevel	triangle_bevel	num:TriangleBevel	—	—	go	三角斜边
+slope	x1:int, y1:f64, x2:int, y2:f64	—	propagate	scalar	slope.slope	slope	slope	num:Slope	—	—	python	两点斜率
+slope_to_degrees	m:f64	—	propagate	scalar	slope.slope_to_degrees	slope_to_degrees	slope_to_degrees	num:SlopeToDegrees	—	—	python	斜率转角
+degrees_to_slope	x:f64	—	propagate	scalar	slope.degrees_to_slope	degrees_to_slope	degrees_to_slope	num:DegreesToSlope	—	—	python	角转斜率
+triangle_bevel	slope:f64, x1:int, y1:f64, xn:int	—	propagate	scalar	slope.triangle_bevel	triangle_bevel	triangle_bevel	num:TriangleBevel	—	—	python	三角斜边
 calculate_line_equation	point1:Point, point2:Point	—	propagate	tuple	—	calculate_line_equation	calculate_line_equation	num:CalculateLineEquation	—	—	go	两点直线方程
 fit_line	x:array, y:array	—	no_special	tuple	—	fit_line	fit_line	num:FitLine	—	—	go	返回 (Line, 成功位)；单点返回水平线且标记失败
 point	x:number, y:number	—	—	tuple	—	new_point, Point, DataPoint	—	num:NewPoint	—	—	go	点构造
-cross	a:array, b:array	—	comparison_false	[n]	—	cross, LinerTrend, TrendState	cross	num:Cross	—	—	go	判据为前后两根都严格分居两侧
+cross	a:array, b:array	—	comparison_false	[n]	cross.cross	cross, LinerTrend, TrendState	cross	num:Cross	—	—	python	判据为前后两根都严格分居两侧
 # --- 统计与时间 ---
 find_percent	zscore:f64	—	propagate	scalar	—	find_percent	—	num:FindPercent	—	—	go	正态分布分位
 find_zscore	percent:f64	—	propagate	scalar	—	find_zscore	—	num:FindZScore	—	—	go	分位转 z 值
