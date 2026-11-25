@@ -11210,7 +11210,10 @@ LBB12_6:
 
 LBB12_7:
 	VUCOMISD (SI)(AX*8), X0
-	SETNE    (DI)(AX*1)
+	SETNE    R8B
+	SETPS    R9B
+	ORB      R9B, R8B
+	MOVB     R8B, (DI)(AX*1)
 	ADDQ     $0x01, AX
 	CMPQ     DX, AX
 	JNE      LBB12_7
@@ -11294,7 +11297,10 @@ LBB13_6:
 
 LBB13_7:
 	VUCOMISS (SI)(AX*4), X0
-	SETNE    (DI)(AX*1)
+	SETNE    R8B
+	SETPS    R9B
+	ORB      R9B, R8B
+	MOVB     R8B, (DI)(AX*1)
 	ADDQ     $0x01, AX
 	CMPQ     DX, AX
 	JNE      LBB13_7

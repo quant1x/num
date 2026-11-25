@@ -572,8 +572,9 @@ def conversion_layer(out_dir: str) -> None:
     narrow = f32([1.5, -2.25])
     save(out_dir, group, "from-float32-f64", "from_float",
          {"x": narrow, "expected": narrow.astype(np.float64)})
-    mixed = f64([0.0, -0.0, 2.0])
-    to_bool = np.not_equal(mixed, 0.0)
+    mixed = f64([0.0, -0.0, 2.0, np.nan])
+    with np.errstate(invalid="ignore"):
+        to_bool = np.not_equal(mixed, 0.0)
     save(out_dir, group, "to-bool-f64", "to_bool", {"x": mixed, "expected": to_bool})
     trunc = f64([1.9, -2.9, 0.0])
     save(out_dir, group, "to-int32-f64", "to_int32",

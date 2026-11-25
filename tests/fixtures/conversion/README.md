@@ -12,5 +12,5 @@
 | `to-float32-f64` / `to-float64-f32` | `to_float32` / `to_float64` | 浮点宽度互转 |
 | `dtype2int-f64` | `dtype2int` | 与 `to_int32` 同义 |
 
-注意：`to_bool` 的样本不含 NaN。Go 的 AVX2 路径把 NaN 判为 false，而 Go 参考路径 `x != 0` 判为 true，
-两侧不一致，已登记在 `num.md` §5；fixture 暂不覆盖该格。
+`to_bool` 的 NaN 也按「非零为真」：样本含 NaN，期望 true。amd64 AVX2 内核的标量尾部曾把 NaN 判为
+false，已修正并加回归用例。

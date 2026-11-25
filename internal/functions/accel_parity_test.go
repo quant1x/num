@@ -389,3 +389,27 @@ func TestAccelParityLogic(t *testing.T) {
 		}
 	}
 }
+
+func TestToBoolNaNParity(t *testing.T) {
+	values := []float64{0, -0.0, math.NaN(), 2, math.Inf(1)}
+	want := make([]bool, len(values))
+	ToBool_Go(want, values)
+	got := make([]bool, len(values))
+	ToBool_AVX2_F64(got, values)
+	for i := range want {
+		if want[i] != got[i] {
+			t.Fatalf("f64 ToBool 第 %d 位: %v vs %v", i, want[i], got[i])
+		}
+	}
+
+	values32 := []float32{0, -0.0, float32(math.NaN()), 2, float32(math.Inf(1))}
+	want32 := make([]bool, len(values32))
+	ToBool_Go(want32, values32)
+	got32 := make([]bool, len(values32))
+	ToBool_AVX2_F32(got32, values32)
+	for i := range want32 {
+		if want32[i] != got32[i] {
+			t.Fatalf("f32 ToBool 第 %d 位: %v vs %v", i, want32[i], got32[i])
+		}
+	}
+}
