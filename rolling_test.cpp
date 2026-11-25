@@ -1,6 +1,6 @@
 // spec: rolling.go / periods.go / window.go
 //
-// 覆盖口径：窗口不足 / NaN / 0 都是空窗口，负数抛 RangeError；rolling 的逐位置序列
+// 覆盖口径：窗口不足 / NaN / 0 / 负数都是空窗口；min_periods 走 partial window；rolling 的逐位置序列
 // 由 AnyToSlice 语义补齐（NaN），rolling_apply 的逐位置序列越界后是常量 0。
 
 #include <cmath>
@@ -57,12 +57,47 @@ namespace {
         for (std::size_t i = 0; i < zero.size(); ++i) {
             EXPECT_EQ(zero[i].size(), 0u);
         }
-        // 负窗口在 Go 侧是切片下界越界 panic，C++ 抛 RangeError
-        EXPECT_THROW(num::rolling(s, -1), num::RangeError);
+        // 负窗口与 Go 的 v1At 一致，判不可用（空窗口），不抛异常
+        const auto negative = num::rolling(s, -1);
+        for (std::size_t i = 0; i < negative.size(); ++i) {
+            EXPECT_EQ(negative[i].size(), 0u);
+        }
         // NaN 窗口一路空窗口，不抛错
         const auto with_nan = num::rolling(s, Vector<f64>{num::nan(), 1.0, 1.0});
         EXPECT_EQ(with_nan[0].size(), 0u);
         EXPECT_EQ(with_nan[1].size(), 1u);
+    }
+
+
+    TEST(Rolling, MinPeriods) {
+        const Vector<f64> s = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+        const auto min1 = num::rolling(s, 3, 1);
+        ASSERT_EQ(min1.size(), 6u);
+        EXPECT_EQ(min1[0].size(), 1u);
+        EXPECT_EQ(min1[1].size(), 2u);
+        EXPECT_EQ(min1[2].size(), 3u);
+
+        const auto min2 = num::rolling(s, 3, 2);
+        EXPECT_EQ(min2[0].size(), 0u);
+        ASSERT_EQ(min2[1].size(), 2u);
+        EXPECT_DOUBLE_EQ(min2[1][0], 1.0);
+        EXPECT_DOUBLE_EQ(min2[1][1], 2.0);
+        EXPECT_EQ(min2[2].size(), 3u);
+
+        const auto full = num::rolling(s, 3, 3);
+        EXPECT_EQ(full[0].size(), 0u);
+        EXPECT_EQ(full[1].size(), 0u);
+        EXPECT_EQ(full[2].size(), 3u);
+
+        const auto too_many = num::rolling(s, 3, 4);
+        for (const auto &block : too_many) {
+            EXPECT_EQ(block.size(), 0u);
+        }
+
+        const auto per_position = num::rolling(s, Vector<f64>{2, 3, 3, 3, 3, 3}, 2);
+        EXPECT_EQ(per_position[0].size(), 0u);
+        EXPECT_EQ(per_position[1].size(), 2u);
+        EXPECT_EQ(per_position[2].size(), 3u);
     }
 
     TEST(RollingApply, ConstantWindow) {

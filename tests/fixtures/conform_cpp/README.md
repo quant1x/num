@@ -1,7 +1,7 @@
 # tests/fixtures/conform_cpp —— C++ 对拍（C3 之后）
 
-读取 `tests/fixtures` 的 npz，把 `num_core` 已有算子的结果与 `expected` 逐值比较。能算的必须全绿；
-C++ 尚未实现的语义跳过并打印名字，**跳过不算通过**，对应缺口见 [../CPP-GAPS.md](../CPP-GAPS.md) §1。
+读取 `tests/fixtures` 的 npz，把 `num_core` 已有算子的结果与 `expected` 逐值比较。当前 **129 个样本全部通过**；
+C++ 尚未实现的语义会跳过并打印名字，跳过不算通过，缺口见 [../CPP-GAPS.md](../CPP-GAPS.md)。
 
 ## 构建与运行
 
@@ -15,7 +15,7 @@ ctest --preset release-static -R fixtures_conform_cpp
 输出示例：
 
 ```text
-conformed 94 fixtures, skipped 35 (27 semantics)
+conformed 129 fixtures, skipped 0 (0 semantics)
   skip ceil
   skip cos
   ...
@@ -24,20 +24,20 @@ conformed 94 fixtures, skipped 35 (27 semantics)
 ## 覆盖范围
 
 - 类型：`type_default`、`nan_check`、`slice_to_float64`、`slice_float_to_int`
-- 逐元素：add / sub / mul / div / maximum / minimum / abs / sqrt / pow_integer / expm1 / log1p / decimal /
-  change_rate / net_change_rate
-- 比较与逻辑：equal / not_equal / gt / gte / lt / lte / logic_and / logic_or / logic_not / where
-- 归约：sum / mean / std / variance / min / max / argmin / argmax / median / count / all / any / cumsum /
-  dot1d / covariance
-- 构造与整形：zeros / ones / arange / linspace / range / repeat / align / shape / concat1d / transpose2d /
-  fill / fill_na
-- 窗口：shift / diff
+- 逐元素：add / sub / mul / div / maximum / minimum / abs / sqrt / pow_integer / pow_float / expm1 / log1p /
+  decimal / change_rate / net_change_rate；neg / inv / ceil / floor / round / sin / cos / exp / log / log2 / log10
+- 比较与逻辑：equal / not_equal / gt / gte / lt / lte / logic_and / logic_or / logic_not / logic_xor / where
+- 索引：select / find / gather / scatter
+- 归约：sum / mean / std / variance / min / max / argmin / argmax / median / count / all / any / none /
+  prod / norm / manhattan_norm / quantile / cumsum / dot1d / covariance
+- 构造与整形：zeros / ones / arange / linspace / range / range(a,b) 浮点区间 / repeat / align / shape /
+  concat1d / transpose2d / fill / fill_na
+- 窗口：rolling（含 min_periods）/ rolling_apply / shift / diff / cumprod
 
 ## 未覆盖（跳过）
 
-滚动族（rolling / rolling_apply）、prod / norm / manhattan_norm / quantile / none、neg / inv / ceil / floor /
-round、sin / cos / exp / log / log2 / log10、select / find / gather / scatter、logic_xor、range_float、
-pow_float、bool_to_numeric 与转换族。补齐后从跳过列表移除，并在 `CPP-GAPS.md` 销账。
+无：129 个样本全部覆盖。没有 fixture 的接口（mat4mul、转换族、`any` 入口）不在对拍范围，
+清单见 `CPP-GAPS.md` §1。
 
 ## 口径
 

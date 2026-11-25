@@ -7,11 +7,11 @@
 abs	x:array	—	no_special	same_as(x)	—	abs	—	num:Abs, x32:Abs, x64:Abs	—	—	go	无符号输入门面层原样返回
 abs_int	n:int	—	—	scalar	—	abs_int, abs_int8, abs_int16, abs_int32, abs_int64	—	num:AbsInt, num:AbsInt8, num:AbsInt16, num:AbsInt32, num:AbsInt64	—	—	go	有符号整型绝对值
 abs_float	n:f32/f64	—	propagate	scalar	—	abs_float32, abs_float64	—	num:AbsFloat32, num:AbsFloat64	—	—	go	浮点标量绝对值
-neg	x:array	—	propagate	same_as(x)	—	—	—	x32:Neg, x64:Neg	—	—	go	门面无对应入口
-inv	x:array	—	propagate	same_as(x)	—	—	—	x32:Inv, x64:Inv	—	—	go	倒数，0 得 ±Inf
+neg	x:array	—	propagate	same_as(x)	—	neg	—	x32:Neg, x64:Neg	—	—	go	门面无对应入口
+inv	x:array	—	propagate	same_as(x)	—	inv	—	x32:Inv, x64:Inv	—	—	go	倒数，0 得 ±Inf
 sqrt	x:array	—	propagate	same_as(x)	—	sqrt	—	num:Sqrt, x32:Sqrt, x64:Sqrt	—	—	go	负数得 NaN；非浮点编译期拒绝（C++）/ panic（Go）
 pow_integer	x:array, n:int	—	propagate	same_as(x)	—	pow	—	num:Pow	—	—	go	整数次幂
-pow_float	x:array, y:array	—	propagate	first_len	—	—	—	x32:Pow, x64:Pow	—	—	go	逐元素幂；门面无对应入口
+pow_float	x:array, y:array	—	propagate	first_len	—	pow	—	x32:Pow, x64:Pow	—	—	go	逐元素幂；门面无对应入口
 expm1	x:array	—	propagate	same_as(x)	—	expm1	—	num:Expm1, num:Expm1Unrolled	—	—	go	结果为 f64 序列
 log1p	x:array	—	propagate	same_as(x)	—	log1p	—	num:Log1p, num:Log1pUnrolled	—	—	go	返回 (序列, error)
 add	x:array, y:array|scalar	—	propagate	first_len	—	add, add_inplace	—	num:Add, x32:Add, x64:Add	—	—	go	按第一个操作数长度对齐，短补默认值、长截断
@@ -23,16 +23,16 @@ minimum	x:array, y:array	—	no_special	max_len	—	minimum	—	num:Minimum, x32
 decimal	value:f64, digits:int?	digits=2	nan_to_zero	scalar	—	decimal	—	num:Decimal	—	—	go	半程远离零；负 digits 视为 0
 change_rate	base:number, current:number	—	propagate	scalar	—	change_rate	—	num:ChangeRate	—	—	go	current/base
 net_change_rate	base:number, current:number	—	propagate	scalar	—	net_change_rate	—	num:NetChangeRate	—	—	go	(change_rate-1)*100
-ceil	x:array	—	propagate	same_as(x)	—	—	—	x32:Ceil, x64:Ceil	—	—	go	门面无对应入口
-floor	x:array	—	propagate	same_as(x)	—	—	—	x32:Floor, x64:Floor	—	—	go	门面无对应入口
-round	x:array	—	propagate	same_as(x)	—	—	—	x32:Round, x64:Round	—	—	go	门面无对应入口；半数远离零
-sin	x:array	—	propagate	same_as(x)	—	—	—	x32:Sin	—	—	go	x64 缺同名实现
-cos	x:array	—	propagate	same_as(x)	—	—	—	x32:Cos	—	—	go	x64 缺同名实现
+ceil	x:array	—	propagate	same_as(x)	—	ceil	—	x32:Ceil, x64:Ceil	—	—	go	门面无对应入口
+floor	x:array	—	propagate	same_as(x)	—	floor	—	x32:Floor, x64:Floor	—	—	go	门面无对应入口
+round	x:array	—	propagate	same_as(x)	—	round	—	x32:Round, x64:Round	—	—	go	门面无对应入口；半数远离零
+sin	x:array	—	propagate	same_as(x)	—	sin	—	x32:Sin	—	—	go	x64 缺同名实现
+cos	x:array	—	propagate	same_as(x)	—	cos	—	x32:Cos	—	—	go	x64 缺同名实现
 sincos	x:array	—	propagate	tuple	—	—	—	x32:SinCos_Into	—	—	go	仅原地双输出形态
-exp	x:array	—	propagate	same_as(x)	—	—	—	x32:Exp	—	—	go	x64 缺同名实现
-log	x:array	—	propagate	same_as(x)	—	—	—	x32:Log	—	—	go	x64 缺同名实现
-log2	x:array	—	propagate	same_as(x)	—	—	—	x32:Log2	—	—	go	x64 缺同名实现
-log10	x:array	—	propagate	same_as(x)	—	—	—	x32:Log10	—	—	go	x64 缺同名实现
+exp	x:array	—	propagate	same_as(x)	—	exp	—	x32:Exp	—	—	go	x64 缺同名实现
+log	x:array	—	propagate	same_as(x)	—	log	—	x32:Log	—	—	go	x64 缺同名实现
+log2	x:array	—	propagate	same_as(x)	—	log2	—	x32:Log2	—	—	go	x64 缺同名实现
+log10	x:array	—	propagate	same_as(x)	—	log10	—	x32:Log10	—	—	go	x64 缺同名实现
 # --- N2 逐元素：比较与逻辑 ---
 equal	x:array, y:array	—	comparison_false	bool[first_len]	—	equal	—	num:Equal, x32:Eq, x64:Eq	—	—	go	按第一个操作数长度对齐
 not_equal	x:array, y:array	—	comparison_false	bool[first_len]	—	not_equal	—	num:NotEqual, x32:Neq, x64:Neq	—	—	go	NaN != NaN 为 true
@@ -43,15 +43,15 @@ less_equal	x:array, y:array	—	comparison_false	bool[max_len]	—	lte	—	num:L
 logic_and	x:array, y:array	—	—	bool[max_len]	—	logic_and	—	num:And, x32:And, x64:And	—	—	go	按最长对齐
 logic_or	x:array, y:array	—	—	bool[max_len]	—	logic_or	—	num:Or, x32:Or, x64:Or	—	—	go	按最长对齐
 logic_not	x:array	—	—	bool[same_as(x)]	—	logic_not	—	num:Not, x32:Not, x64:Not	—	—	go	逐元素取反
-logic_xor	x:array, y:array	—	—	bool[first_len]	—	—	—	x32:Xor, x64:Xor	—	—	go	门面无对应入口
+logic_xor	x:array, y:array	—	—	bool[first_len]	—	logic_xor	—	x32:Xor, x64:Xor	—	—	go	门面无对应入口
 where	condition:bool[], x:array, y:array	—	—	max_len	—	where	—	num:Where	—	—	go	按最长对齐，条件为真取 x；Go 门面的 condition 与取值同类型（StatType），不接受 bool 条件
-select	x:array, mask:bool[]	—	—	same_as(x)	—	—	—	x32:Select, x64:Select	—	—	go	掩码为真保留 x 元素
-find	x:array, value:scalar	—	comparison_false	index	—	—	—	x32:Find, x64:Find	—	—	go	未命中返回 -1
-gather	x:array, idx:int[]	—	—	same_as(idx)	—	—	—	x32:Gather, x64:Gather	—	—	go	按下标取值
-scatter	x:array, idx:int[], size:int	—	—	[size]	—	—	—	x32:Scatter, x64:Scatter	—	—	go	按下标写入新序列
+select	x:array, mask:bool[]	—	—	same_as(x)	—	select	—	x32:Select, x64:Select	—	—	go	掩码为真保留 x 元素
+find	x:array, value:scalar	—	comparison_false	index	—	find	—	x32:Find, x64:Find	—	—	go	未命中返回 -1
+gather	x:array, idx:int[]	—	—	same_as(idx)	—	gather	—	x32:Gather, x64:Gather	—	—	go	按下标取值
+scatter	x:array, idx:int[], size:int	—	—	[size]	—	scatter	—	x32:Scatter, x64:Scatter	—	—	go	按下标写入新序列
 # --- N3 归约 ---
 sum	x:array	—	propagate	scalar	—	sum	—	num:Sum, x32:Sum, x64:Sum	—	—	go	归约顺序见 CONTRIBUTING §5.6.3
-prod	x:array	—	propagate	scalar	—	—	—	x32:Prod, x64:Prod	—	—	go	门面无对应入口
+prod	x:array	—	propagate	scalar	—	prod	—	x32:Prod, x64:Prod	—	—	go	门面无对应入口
 mean	x:array	—	propagate	scalar	—	mean	—	num:Mean, num:Mean2, x32:Mean, x64:Mean	—	—	go	空输入为 NaN（浮点）/ 0（整型）
 median	x:array	—	propagate	scalar	—	median	—	num:Median, x32:Median, x64:Median	—	—	go	按入参顺序取中间元素，不排序；空输入 NaN、单元素 0
 max	x:array	—	no_special	scalar	—	max	—	num:Max, num:Max2, x32:Max, x64:Max	—	—	go	空输入 panic；NaN 结果取决于比较顺序
@@ -64,12 +64,12 @@ covariance	x:array, y:array	—	propagate	scalar	—	covariance	—	num:Covarian
 count	x:array	—	comparison_false	scalar	—	count	—	num:Count, x32:Count, x64:Count	—	—	go	数值统计非零元素，布尔统计 true
 all	x:bool[]	—	—	scalar	—	all	—	num:All, x32:All, x64:All	—	—	go	空输入为 true
 any	x:bool[]	—	—	scalar	—	any	—	num:Any, x32:Any, x64:Any	—	—	go	空输入为 false
-none	x:bool[]	—	—	scalar	—	—	—	x32:None, x64:None	—	—	go	全部为 false 时返回 true
-norm	x:array	—	propagate	scalar	—	—	—	x32:Norm, x64:Norm	—	—	go	欧氏范数
-quantile	x:array, q:f64	—	no_special	scalar	—	—	—	x32:Quantile, x64:Quantile	—	—	go	q=0 取最小、q=1 取最大
+none	x:bool[]	—	—	scalar	—	none	—	x32:None, x64:None	—	—	go	全部为 false 时返回 true
+norm	x:array	—	propagate	scalar	—	norm	—	x32:Norm, x64:Norm	—	—	go	欧氏范数
+quantile	x:array, q:f64	—	no_special	scalar	—	quantile	—	x32:Quantile, x64:Quantile	—	—	go	q=0 取最小、q=1 取最大
 # --- N4 窗口与滚动 ---
 cumsum	x:array	—	propagate	same_as(x)	—	cumsum, cumsum_inplace	—	num:CumSum, x32:CumSum, x64:CumSum	—	—	go	前缀和
-cumprod	x:array	—	propagate	same_as(x)	—	—	—	x32:CumProd, x64:CumProd	—	—	go	门面无对应入口
+cumprod	x:array	—	propagate	same_as(x)	—	cumprod	—	x32:CumProd, x64:CumProd	—	—	go	门面无对应入口
 diff	series:array, n:int	—	propagate	same_as(series)	—	diff	—	num:Diff, num:V2Diff	—	—	go	方向为 s[i-n]-s[i]（与 pandas 相反）；n=0 返回全 0
 shift	series:array, n:int|int[]	—	—	same_as(series)	—	shift	—	num:Shift	—	—	go	越界位填类型默认值；n=0 返回原序列
 rolling	series:array, window:int|int[], min_periods:int?	—	—	[n][window]	—	rolling	—	num:Rolling	—	—	go	不传 min_periods 时窗口不足返回空切片；传入后按 partial window 计算，min_periods > window 不产生窗口
@@ -82,7 +82,7 @@ ones	shape:int	—	—	[n]	—	ones	—	num:Ones, x32:Ones, x64:Ones	—	—	go	
 arange	start:number, end:number, step:number?	step=1	—	[n]	—	arange	—	num:Arange	—	—	go	不含 end
 linspace	start:number, end:number, n:int, endpoint:bool?	endpoint=true	—	[n]	—	linspace	—	num:Linspace	—	—	go	含 end（endpoint=true）
 range	n:int	—	—	[n]	—	range	—	num:Range	—	—	go	0..n
-range_float	a:f64, b:f64	—	—	[n]	—	—	—	x32:Range, x64:Range	—	—	go	浮点区间；门面无对应入口
+range_float	a:f64, b:f64	—	—	[n]	—	range	—	x32:Range, x64:Range	—	—	go	浮点区间；门面无对应入口
 repeat	value:scalar, n:int	—	—	[n]	—	repeat, repeat_into	—	num:Repeat, num:RepeatInto, x32:Repeat, x64:Repeat	—	—	go	同值重复
 align	x:array, value:scalar, n:int	—	—	[n]	—	align	—	num:Align	—	—	go	补默认值到指定长度
 shape	x:any	—	—	tuple	—	shape	—	num:Shape	—	—	go	返回 (行, 列)
@@ -101,7 +101,7 @@ poly_fit	x:array, y:array, deg:int	—	propagate	[deg+1]	—	poly_fit	—	num:Po
 poly_val	p:array, x:array	—	propagate	same_as(x)	—	poly_val	—	num:PolyVal	—	—	go	多项式求值
 distance	x:array, y:array	—	propagate	scalar	—	—	—	x32:Distance, x64:Distance	—	—	go	欧氏距离
 manhattan_distance	x:array, y:array	—	propagate	scalar	—	—	—	x32:ManhattanDistance, x64:ManhattanDistance	—	—	go	曼哈顿距离
-manhattan_norm	x:array	—	propagate	scalar	—	—	—	x32:ManhattanNorm, x64:ManhattanNorm	—	—	go	曼哈顿范数
+manhattan_norm	x:array	—	propagate	scalar	—	manhattan_norm	—	x32:ManhattanNorm, x64:ManhattanNorm	—	—	go	曼哈顿范数
 cosine_similarity	x:array, y:array	—	propagate	scalar	—	—	—	x32:CosineSimilarity, x64:CosineSimilarity	—	—	go	余弦相似度
 slope	x1:int, y1:f64, x2:int, y2:f64	—	propagate	scalar	—	slope	—	num:Slope	—	—	go	两点斜率
 slope_to_degrees	m:f64	—	propagate	scalar	—	slope_to_degrees	—	num:SlopeToDegrees	—	—	go	斜率转角

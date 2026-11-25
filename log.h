@@ -56,6 +56,47 @@ namespace num {
         return d;
     }
 
+
+    // 逐元素 e^x
+    template<typename T>
+    inline Vector<T> exp(const Vector<T> &x) {
+        Vector<T> d = Vector<T>::from_shape({x.size()});
+        for (std::size_t i = 0; i < x.size(); ++i) {
+            d[i] = std::exp(x[i]);
+        }
+        return d;
+    }
+
+    // 逐元素自然对数
+    template<typename T>
+    inline Vector<T> log(const Vector<T> &x) {
+        Vector<T> d = Vector<T>::from_shape({x.size()});
+        for (std::size_t i = 0; i < x.size(); ++i) {
+            d[i] = std::log(x[i]);
+        }
+        return d;
+    }
+
+    // 逐元素以 2 为底的对数
+    template<typename T>
+    inline Vector<T> log2(const Vector<T> &x) {
+        Vector<T> d = Vector<T>::from_shape({x.size()});
+        for (std::size_t i = 0; i < x.size(); ++i) {
+            d[i] = std::log2(x[i]);
+        }
+        return d;
+    }
+
+    // 逐元素以 10 为底的对数
+    template<typename T>
+    inline Vector<T> log10(const Vector<T> &x) {
+        Vector<T> d = Vector<T>::from_shape({x.size()});
+        for (std::size_t i = 0; i < x.size(); ++i) {
+            d[i] = std::log10(x[i]);
+        }
+        return d;
+    }
+
 }  // namespace num
 
 #endif  // NUM_LOG_H

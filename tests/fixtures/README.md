@@ -59,7 +59,7 @@ ctest --preset release-static -R fixtures_npz_read_cpp
 ctest --preset release-static -R fixtures_conform_cpp
 ```
 
-Go / C++ 对拍用例把样本交给各自实现计算并与 `expected` 比较（C++ 未实现的语义跳过并在 `CPP-GAPS.md` 留痕）；三套读取器保证同一批样本能被三门语言读出。
+Go / C++ 对拍用例把样本交给各自实现计算并与 `expected` 比较（C++ 已全量 129 个通过）；三套读取器保证同一批样本能被三门语言读出。
 新增样本时三处都要重跑，不只看自己那门语言。
 
 C++ 相对 Go 的缺口（缺哪些算子、哪些口径待核）见 [CPP-GAPS.md](CPP-GAPS.md)。

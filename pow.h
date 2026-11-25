@@ -9,6 +9,7 @@
 
 #include <cmath>
 
+#include "errors.h"
 #include "type.h"
 
 namespace num {
@@ -26,6 +27,20 @@ namespace num {
     template<typename T>
     inline void pow_inplace(Vector<T> &x, int n) {
         x = pow(x, n);
+    }
+
+
+    // 逐元素幂：两个序列等长；浮点求值升到 f64 再落回 T（与整数幂同口径）
+    template<typename T>
+    inline Vector<T> pow(const Vector<T> &x, const Vector<T> &y) {
+        if (x.size() != y.size()) {
+            throw LengthMismatch();
+        }
+        Vector<T> d = Vector<T>::from_shape({x.size()});
+        for (std::size_t i = 0; i < x.size(); ++i) {
+            d[i] = static_cast<T>(std::pow(static_cast<f64>(x[i]), static_cast<f64>(y[i])));
+        }
+        return d;
     }
 
 }  // namespace num

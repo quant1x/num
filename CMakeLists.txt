@@ -149,6 +149,21 @@ add_library(num_core STATIC
         # 标量工具（decimal 是非模板实现，落编译单元）
         decimals.h
         decimals.cpp
+
+        # 缺口补齐：一元 / 舍入 / 三角与指数对数 / 选择索引 / 部分归约
+        neg.h
+        inv.h
+        rounding.h
+        trig.h
+        select.h
+        find.h
+        gather.h
+        scatter.h
+        prod.h
+        norm.h
+        quantile.h
+        logic_none.h
+        cumprod.h
 )
 
 # 包含根是仓库根的上一级：公共头的包含形态为 <num/<模块>/<头文件>.h>，
@@ -258,6 +273,8 @@ if(NUM_BUILD_TESTS)
             decimals_test.cpp
             # CSV 读写：D1 基线
             csv_test.cpp
+            # 缺口补齐算子
+            extras_test.cpp
             # 指数 / 对数：log1p / expm1
             log_test.cpp
             # 填充：fill / fill_na

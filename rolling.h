@@ -4,11 +4,14 @@
 
 // spec: rolling.go
 //
-// 滑动窗口。窗口长度按位置给（常量或逐位置序列），第 i 个位置取 [i + 1 - n, i + 1)：
+// 滑动窗口。窗口长度按位置给（常量、逐位置序列或 Periods），第 i 个位置取 [i + 1 - n, i + 1)：
 //
 //   - 窗口为 NaN（含 ±Inf）、或窗口大于已积累的观测数（n > i + 1）→ 该位置是**空窗口**；
 //   - 窗口为 0 → 也是空窗口（Go 的 S[i+1:i+1]）；
-//   - 窗口为负 → Go 侧切片上界小于下界，直接 panic；C++ 抛 RangeError。
+//   - 窗口为负 → 与 Go 的 v1At 一致，判不可用（空窗口），不再抛异常。
+//
+// min_periods 与 Go 的 v1At 同口径：传入 <= 0 时等同于"完整窗口"；传入后，可用观测数达到阈值
+// 即可计算（partial window），大于窗口长度时不产生窗口。
 //
 // `rolling` 返回逐位置的窗口序列（空窗口用长度 0 的容器占位，不补值）；`rolling_apply`
 // 把窗口直接喂给回调，省掉中间那批容器 —— 不可用的位置填 type_default<T>()。
@@ -17,14 +20,12 @@
 // apply(f64 n, const Vector<T> &block)。Go 传的是原序列的子切片（视图），C++ 传副本
 // （值语义，避免回调持有指向调用方内存的引用）。
 //
-// Go 的 Rolling 第三个可变参数 min_period 被丢弃（实际走 Periods.v0At，不看 Min），
-// 故 C++ 不设这个形参，缺口登记在 num.md §5 TODO。
+// Go 的 RollingApply 不接受 min_periods（走 v0At），C++ 同此。
 
 #include <cstddef>
 #include <utility>
 #include <vector>
 
-#include "errors.h"
 #include "periods.h"
 #include "type.h"
 
@@ -47,20 +48,58 @@ namespace num {
             return !is_nan(n) && offset <= static_cast<i64>(i) + 1 && offset >= 0;
         }
 
-        // period_at(i) 给出第 i 个位置的窗口长度
+        // Periods.v1At 的判据：返回 (实际窗口, 是否可用)
+        inline std::pair<f64, bool> window_v1(f64 orig, std::size_t i, int min_periods) {
+            if (is_nan(orig) || static_cast<i64>(orig) < 0) {
+                return {nan(), false};
+            }
+            const i64 available = static_cast<i64>(i) + 1;
+            const i64 window = static_cast<i64>(orig);
+            if (min_periods <= 0) {
+                if (window > available) {
+                    return {orig, false};
+                }
+                return {orig, true};
+            }
+            if (window > available) {
+                const f64 used = static_cast<f64>(available);
+                return {used, available >= min_periods};
+            }
+            if (window < min_periods) {
+                return {orig, false};
+            }
+            return {orig, true};
+        }
+
+        // period_at(i) 给出第 i 个位置的窗口长度；min_periods 按 v1At 处理
         template<typename T, typename PeriodAt>
-        inline std::vector<Vector<T>> rolling_blocks(const Vector<T> &s, PeriodAt period_at) {
+        inline std::vector<Vector<T>> rolling_blocks_with(const Vector<T> &s, PeriodAt period_at,
+                                                          int min_periods) {
             const std::size_t len = s.size();
             std::vector<Vector<T>> blocks;
             blocks.reserve(len);
             for (std::size_t i = 0; i < len; ++i) {
-                const f64 n = period_at(i);
-                if (is_nan(n) || static_cast<i64>(n) > static_cast<i64>(i) + 1) {
+                const auto [n, good] = window_v1(period_at(i), i, min_periods);
+                if (!good) {
                     blocks.push_back(Vector<T>::from_shape({0}));
                     continue;
                 }
-                if (static_cast<i64>(n) < 0) {
-                    throw RangeError();
+                const auto start = static_cast<std::size_t>(static_cast<i64>(i) + 1 - static_cast<i64>(n));
+                blocks.push_back(copy_range(s, start, i + 1));
+            }
+            return blocks;
+        }
+
+        template<typename T>
+        inline std::vector<Vector<T>> rolling_blocks(const Vector<T> &s, const Periods &periods) {
+            const std::size_t len = s.size();
+            std::vector<Vector<T>> blocks;
+            blocks.reserve(len);
+            for (std::size_t i = 0; i < len; ++i) {
+                const auto [n, good] = periods.v1_at(i);
+                if (!good) {
+                    blocks.push_back(Vector<T>::from_shape({0}));
+                    continue;
                 }
                 const auto start = static_cast<std::size_t>(static_cast<i64>(i) + 1 - static_cast<i64>(n));
                 blocks.push_back(copy_range(s, start, i + 1));
@@ -88,17 +127,26 @@ namespace num {
 
     // 常量窗口
     template<typename T>
-    inline std::vector<Vector<T>> rolling(const Vector<T> &s, i64 n) {
+    inline std::vector<Vector<T>> rolling(const Vector<T> &s, i64 n, int min_periods = 0) {
         const f64 constant = static_cast<f64>(n);
-        return detail::rolling_blocks(s, [constant](std::size_t) { return constant; });
+        return detail::rolling_blocks_with(
+            s, [constant](std::size_t) { return constant; }, min_periods);
     }
 
     // 逐位置窗口：序列之外的位置与 Go 的 AnyToSlice 一致，按缺失值（NaN）补齐
     template<typename T>
-    inline std::vector<Vector<T>> rolling(const Vector<T> &s, const Vector<f64> &periods) {
-        return detail::rolling_blocks(s, [&periods](std::size_t i) {
-            return i < periods.size() ? periods[i] : nan();
-        });
+    inline std::vector<Vector<T>> rolling(const Vector<T> &s, const Vector<f64> &periods,
+                                          int min_periods = 0) {
+        return detail::rolling_blocks_with(
+            s,
+            [&periods](std::size_t i) { return i < periods.size() ? periods[i] : nan(); },
+            min_periods);
+    }
+
+    // Periods 形态：min_periods 取自 Periods
+    template<typename T>
+    inline std::vector<Vector<T>> rolling(const Vector<T> &s, const Periods &periods) {
+        return detail::rolling_blocks(s, periods);
     }
 
     // 常量窗口 + 回调

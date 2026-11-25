@@ -17,6 +17,22 @@
 #include <num/dot.h>
 #include <num/fillna.h>
 #include <num/log.h>
+#include <num/periods.h>
+#include <num/type_bool.h>
+#include <num/cumprod.h>
+#include <num/rolling.h>
+#include <num/trig.h>
+#include <num/select.h>
+#include <num/scatter.h>
+#include <num/rounding.h>
+#include <num/quantile.h>
+#include <num/prod.h>
+#include <num/norm.h>
+#include <num/neg.h>
+#include <num/logic_none.h>
+#include <num/inv.h>
+#include <num/gather.h>
+#include <num/find.h>
 #include <num/logic.h>
 #include <num/logic_all.h>
 #include <num/logic_any.h>
@@ -62,6 +78,7 @@ namespace {
 
 using num::fixture::Array;
 using num::fixture::File;
+using num::i64;
 
 template<typename T>
 num::Vector<T> make_vector(const std::vector<double> &values) {
@@ -524,8 +541,217 @@ bool compute(const File &fixture, std::vector<double> &out, std::string &reason)
         return true;
     }
 
+
+    if (name == "neg" || name == "inv") {
+        if (is_f32(fixture, "x")) {
+            const auto x = make_vector<float>(floats(fixture, "x"));
+            out = to_doubles(name == "neg" ? num::neg(x) : num::inv(x));
+        } else {
+            const auto x = make_vector<double>(floats(fixture, "x"));
+            out = to_doubles(name == "neg" ? num::neg(x) : num::inv(x));
+        }
+        return true;
+    }
+    if (name == "ceil" || name == "floor" || name == "round") {
+        if (is_f32(fixture, "x")) {
+            const auto x = make_vector<float>(floats(fixture, "x"));
+            out = to_doubles(name == "ceil" ? num::ceil(x) : name == "floor" ? num::floor(x) : num::round(x));
+        } else {
+            const auto x = make_vector<double>(floats(fixture, "x"));
+            out = to_doubles(name == "ceil" ? num::ceil(x) : name == "floor" ? num::floor(x) : num::round(x));
+        }
+        return true;
+    }
+    if (name == "sin" || name == "cos" || name == "exp" || name == "log" || name == "log2" ||
+        name == "log10") {
+        if (is_f32(fixture, "x")) {
+            const auto x = make_vector<float>(floats(fixture, "x"));
+            if (name == "sin") out = to_doubles(num::sin(x));
+            else if (name == "cos") out = to_doubles(num::cos(x));
+            else if (name == "exp") out = to_doubles(num::exp(x));
+            else if (name == "log") out = to_doubles(num::log(x));
+            else if (name == "log2") out = to_doubles(num::log2(x));
+            else out = to_doubles(num::log10(x));
+        } else {
+            const auto x = make_vector<double>(floats(fixture, "x"));
+            if (name == "sin") out = to_doubles(num::sin(x));
+            else if (name == "cos") out = to_doubles(num::cos(x));
+            else if (name == "exp") out = to_doubles(num::exp(x));
+            else if (name == "log") out = to_doubles(num::log(x));
+            else if (name == "log2") out = to_doubles(num::log2(x));
+            else out = to_doubles(num::log10(x));
+        }
+        return true;
+    }
+    if (name == "logic_xor") {
+        const auto x = make_vector<bool>(bools(fixture, "x"));
+        const auto y = make_vector<bool>(bools(fixture, "y"));
+        const auto result = num::logic_xor(x, y);
+        for (std::size_t i = 0; i < result.size(); ++i) {
+            out.push_back(result[i] ? 1.0 : 0.0);
+        }
+        return true;
+    }
+    if (name == "select") {
+        const auto x = make_vector<double>(floats(fixture, "x"));
+        const auto mask = make_vector<bool>(bools(fixture, "mask"));
+        out = to_doubles(num::select(x, mask));
+        return true;
+    }
+    if (name == "find") {
+        out = {static_cast<double>(num::find(make_vector<double>(floats(fixture, "x")),
+                                             scalar_f64(fixture, "value")))};
+        return true;
+    }
+    if (name == "gather") {
+        const auto index = make_vector<i64>(ints(fixture, "idx"));
+        out = to_doubles(num::gather(make_vector<double>(floats(fixture, "x")), index));
+        return true;
+    }
+    if (name == "scatter") {
+        const auto index = make_vector<i64>(ints(fixture, "idx"));
+        out = to_doubles(num::scatter(make_vector<double>(floats(fixture, "x")), index,
+                                      static_cast<std::size_t>(scalar_i64(fixture, "size"))));
+        return true;
+    }
+    if (name == "prod" || name == "norm" || name == "manhattan_norm") {
+        if (is_f32(fixture, "x")) {
+            const auto x = make_vector<float>(floats(fixture, "x"));
+            out = {static_cast<double>(name == "prod" ? num::prod(x)
+                                       : name == "norm" ? num::norm(x)
+                                                        : num::manhattan_norm(x))};
+        } else {
+            const auto x = make_vector<double>(floats(fixture, "x"));
+            out = {name == "prod" ? num::prod(x) : name == "norm" ? num::norm(x) : num::manhattan_norm(x)};
+        }
+        return true;
+    }
+    if (name == "quantile") {
+        out = {static_cast<double>(num::quantile(make_vector<double>(floats(fixture, "x")),
+                                                 scalar_f64(fixture, "q")))};
+        return true;
+    }
+    if (name == "none") {
+        out = {num::none(make_vector<bool>(bools(fixture, "x"))) ? 1.0 : 0.0};
+        return true;
+    }
+    if (name == "pow_float") {
+        const auto x = make_vector<double>(floats(fixture, "x"));
+        const auto y = make_vector<double>(floats(fixture, "y"));
+        out = to_doubles(num::pow(x, y));
+        return true;
+    }
+    if (name == "range_float") {
+        out = to_doubles(num::range<double>(scalar_f64(fixture, "a"), scalar_f64(fixture, "b")));
+        return true;
+    }
+
+
+    if (name == "rolling_apply") {
+        const auto x = make_vector<double>(floats(fixture, "x"));
+        const auto windows = ints(fixture, "window");
+        const auto mean = [](double n, const num::Vector<double> &block) {
+            double total = 0.0;
+            for (std::size_t i = 0; i < block.size(); ++i) {
+                total += block[i];
+            }
+            return total / n;
+        };
+        out = to_doubles(windows.size() == 1 ? num::rolling_apply(x, windows[0], mean)
+                                             : num::rolling_apply(x, make_vector<double>(
+                                                                         std::vector<double>(windows.begin(), windows.end())),
+                                                                  mean));
+        return true;
+    }
+    if (name == "cumprod") {
+        out = to_doubles(num::cumprod(make_vector<double>(floats(fixture, "x"))));
+        return true;
+    }
+    if (name == "bool_to_numeric") {
+        const auto values = bools(fixture, "x");
+        out.clear();
+        for (const bool value : values) {
+            out.push_back(fixture.arrays.at("expected").descr == "<i8"
+                              ? static_cast<double>(num::bool_to_int64(value))
+                              : num::bool_to_float64(value));
+        }
+        return true;
+    }
+
     reason = "C++ 尚无同语义实现";
     return false;
+}
+
+
+bool close(double actual, double expected, double tolerance);
+
+bool check_rolling(const File &fixture, std::string &error) {
+    const auto x = floats(fixture, "x");
+    const auto windows = ints(fixture, "window");
+    const bool f32 = is_f32(fixture, "x");
+    const auto want_lengths = fixture.arrays.at("expected_lengths").ints();
+    const auto want_flat = numeric(fixture.arrays.at("expected_flat"));
+    const int min_periods = fixture.arrays.contains("min_periods")
+                                ? static_cast<int>(scalar_i64(fixture, "min_periods"))
+                                : 0;
+    std::vector<std::vector<double>> blocks;
+
+    if (f32) {
+        const auto values = make_vector<float>(x);
+        std::vector<num::Vector<float>> raw;
+        if (windows.size() == 1) {
+            raw = num::rolling(values, windows[0], min_periods);
+        } else {
+            std::vector<double> window_values;
+            for (const auto value : windows) {
+                window_values.push_back(static_cast<double>(value));
+            }
+            raw = num::rolling(values, make_vector<double>(window_values), min_periods);
+        }
+        for (const auto &block : raw) {
+            blocks.push_back(to_doubles(block));
+        }
+    } else {
+        const auto values = make_vector<double>(x);
+        std::vector<num::Vector<double>> raw;
+        if (windows.size() == 1) {
+            raw = num::rolling(values, windows[0], min_periods);
+        } else {
+            std::vector<double> window_values;
+            for (const auto value : windows) {
+                window_values.push_back(static_cast<double>(value));
+            }
+            raw = num::rolling(values, make_vector<double>(window_values), min_periods);
+        }
+        for (const auto &block : raw) {
+            blocks.push_back(to_doubles(block));
+        }
+    }
+
+    if (blocks.size() != want_lengths.size()) {
+        error = "窗口数不一致";
+        return false;
+    }
+    std::vector<double> flat;
+    for (std::size_t i = 0; i < blocks.size(); ++i) {
+        if (static_cast<std::int64_t>(blocks[i].size()) != want_lengths[i]) {
+            error = "第 " + std::to_string(i) + " 个窗口长度不一致";
+            return false;
+        }
+        flat.insert(flat.end(), blocks[i].begin(), blocks[i].end());
+    }
+    const double tolerance = fixture.arrays.at("meta_tolerance").scalar_f64();
+    if (flat.size() != want_flat.size()) {
+        error = "展平长度不一致";
+        return false;
+    }
+    for (std::size_t i = 0; i < flat.size(); ++i) {
+        if (!close(flat[i], want_flat[i], tolerance)) {
+            error = "第 " + std::to_string(i) + " 位不一致";
+            return false;
+        }
+    }
+    return true;
 }
 
 bool close(double actual, double expected, double tolerance) {
@@ -567,6 +793,15 @@ int main(int argc, char **argv) {
                 }
                 const File fixture = num::fixture::read_npz(entry.path().string());
                 num::fixture::verify(fixture);
+                if (fixture.arrays.contains("expected_lengths")) {
+                    std::string error;
+                    if (!check_rolling(fixture, error)) {
+                        std::fprintf(stderr, "%s: %s\n", entry.path().string().c_str(), error.c_str());
+                        return 1;
+                    }
+                    ++conformed;
+                    continue;
+                }
                 std::vector<double> got;
                 std::string reason;
                 if (!compute(fixture, got, reason)) {

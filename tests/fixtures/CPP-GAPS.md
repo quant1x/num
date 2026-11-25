@@ -7,33 +7,20 @@
 
 ## 0. 对拍状态
 
-`tests/fixtures/conform_cpp` 已把 C++ 已有算子接到 fixture 上：**94 个样本逐值通过**，35 个样本因 C++ 尚无
-同语义实现而跳过（27 个语义，见 §1）。跳过不算通过；编号行一旦补齐，就从跳过列表移除。
+`tests/fixtures/conform_cpp` 已把 C++ 已有算子全部接入 fixture：**129 个样本逐值通过，0 跳过**。
 
-## 1. 未落地（C++ 无同语义实现，对拍时跳过）
+最近补齐：`rolling`（含 `min_periods`）/ `rolling_apply` / `cumprod` / `bool_to_numeric`，以及上一批的
+一元、舍入、三角与指数对数、逻辑异或、选择/索引、prod/norm/quantile/none、浮点幂与浮点区间。
 
-| 语义 | Go 符号 | 缺口 | 影响 |
-| --- | --- | --- | --- |
-| `pow_float` | `x32:Pow` / `x64:Pow` | C++ `pow` 只接受整数指数；缺逐元素幂 | N2 对位 |
-| `neg` | `x32:Neg` / `x64:Neg` | 无 | N2 对位 |
-| `inv` | `x32:Inv` / `x64:Inv` | 无 | N2 对位 |
-| `ceil` / `floor` / `round` | `x32` / `x64` 同名 | 无；舍入族只有 `decimal` | N2 对位 |
-| `sin` / `cos` | `x32:Sin` / `x32:Cos` | 无 | N2 对位；Go 侧 x64 也缺，见 §2 |
-| `exp` / `log` / `log2` / `log10` | `x32` 同名 | 无；指数对数族只有 `log1p` / `expm1` | N2 对位 |
-| `logic_xor` | `x32:Xor` / `x64:Xor` | 无 | N2 对位 |
-| `select` | `x32:Select` / `x64:Select` | 无 | N2 对位 |
-| `find` | `x32:Find` / `x64:Find` | 无（`type_strings.h` 只有 `std::string::find` 调用，`ztable.h` 的 `find_percent` / `find_zscore` 是另一语义） | N2 对位 |
-| `gather` / `scatter` | `x32` / `x64` 同名 | 无 | N6 对位 |
-| `prod` | `x32:Prod` / `x64:Prod` | 无 | N3 对位 |
-| `norm` / `manhattan_norm` | `x32` / `x64` 同名 | 无 | N3 对位 |
-| `quantile` | `x32:Quantile` / `x64:Quantile` | 无 | N3 对位 |
-| `none` | `x32:None` / `x64:None` | 无（只有 `all` / `any`） | N3 对位 |
-| `range_float` | `x32:Range` / `x64:Range` | C++ `range` 是按整数个数的入口，缺浮点区间重载 | N6 对位 |
-| `mat4mul` | `x32:Mat4Mul` / `x64:Mat4Mul` | 无 | N6 对位 |
-| `from_bool` / `from_int32` / `from_int64` / `from_float` | `x32` / `x64` 同名 | 无（C++ 直接用模板构造） | N1 对位 |
-| `to_bool` / `to_int32` / `to_int64` / `to_float32` / `to_float64` | `x32` / `x64` 同名 | 无（C++ 用 `xt::cast`） | N1 对位 |
-| `dtype2int` | `num:DType2Int` | 无 | N1 对位 |
-| `any_to_scalar` | `num:AnyToInt32` 等 | 只有 `to_bool` / `to_string` 的值重载，缺 `any` 到数值的入口 | N1 对位；C++ 无运行期 `any`，可判为不适用 |
+## 1. 无 fixture 的接口（不在对拍范围）
+
+| 语义 | 现状 | 说明 |
+| --- | --- | --- |
+| `mat4mul` | C++ 无实现 | 没有 fixture；属 N6 可选算子 |
+| `from_bool` / `from_int32` / `from_int64` / `from_float` | 无（C++ 直接用模板构造） | 转换族没有 fixture |
+| `to_bool` / `to_int32` / `to_int64` / `to_float32` / `to_float64` | 无（C++ 用 `xt::cast`） | 同上 |
+| `dtype2int` | 无 | 同上 |
+| `any_to_scalar` | 只有 `to_bool` / `to_string` 的值重载 | C++ 无运行期 `any`，可判为不适用 |
 
 ## 2. Go 侧不对称（先定 Go 落点，再谈 C++ 对位）
 
@@ -41,7 +28,7 @@
 
 | 项 | 现状 | 影响 |
 | --- | --- | --- |
-| 三角 / 指数对数 | `Sin` / `Cos` / `Exp` / `Log` / `Log2` / `Log10` / `SinCos` 只有 `x32`，`x64` 无同名实现，门面也没有入口 | f64 侧无对照，C++ 补齐前先定 Go 的 f64 落点 |
+| 三角 / 指数对数 | `Sin` / `Cos` / `Exp` / `Log` / `Log2` / `Log10` / `SinCos` 只有 `x32`，`x64` 无同名实现，门面也没有入口 | C++ 模板已覆盖 f32 / f64，但 Go 缺 f64 对照；待 Go 补齐后对齐 |
 | 方差 | `Variance` 只接受 `[]float64`，没有 f32 路径；`Std` 有两条宽度 | f32 方差无法对拍 |
 | `Where` 条件 | `Where[T StatType]` 要求条件与取值**同类型**，不能传 `[]bool` | 与 NumPy 的 `where(bool, x, y)` 签名不同，C++ 已按同类型实现 |
 | `Ones` | 按入参切片长度生成，不接受形状整数 | 与 `Zeros(shape)` 不对称 |
@@ -59,6 +46,7 @@
 | `fill` / `fill_na` | `±Inf` 与 `NaN` 都视为缺失 | NumPy 只填 NaN |
 | `maximum` / `minimum` | 只在 `y > x` 时覆盖，NaN 不传播 | NumPy 传播 NaN |
 | `concat1d` | 逐元素拼成 n×3（列式） | NumPy `concatenate` 按行拼接 |
+| `equal` / `not_equal` / `logic_xor` | C++ 统一按最长对齐、缺位补 0；Go 的 `Equal` / `NotEqual` / `Xor` 按第一个操作数长度 | 样本等长，未触发；长度不齐时结果不同 |
 | `shift` 非整数常量 | Go 运行期 panic；C++ 用 `= delete` 编译期拒绝 | 机制不同，语义相同 |
 | `decimal` | 半程远离零，NaN 按 0 参与 | 与 NumPy `round` 的银行家舍入不同 |
 
@@ -66,4 +54,4 @@
 
 1. C++ 补齐优先按 §1 的顺序走：先 N2 逐元素（`neg` / `inv` / 舍入 / 三角与指数对数），再 N3（`prod` / `norm` / `quantile` / `none`），最后 N6（`gather` / `scatter` / `select` / `mat4mul`）。
 2. 补 C++ 之前先定 §2 的两条宽度问题（尤其 f64 三角 / 指数对数的落点），否则补出来的符号没有 Go 对照。
-3. `num_fixture_conform` 已接入核心子集（94 个样本）；后续把 §1 的语义逐个补齐，补一个就从跳过列表移除一个，直到全量。
+3. `num_fixture_conform` 已全量接入 129 个样本；后续新增 fixture 时同步扩展分派。

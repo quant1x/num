@@ -61,6 +61,13 @@ namespace num {
         return d;
     }
 
+
+    // 浮点区间：a, a+1, ..., < b（x32/x64 的 Range(a, b)）
+    template<typename T>
+    inline Vector<T> range(T a, T b) {
+        return arange(a, b, T{1});
+    }
+
 }  // namespace num
 
 #endif  // NUM_RANGE_H

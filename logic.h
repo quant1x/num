@@ -136,6 +136,19 @@ namespace num {
         return d;
     }
 
+
+    template<typename T>
+    inline Vector<bool> logic_xor(const Vector<T> &x, const Vector<T> &y) {
+        const std::size_t n = x.size() > y.size() ? x.size() : y.size();
+        Vector<bool> d = Vector<bool>::from_shape({n});
+        for (std::size_t i = 0; i < n; ++i) {
+            const bool a = i < x.size() && detail::as_dtype(x[i]) != 0;
+            const bool b = i < y.size() && detail::as_dtype(y[i]) != 0;
+            d[i] = a != b;
+        }
+        return d;
+    }
+
 }  // namespace num
 
 #endif  // NUM_LOGIC_H

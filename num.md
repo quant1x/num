@@ -188,25 +188,25 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 
 ### 4.6 契约 / 一致性测试
 
-跨**架构**一致性由 `x32/` / `x64/` 与 `internal/functions/` 的用例承担，不在本包；跨**语言**一致性由 `tests/fixtures/` 的 npz 样本承担 —— Go 有 `tests/fixtures/conform`、Rust 有根 crate 的 `tests/conform.rs`、C++ 有 `tests/fixtures/conform_cpp`（94 个样本，跳过项见 `CPP-GAPS.md`）：
+跨**架构**一致性由 `x32/` / `x64/` 与 `internal/functions/` 的用例承担，不在本包；跨**语言**一致性由 `tests/fixtures/` 的 npz 样本承担 —— Go 有 `tests/fixtures/conform`、Rust 有根 crate 的 `tests/conform.rs`、C++ 有 `tests/fixtures/conform_cpp`（129 个样本全量通过）：
 
 | 场景 | 测试位置 | 断言内容 | 运行命令 |
 | --- | --- | --- | --- |
 | AVX2（amd64） / NEON（arm64） 与 Go 路径等价 | `x32/*_test.go`、`x64/*_test.go`、`internal/functions/*_test.go` | 逐元素相等；长度 1、块大小 ±1；`NaN` / `±Inf` / `±0` | `go test ./x32/ ./x64/ ./internal/functions/` |
 | 门面层两条路径 | 本包 Go 用例（**缺**） | `UseAVX2 = false` 与 `true` 下结果一致 | 见 §5 TODO |
-| C++ 与 Go 逐值一致 | `tests/fixtures/conform_cpp`（94 个样本） | 已覆盖语义逐值相等；未覆盖语义跳过并列在 `CPP-GAPS.md` | `ctest --preset release-static -R fixtures_conform_cpp` |
+| C++ 与 Go 逐值一致 | `tests/fixtures/conform_cpp`（129 个样本） | 已覆盖语义逐值相等；未覆盖语义跳过并列在 `CPP-GAPS.md` | `ctest --preset release-static -R fixtures_conform_cpp` |
 
 ## 5. TODO
 
 | 待办项 | 缺什么 | 卡在哪 | 关联章节 | 关联 issue | 优先级 |
 | --- | --- | --- | --- | --- | --- |
 | 补齐 C++ 剩余算子 | 已落地 59 个功能行（§2 有 c++ 符号的行）；只剩 `PeeksAndValleys`（Go 侧就是空实现，返回 nil） | 该函数在 Go 里没有语义，等 Go 侧定案后再同步两侧；`AnyToGeneric` 的反射部分 / `AnyToSlice` / `CheckoutRawType` / `ExtractValueFromPointer` 属 `any` 反射，不移植 | §1 / §2 | #11 | 高 |
-| C++ rolling 缺 min_periods | Go 已接线 `min_periods`（partial window），C++ 的 `rolling` / `rolling_apply` 仍只有完整窗口入口 | 需在 C++ 侧补 `min_periods` 形参并复用同一口径；fixture 已覆盖 Go 侧 | §2 | #19 | 中 |
+| C++ rolling 缺 min_periods | ~~Go 已接线，C++ 仍只有完整窗口入口~~ | 已随 #27 补齐并通过 fixture | §2 | 已解决 |
 | `cross` 的相等口径 | 判据是**前一根与当前根都严格分居两侧**，任一格相等即不记；"先触碰再穿越"的常见写法会多记一根 | 需在补 Python spec 时确认这是意图还是历史写法 | §2 | 待建单 | 低 |
 | `fit_line` 的失败返回 | 单点输入返回 `intercept = y[0]` 的水平线同时标记失败（`std::pair<Line,bool>`），C++ 照此保留 | 补 spec 时确认失败位与半成品是否都要保留 | §2 | 待建单 | 低 |
 | 补 Python spec | 整包无 `.py`，语义准绳缺失 | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
 | 扩 Rust 覆盖面 | crate 已通过 129 个 fixture；线性代数、几何、时间与公式族未移植 | 按 `NAME-MAP.tsv` 逐行补，B3 在 pandas 仓库 | §1 / §2 | #21 | 中 |
-| C++ 对拍覆盖不全 | `num_fixture_conform` 已接入 94 个样本；27 个语义因 C++ 无实现被跳过 | 按 `tests/fixtures/CPP-GAPS.md` §1 逐个补齐并销账 | §4.6 | #25 | 中 |
+| C++ 对拍覆盖 | `num_fixture_conform` 已全量接入 129 个样本；无 fixture 的转换族与 mat4mul 不在范围 | 新增 fixture 时同步扩展分派 | §4.6 | #27 | 低 |
 | C++ 打包与导出 | `conan create` 与 `cmake --install` 未落地，`num_core` 只能源码内使用 | 安装布局要与扁平目录一起设计（头文件按 `num/` 前缀导出） | §3 | #11 | 中 |
 | C++ 指令集分发 | 只按编译器基线下发，未做运行期多版本分发（Go 侧有 `UseAVX2` 开关与两套内核） | 需要 CMake 多目标编译 + 运行期 `__builtin_cpu_supports` / `IsProcessorFeaturePresent` 探测；会牺牲老 CPU 兼容，须先定策略 | §2 精度与平台 | #11 | 中 |
 | `diff` 方向文档化核对 | C++ 已按 Go 口径实现为 `s[i-n] - s[i]`（与 pandas 相反），但 Go 侧无文档说明 | 需确认是设计意图还是历史包袱 | §2 | #11 | 低 |

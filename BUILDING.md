@@ -210,7 +210,7 @@ gofmt -l .
 C++ 侧：
 
 ```bash
-ctest --preset release-static      # 236 个用例，Release + /MT
+ctest --preset release-static      # 245 个用例，Release + /MT
 ctest --preset debug-static        # 同一批用例，Debug + /MTd
 ```
 
