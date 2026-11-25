@@ -75,7 +75,7 @@
 | --- | --- | --- | --- | --- | --- |
 | B1 | 通达信公式族 | `pandas/formula/` | Python（研究口径）/ Go | ABS / REF / HHV / LLV / MA / EMA / SMA / DMA / WMA / STD / SUM / COUNT / CROSS …，口径以 `formula/README.md` 与注释为准 | Go 已落地 |
 | B2 | 公式族 C++ 版 | `pandas/cpp/formula/` | C++ | 与 B1 最小参数集一致、结果一致 | 未落地 |
-| B3 | 公式族 Rust 版 | `pandas-rust/Cargo.toml`（crate `quant1x_pandas`）+ `src/` | Rust | 与 B1 最小参数集一致、结果一致 | 部分（40 个基础公式） |
+| B3 | 公式族 Rust 版 | `pandas-rust/Cargo.toml`（crate `quant1x_pandas`）+ `src/` | Rust | 与 B1 最小参数集一致、结果一致 | 部分（41 个基础公式） |
 | B4 | 研究侧脚本 | `pandas/scripts/` | Python | 因子研究与定型；产出 fixture 与策略报告，不参与交付 | 未落地 |
 | B5 | 数据管道与 IO | `pandas/io/`、`num/io/` | Go / C++ / Rust | 读 `D1` 格式、按主键覆盖；Arrow / Parquet 作为可选扩展（不是基线） | 已落地（Go/C++ 生产实现，Rust 为 `tests/io/rs` 工具；Arrow/Parquet 未做，pandas/io 在另一仓库） |
 | G1 | Go 工程侧 | `num/labs/`、`pandas/` | Go | 服务、调度、指标计算管道、单二进制分发 | 已落地（`cmd/numctl` 单二进制；pandas 侧服务在另一仓库） |
@@ -145,7 +145,7 @@ G1 ◄─ G2
 | **M2 窗口与向量化** | N4、N5 | M1 | 滚动族 fixture 全绿；AVX2 / NEON 与标量路径对拍通过 | 已完成 |
 | **M3 交换格式落地** | D2、D3 | M0（D2）、M1/M2（D3） | Go / C++ / Rust 互读互写同一 CSV：Go 产 Python 读、Python 产 Go 与 C++ 读，值逐元素一致；发布物含版本号 | 已完成 |
 | **M4 Rust 定型** | Rust crate、B3 | M1（与 M2 并行） | crate 按 NAME-MAP 暴露符号并通过同一批 fixture；命名与最小参数集对位 | 已完成（B3 属 pandas 仓库，未在本仓） |
-| **M5 公式族跨语言** | B1、B2、B3、B4 | M1、M3 | 通达信口径用例在 4 门语言同值；`formula/README.md` 每行状态更新；研究脚本只产 fixture 不与生产耦合 | 进行中（B3 已覆盖 40 个基础公式） |
+| **M5 公式族跨语言** | B1、B2、B3、B4 | M1、M3 | 通达信口径用例在 4 门语言同值；`formula/README.md` 每行状态更新；研究脚本只产 fixture 不与生产耦合 | 进行中（B3 已覆盖 41 个基础公式） |
 | **M6 数据管道** | B5 | M3 | 读 `D1` 格式、按主键覆盖、重复执行幂等；Arrow / Parquet 作为可选扩展单独验收 | 已完成（Arrow / Parquet 未做） |
 | **M7 Go 工程侧** | G1、G2 | M1 | Go 服务与管道可独立部署（单二进制、无 Python 运行时）；数值路径完整可用 | 已完成（`cmd/numctl`） |
 | **M8 机器学习侧** | M1、M2、M3 | M5、M6 | 训练与推理同一份特征 fixture 一致；同一 ONNX 模型三侧输出一致 | 未开始 |
