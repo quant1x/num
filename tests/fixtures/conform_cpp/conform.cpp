@@ -434,19 +434,28 @@ bool compute(const File &fixture, std::vector<double> &out, std::string &reason)
                           make_vector<double>(floats(fixture, "y")))};
         return true;
     }
-    if (name == "distance") {
-        out = {num::distance(make_vector<double>(floats(fixture, "x")),
-                             make_vector<double>(floats(fixture, "y")))};
-        return true;
-    }
-    if (name == "manhattan_distance") {
-        out = {num::manhattan_distance(make_vector<double>(floats(fixture, "x")),
-                                       make_vector<double>(floats(fixture, "y")))};
-        return true;
-    }
-    if (name == "cosine_similarity") {
-        out = {num::cosine_similarity(make_vector<double>(floats(fixture, "x")),
-                                      make_vector<double>(floats(fixture, "y")))};
+    if (name == "distance" || name == "manhattan_distance" || name == "cosine_similarity") {
+        if (is_f32(fixture, "x")) {
+            const auto x = make_vector<float>(floats(fixture, "x"));
+            const auto y = make_vector<float>(floats(fixture, "y"));
+            if (name == "distance") {
+                out = {static_cast<double>(num::distance(x, y))};
+            } else if (name == "manhattan_distance") {
+                out = {static_cast<double>(num::manhattan_distance(x, y))};
+            } else {
+                out = {static_cast<double>(num::cosine_similarity(x, y))};
+            }
+            return true;
+        }
+        const auto x = make_vector<double>(floats(fixture, "x"));
+        const auto y = make_vector<double>(floats(fixture, "y"));
+        if (name == "distance") {
+            out = {num::distance(x, y)};
+        } else if (name == "manhattan_distance") {
+            out = {num::manhattan_distance(x, y)};
+        } else {
+            out = {num::cosine_similarity(x, y)};
+        }
         return true;
     }
     if (name == "covariance") {

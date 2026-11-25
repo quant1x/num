@@ -167,6 +167,17 @@ def reduction(out_dir: str) -> None:
     save(out_dir, group, "dot1d-basic-f64", "dot1d", {"x": a, "y": b, "expected": np.array(np.dot(a, b))})
 
     # 向量对归约：欧氏距离 / 曼哈顿距离 / 余弦相似度（Go 侧 x32 / x64 的 Distance 族）。
+    a32, b32 = f32([1.0, 2.0, 3.0]), f32([4.0, 5.0, 6.0])
+    save(out_dir, group, "distance-f32", "distance",
+         {"x": a32, "y": b32,
+          "expected": np.array(np.sqrt(np.sum((a32 - b32) ** 2, dtype=np.float32)), dtype=np.float32)},
+         tolerance=1e-6)
+    save(out_dir, group, "manhattan_distance-f32", "manhattan_distance",
+         {"x": a32, "y": b32, "expected": np.sum(np.abs(a32 - b32), dtype=np.float32)}, tolerance=1e-6)
+    save(out_dir, group, "cosine_similarity-f32", "cosine_similarity",
+         {"x": a32, "y": b32,
+          "expected": np.array(np.dot(a32, b32) / (np.linalg.norm(a32) * np.linalg.norm(b32)),
+                               dtype=np.float32)}, tolerance=1e-6)
     save(out_dir, group, "distance-basic-f64", "distance",
          {"x": a, "y": b, "expected": np.array(np.sqrt(np.sum((a - b) ** 2)))}, tolerance=1e-12)
     save(out_dir, group, "manhattan_distance-basic-f64", "manhattan_distance",

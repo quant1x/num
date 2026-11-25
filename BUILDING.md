@@ -15,7 +15,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | 汇编内核（amd64 / arm64） | 随 Go 包编译 | `.s` 编进库 | **已落地** |
 | Python | `pyproject.toml`（未建） | 包 | 未落地 |
 | C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | 部分落地（59 个功能行） |
-| Rust | `Cargo.toml` | 库 + 160 个 fixture 的对拍用例 | **已落地（fixture 覆盖子集）** |
+| Rust | `Cargo.toml` | 库 + 163 个 fixture 的对拍用例 | **已落地（fixture 覆盖子集）** |
 | Zig / Java | 无清单文件 | — | 未落地（扩展语言） |
 
 ---
@@ -294,7 +294,7 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
   `log` / `log2` / `log10` / `pow_float` / `pow_integer` / `change_rate` / `net_change_rate`）、
   索引（`find` / `gather` / `select` / `scatter`）、构造补全（`ones` / `range_float`），
   正态分布表（`ztable` 四项）、字符串解析（`parse_scalar` / `string_check`）与切片转换
-  （`slice_to_bool` / `slice_to_int` / `slice_to_float32`）按 Go 探针值核对，无 npz 样本；其余 113 个语义对应 `tests/fixtures` 的 160 个样本；
+  （`slice_to_bool` / `slice_to_int` / `slice_to_float32`）按 Go 探针值核对，无 npz 样本；其余 113 个语义对应 `tests/fixtures` 的 163 个样本；
 - `NAME-MAP.tsv` 的 `authority` 逐行标注：117 行已切到 `python`，其余以 Go 为临时基准（理由写在 note）；
 - `.numb` 读写：`numb.py` 与 Go / C++ / Rust 同格式，读 `tests/fixtures/numb/` 的 6 个黄金样本并重编码逐字节一致。
 
@@ -463,7 +463,7 @@ cmake --preset ninja-compile-db
 
 ```bash
 cargo build
-cargo test                                   # 含 tests/conform.rs：160 个 fixture 对拍
+cargo test                                   # 含 tests/conform.rs：163 个 fixture 对拍
 cargo clippy --all-targets -- -D warnings
 cargo fmt --check
 ```
@@ -489,7 +489,7 @@ cargo fmt --check
 3. 浮点按 fixture 的 `meta_tolerance` 比较（f64 默认 1e-12、f32 1e-6），布尔 / 整型严格相等。
 
 Go 侧另有**包内对拍**：`Xxx_Go` 作为期望值，`Xxx_AVX2_F32/F64` 作为被测对象
-（`internal/functions/*_test.go`）。C++ 的计算侧对拍已接入 `tests/fixtures/conform_cpp`（160 个样本全量通过），
+（`internal/functions/*_test.go`）。C++ 的计算侧对拍已接入 `tests/fixtures/conform_cpp`（163 个样本全量通过），
 剩余差异见 `tests/fixtures/CPP-GAPS.md`。
 
 ---

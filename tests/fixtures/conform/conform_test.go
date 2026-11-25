@@ -544,6 +544,18 @@ func compute(fixture *readgo.File) ([]float64, error) {
 		if err != nil {
 			return nil, err
 		}
+		if isF32(fixture, "x") {
+			x32v := toF32(x)
+			y32v := toF32(y)
+			switch semanticOf(fixture) {
+			case "distance":
+				return []float64{float64(x32.Distance(x32v, y32v))}, nil
+			case "manhattan_distance":
+				return []float64{float64(x32.ManhattanDistance(x32v, y32v))}, nil
+			default:
+				return []float64{float64(x32.CosineSimilarity(x32v, y32v))}, nil
+			}
+		}
 		switch semanticOf(fixture) {
 		case "distance":
 			return []float64{x64.Distance(x, y)}, nil
@@ -1663,6 +1675,14 @@ func matrixOf(fixture *readgo.File, name string) ([][]float64, error) {
 		matrix[i] = flat[i*cols : (i+1)*cols]
 	}
 	return matrix, nil
+}
+
+func toF32(x []float64) []float32 {
+	out := make([]float32, len(x))
+	for i, value := range x {
+		out[i] = float32(value)
+	}
+	return out
 }
 
 func isF32(fixture *readgo.File, name string) bool {

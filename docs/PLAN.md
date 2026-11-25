@@ -164,15 +164,15 @@ G1 ◄─ G2
 
 | 项 | 缺口 | 卡在哪 | 影响批次 | 优先级 |
 | --- | --- | --- | --- | --- |
-| Python spec 未落地 | 122 / 134 行已切 `authority=python`（113 个过 160 个 npz 样本；ztable、解析族与切片转换按 Go 探针核对）；余 12 行均不适用，理由逐行写在 `note` | 若要继续收口，需先给字符串解析 / 切片转换补多语言实现再进 fixture | M5 | 低 |
-| C++ 覆盖不全 | ~~25 个 `.cpp` / 59 个 `.h` 对 Go 全量算子仍有缺口~~ | 已补齐 `distance` / `manhattan_distance` / `cosine_similarity` / `sincos`，160 个样本全量对拍通过；余下差异见 CPP-GAPS §1 | M5 | 已解决 |
+| Python spec 未落地 | 122 / 134 行已切 `authority=python`（113 个过 163 个 npz 样本；ztable、解析族与切片转换按 Go 探针核对）；余 12 行均不适用，理由逐行写在 `note` | 若要继续收口，需先给字符串解析 / 切片转换补多语言实现再进 fixture | M5 | 低 |
+| C++ 覆盖不全 | ~~25 个 `.cpp` / 59 个 `.h` 对 Go 全量算子仍有缺口~~ | 已补齐 `distance` / `manhattan_distance` / `cosine_similarity` / `sincos`，163 个样本全量对拍通过；余下差异见 CPP-GAPS §1 | M5 | 已解决 |
 | 无 fixture 机制 | ~~跨语言一致性只能人工比对~~ | 已由 C2 生成器与 C3 三语言读取器解决；新增算子仍需补样本 | M1 | 已解决 |
 | 无交换格式规范 | ~~各语言输出各写各的~~ | 已由 `docs/DATA-FORMAT.md`（D1）定稿 | M3 | 已解决 |
 | `.numb` 规范自相矛盾 | ~~头部写「dtype 码 1 字节」，码表却是 `f4` / `i8` 这类两字符码~~ | 已按[提案 0001](proposals/0001-numb-dtype-field.md) 方案 A 定稿（版本 2、9 字节头、`b1`），三端实现与黄金样本已落地 | D2 扩展 | 已解决 |
 | 表头方言污染 | 引入自带 `列名:类型` 表头的三方 dataframe 库会使 CSV 无法被 Python / Go 通用读取器直接消费 | 靠 D1 红线约束；选库时逐项核对表头约定 | M6 | 高 |
-| C++ 缺 min_periods | ~~Go 已支持 partial window，C++ 仍只有完整窗口入口~~ | 已补齐并通过 160 个 fixture 对拍 | M5 | 已解决 |
+| C++ 缺 min_periods | ~~Go 已支持 partial window，C++ 仍只有完整窗口入口~~ | 已补齐并通过 163 个 fixture 对拍 | M5 | 已解决 |
 | D3 发布物未落地 | ~~版本号只能由 autochangelog / tag 注入~~ | 已由 `docs/RELEASE.md` 的安装导出与 tag 派生链路解决；实际发版仍由 autochangelog 执行 | 发布 | 已解决 |
-| Rust 覆盖不全 | ~~线性代数、几何、时间与公式族尚未移植~~ | 已补 `matrix` / `geometry` / `line` / `time` 等模块，160 个 fixture 全过；公式族在 pandas 仓的 `pandas-rust`（41 个公式） | M5 | 已解决 |
+| Rust 覆盖不全 | ~~线性代数、几何、时间与公式族尚未移植~~ | 已补 `matrix` / `geometry` / `line` / `time` 等模块，163 个 fixture 全过；公式族在 pandas 仓的 `pandas-rust`（41 个公式） | M5 | 已解决 |
 | Go 侧数值与 C++ 有差距 | 缺 AVX-512、迭代器开销、GC 峰值 | 属语言特性，不以牺牲 Go 交付面为代价硬追 | M7 | 低 |
 | ONNX 运行时 | ~~C++ / Go 缺 SDK~~ | 三侧都已接：SDK 走 NuGet `Microsoft.ML.OnnxRuntime`（含 include / lib / dll，不经 GitHub），C++ 用 CMake 选项、Go 用 cgo + 绝对路径加载；未提供 SDK 时各自跳过 | M8 | 已解决 |
 | `LAST` 窗口不足口径不一 | ~~Go 填 1，C++ / Rust / Zig 取 NaN~~ | 已统一为 NaN（滚动族统一口径），Go 侧去掉 `num.Fill` 并补断言与 fixture 行 | M5 | 已解决 |

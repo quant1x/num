@@ -7,7 +7,7 @@
 
 ## 0. 对拍状态
 
-`tests/fixtures/conform_cpp` 已把 C++ 已有算子全部接入 fixture：**160 个样本逐值通过，0 跳过**。
+`tests/fixtures/conform_cpp` 已把 C++ 已有算子全部接入 fixture：**163 个样本逐值通过，0 跳过**。
 
 最近补齐：`distance` / `manhattan_distance` / `cosine_similarity` / `sincos`，样本总数 160。
 更早补齐：`rolling`（含 `min_periods`）/ `rolling_apply` / `cumprod` / `bool_to_numeric`，以及
@@ -54,4 +54,4 @@
 1. C++ 侧相对 NAME-MAP 的符号缺口已清零：§1 余下三条都是运行期 `any` 与 AVX2 开关，不属 C++ 语义面。
 2. 剩余工作是 §2 的 Go 侧不对称项（f64 三角 / 指数对数、f32 方差、`Where` 条件、`Ones` 形状、`Expm1` / `Log1p` 失败约定），
    定下 Go 落点后 C++ 才能补齐对照。
-3. `num_fixture_conform` 已全量接入 160 个样本；后续新增 fixture 时同步扩展分派。
+3. `num_fixture_conform` 已全量接入 163 个样本；后续新增 fixture 时同步扩展分派。

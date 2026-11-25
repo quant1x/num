@@ -8,7 +8,7 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 
 ## 1. 路线图
 
-**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件），覆盖算术、归约、逻辑比较、数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。C++ 侧已立起构建链路并落地**第一批算子**（算术、归约、逻辑比较、构造与整形、舍入、指数对数、填充、滑动窗口、线代与几何，§2 中 59 个功能行有 C++ 实现），余下只有反射族（`AnyToGeneric` 的反射部分 / `AnyToSlice` / `CheckoutRawType` / `ExtractValueFromPointer`）与 Go 侧本身就是空实现的 `PeeksAndValleys`。Python spec 已落地 113 个语义（160 个 npz 样本全过，`NAME-MAP` 的 authority 逐行标 python）；Rust 已落地 fixture 覆盖的 N1 ~ N4、N6 语义（根 `Cargo.toml` + `src/`），按 [CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律) 整包仍判为**部分落地（Python 覆盖 fixture 子集、Rust 仅覆盖子集）**。下一个里程碑：按 §5 TODO 的顺序补齐 C++ 剩余算子、扩 Rust 覆盖面；Python 侧先给剩余无语义的算子补 fixture 再继续切 `authority`。
+**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件），覆盖算术、归约、逻辑比较、数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。C++ 侧已立起构建链路并落地**第一批算子**（算术、归约、逻辑比较、构造与整形、舍入、指数对数、填充、滑动窗口、线代与几何，§2 中 59 个功能行有 C++ 实现），余下只有反射族（`AnyToGeneric` 的反射部分 / `AnyToSlice` / `CheckoutRawType` / `ExtractValueFromPointer`）与 Go 侧本身就是空实现的 `PeeksAndValleys`。Python spec 已落地 113 个语义（163 个 npz 样本全过，`NAME-MAP` 的 authority 逐行标 python）；Rust 已落地 fixture 覆盖的 N1 ~ N4、N6 语义（根 `Cargo.toml` + `src/`），按 [CONTRIBUTING.md §6.4](CONTRIBUTING.md#64-落地状态与配套纪律) 整包仍判为**部分落地（Python 覆盖 fixture 子集、Rust 仅覆盖子集）**。下一个里程碑：按 §5 TODO 的顺序补齐 C++ 剩余算子、扩 Rust 覆盖面；Python 侧先给剩余无语义的算子补 fixture 再继续切 `authority`。
 
 **临时基准**：本仓对标 NumPy，算法与数值口径以它为准。`NAME-MAP` 标 `authority=python` 的语义以 Python 实现为准；未标 python 的仍以本文件 + NumPy 语义 + Go 用例作临时基准（[§9.3](CONTRIBUTING.md#93-spec--实现--验证)）。Go 是最早落地的一份实现，可作可执行对照，但不是 spec。
 
