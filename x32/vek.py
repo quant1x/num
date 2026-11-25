@@ -16,7 +16,10 @@ from __future__ import annotations
 
 import builtins
 import math
+import struct as _struct
 from collections.abc import Sequence
+
+_math = math
 
 from ..arithmetics_div import _divide
 
@@ -126,6 +129,70 @@ def logic_xor(x: Sequence[bool], y: Sequence[bool]) -> list[bool]:
     if len(x) != len(y):
         raise ValueError("logic_xor: 两条序列长度不一致")
     return [bool(left) != bool(right) for left, right in zip(x, y)]
+
+
+def _narrow_f32(value: float) -> float:
+    """把 f64 收窄到 f32 再回落 f64，用于模拟 f32 精度。"""
+    return _struct.unpack("f", _struct.pack("f", value))[0]
+
+
+def from_bool(x: Sequence[bool]) -> list[float]:
+    """布尔转浮点：True → 1.0。"""
+    return [1.0 if value else 0.0 for value in x]
+
+
+def from_int32(x: Sequence[int]) -> list[float]:
+    """int32 转浮点。"""
+    return [float(value) for value in x]
+
+
+def from_int64(x: Sequence[int]) -> list[float]:
+    """int64 转浮点。"""
+    return [float(value) for value in x]
+
+
+def from_float(x: Sequence[float], target: str = "f4") -> list[float]:
+    """浮点宽度转换：`target="f4"` 收窄到 f32 精度，`"f8"` 保持。"""
+    if target == "f8":
+        return [float(value) for value in x]
+    return [_narrow_f32(value) for value in x]
+
+
+def to_bool(x: Sequence[float]) -> list[bool]:
+    """浮点转布尔：非零为真，**NaN 也算真**（与 Go 的汇编口径一致）。"""
+    return [bool(value) or _math.isnan(value) for value in x]
+
+
+def to_int32(x: Sequence[float]) -> list[int]:
+    """浮点转 int32：向零截断。"""
+    return [int(_math.trunc(value)) for value in x]
+
+
+def to_int64(x: Sequence[float]) -> list[int]:
+    """浮点转 int64：向零截断。"""
+    return [int(_math.trunc(value)) for value in x]
+
+
+def to_float32(x: Sequence[float]) -> list[float]:
+    """收窄到 f32 精度后回落 f64。"""
+    return [_narrow_f32(value) for value in x]
+
+
+def to_float64(x: Sequence[float]) -> list[float]:
+    """加宽到 f64（Python 里即原样）。"""
+    return [float(value) for value in x]
+
+
+def slice_float_to_int(x: Sequence[float], target: str = "i8") -> list[int]:
+    """浮点切片转整型切片：向零截断；`target` 只影响调用方对宽度的预期。"""
+    if target not in {"i4", "i8"}:
+        raise ValueError(f"slice_float_to_int: 不支持的 target {target!r}")
+    return [int(_math.trunc(value)) for value in x]
+
+
+def slice_to_float64(x: Sequence[float | int | bool]) -> list[float]:
+    """布尔 / 整型切片转浮点切片。"""
+    return [float(value) for value in x]
 
 
 def none(x: Sequence[bool]) -> bool:

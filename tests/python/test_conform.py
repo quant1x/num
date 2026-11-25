@@ -49,6 +49,14 @@ def optional_int(data: np.lib.npyio.NpzFile, name: str):
     return int(np.asarray(data[name]).reshape(-1)[0])
 
 
+DTYPE_CODES = {"float64": "f8", "float32": "f4", "int64": "i8", "int32": "i4", "bool": "b1"}
+
+
+def expected_code(data: np.lib.npyio.NpzFile) -> str:
+    array = np.asarray(data["expected"] if "expected" in data.files else data["expected_flat"])
+    return DTYPE_CODES.get(str(array.dtype), str(array.dtype))
+
+
 def flatten(value) -> list:
     if isinstance(value, (list, tuple)):
         out: list = []
@@ -182,6 +190,20 @@ DISPATCH = {
     "rolling_apply": lambda data: num.rolling_apply(
         values_of(data, "x"), window_of(data, "window"), num.mean
     ),
+    "from_bool": lambda data: vek.from_bool([bool(value) for value in values_of(data, "x")]),
+    "from_float": lambda data: vek.from_float(values_of(data, "x"), expected_code(data)),
+    "from_int32": lambda data: vek.from_int32([int(value) for value in values_of(data, "x")]),
+    "from_int64": lambda data: vek.from_int64([int(value) for value in values_of(data, "x")]),
+    "to_bool": lambda data: vek.to_bool(values_of(data, "x")),
+    "to_float32": lambda data: vek.to_float32(values_of(data, "x")),
+    "to_float64": lambda data: vek.to_float64(values_of(data, "x")),
+    "to_int32": lambda data: vek.to_int32(values_of(data, "x")),
+    "to_int64": lambda data: vek.to_int64(values_of(data, "x")),
+    "slice_float_to_int": lambda data: vek.slice_float_to_int(
+        values_of(data, "x"), expected_code(data)
+    ),
+    "slice_to_float64": lambda data: vek.slice_to_float64(values_of(data, "x")),
+    "type_default": lambda data: [num.type_default(expected_code(data))],
 }
 
 
@@ -214,7 +236,7 @@ class FixtureConformance(unittest.TestCase):
                         f"{Path(path).name} {semantic}: 第 {index} 位 {got} != {want}",
                     )
                 covered += 1
-        self.assertGreaterEqual(covered, 107, f"只覆盖了 {covered} 个样本")
+        self.assertGreaterEqual(covered, 126, f"只覆盖了 {covered} 个样本")
 
 
 class EmptyInputs(unittest.TestCase):

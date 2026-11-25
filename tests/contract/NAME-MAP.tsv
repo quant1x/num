@@ -120,7 +120,7 @@ parse_freq	freq:string	—	—	scalar	—	parse_freq	parse_freq	num:ParseFreq	�
 date_range	start:time, periods:int, freq:string	—	—	[n]	—	date_range	date_range	num:DateRange	—	—	go	返回时间序列与 error
 peeks_and_valleys	x:array	—	—	tuple	—	arg_rel_extrema	—	num:PeeksAndValleys, num:ArgRelExtrema	—	—	go	PeeksAndValleys 目前为空实现返回 nil
 # --- 类型、转换与开关 ---
-type_default	—	—	—	scalar	—	type_default	type_default	num:TypeDefault	—	—	go	浮点 NaN、整型 0、bool false、string "NaN"
+type_default	—	—	—	scalar	type_dtype.type_default	type_default	type_default	num:TypeDefault	—	—	python	浮点 NaN、整型 0、bool false、string "NaN"
 nan_check	value:scalar	—	—	scalar	decimals.is_nan	nan, is_nan	is_nan	num:NaN, num:DTypeIsNaN, num:Float32NaN, num:Float32IsNaN, num:Float64NaN, num:Float64IsNaN, num:IsNaN	—	—	python	IsNaN 同时把 ±Inf 判为真
 any_to_scalar	v:any	—	—	scalar	—	to_bool, to_string	—	num:AnyToBool, num:AnyToFloat32, num:AnyToFloat64, num:AnyToInt32, num:AnyToInt64, num:AnyToString	—	—	go	any 到标量
 any2dtype	v:any	—	—	scalar	—	—	—	num:Any2DType	—	—	go	推断 DType
@@ -131,17 +131,17 @@ slice_to_bool	v:any	—	—	bool[n]	—	slice_to_bool	—	num:SliceToBool	—	�
 slice_to_string	v:any	—	—	[n]	—	slice_to_string	—	num:SliceToString	—	—	go	切片转字符串
 slice_to_int	v:any	—	—	[n]	—	slice_to_ints	—	num:SliceToInts	—	—	go	切片转 int
 slice_to_float32	v:any	—	—	f32[n]	—	slice_to_float32	—	num:SliceToFloat32	—	—	go	切片转 f32
-slice_to_float64	v:any	—	—	f64[n]	—	slice_to_float64	—	num:SliceToFloat64, num:Slice2DType	—	—	go	Slice2DType 为同义包装
-slice_float_to_int	v:array	—	—	tuple	—	slice_float_to_int32, slice_float_to_int64	floats_to_int32, floats_to_int64	num:SliceFloatToInt32, num:SliceFloatToInt64	—	—	go	浮点切片转整型
+slice_to_float64	v:any	—	—	f64[n]	x32.vek.slice_to_float64	slice_to_float64	—	num:SliceToFloat64, num:Slice2DType	—	—	python	Slice2DType 为同义包装
+slice_float_to_int	v:array	—	—	tuple	x32.vek.slice_float_to_int	slice_float_to_int32, slice_float_to_int64	floats_to_int32, floats_to_int64	num:SliceFloatToInt32, num:SliceFloatToInt64	—	—	python	浮点切片转整型
 dtype2int	d:array	—	—	i32[n]	type_dtype.dtype2int	dtype2int	dtype2int	num:DType2Int	—	—	python	等同于 slice_float_to_int32
-from_bool	x:bool[]	—	—	numeric[n]	—	from_bool	from_bool	x32:FromBool, x64:FromBool	—	—	go	bool 序列转数值序列
-from_int32	x:i32[]	—	—	numeric[n]	—	from_int32	from_int32	x32:FromInt32, x64:FromInt32	—	—	go	整型序列转浮点序列
-from_int64	x:i64[]	—	—	numeric[n]	—	from_int64	from_int64	x32:FromInt64, x64:FromInt64	—	—	go	整型序列转浮点序列
-from_float	x:f64[]/f32[]	—	—	numeric[n]	—	from_float32, from_float64	from_float32, from_float64	x32:FromFloat64, x64:FromFloat32	—	—	go	浮点宽度互转
-to_bool	x:array	—	—	bool[n]	—	to_bool	to_bool	x32:ToBool, x64:ToBool	—	—	go	数值序列转 bool
-to_int32	x:array	—	—	i32[n]	—	to_int32	to_int32	x32:ToInt32, x64:ToInt32	—	—	go	按截断转换
-to_int64	x:array	—	—	i64[n]	—	to_int64	to_int64	x32:ToInt64, x64:ToInt64	—	—	go	按截断转换
-to_float32	x:array	—	—	f32[n]	—	to_float32	to_float32	x64:ToFloat32	—	—	go	浮点宽度互转
-to_float64	x:array	—	—	f64[n]	—	to_float64	to_float64	x32:ToFloat64	—	—	go	浮点宽度互转
+from_bool	x:bool[]	—	—	numeric[n]	x32.vek.from_bool	from_bool	from_bool	x32:FromBool, x64:FromBool	—	—	python	bool 序列转数值序列
+from_int32	x:i32[]	—	—	numeric[n]	x32.vek.from_int32	from_int32	from_int32	x32:FromInt32, x64:FromInt32	—	—	python	整型序列转浮点序列
+from_int64	x:i64[]	—	—	numeric[n]	x32.vek.from_int64	from_int64	from_int64	x32:FromInt64, x64:FromInt64	—	—	python	整型序列转浮点序列
+from_float	x:f64[]/f32[]	—	—	numeric[n]	x32.vek.from_float	from_float32, from_float64	from_float32, from_float64	x32:FromFloat64, x64:FromFloat32	—	—	python	浮点宽度互转
+to_bool	x:array	—	—	bool[n]	x32.vek.to_bool	to_bool	to_bool	x32:ToBool, x64:ToBool	—	—	python	数值序列转 bool
+to_int32	x:array	—	—	i32[n]	x32.vek.to_int32	to_int32	to_int32	x32:ToInt32, x64:ToInt32	—	—	python	按截断转换
+to_int64	x:array	—	—	i64[n]	x32.vek.to_int64	to_int64	to_int64	x32:ToInt64, x64:ToInt64	—	—	python	按截断转换
+to_float32	x:array	—	—	f32[n]	x32.vek.to_float32	to_float32	to_float32	x64:ToFloat32	—	—	python	浮点宽度互转
+to_float64	x:array	—	—	f64[n]	x32.vek.to_float64	to_float64	to_float64	x32:ToFloat64	—	—	python	浮点宽度互转
 string_check	s:string	—	—	scalar	—	is_empty, string_is_true, string_is_false, string_is_nan	—	num:IsEmpty, num:StringIsTrue, num:StringIsFalse, num:StringIsNaN	—	—	go	字符串判空 / 判真 / 判 NaN
 avx2_switch	enabled:bool	—	—	—	—	—	—	num:GetAvx2Enabled, num:SetAvx2Enabled	—	—	go	非线程安全，仅限用例与基准

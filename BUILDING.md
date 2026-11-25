@@ -276,7 +276,7 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
 ```
 
 - 依赖：`requires-python >= 3.11`；实现本身不依赖 NumPy，NumPy 只用于生成器与对拍用例；
-- 覆盖：69 个语义 —— 归约（`sum` / `mean` / `std` / `variance` / `covariance` / `max` / `min` /
+- 覆盖：81 个语义 —— 归约（`sum` / `mean` / `std` / `variance` / `covariance` / `max` / `min` /
   `argmax` / `argmin` / `count` / `median`）、逐元素（`abs` / `sqrt` / `maximum` / `minimum` /
   `add` / `sub` / `mul` / `div` / `expm1` / `log1p` / `decimal`）、比较与逻辑（`equal` / `not_equal` /
   `gt` / `gte` / `lt` / `lte` / `logic_and` / `logic_or` / `logic_not` / `all` / `any`）、
@@ -286,7 +286,9 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
   `distance` / `manhattan_distance` / `cosine_similarity` / `logic_xor` / `none`）、
   矩阵与序列（`shape` / `concat1d` / `transpose2d` / `dot2d` / `dot2d1` / `matmul` / `inverse` /
   `mat4mul` / `arange` / `linspace` / `range`）、滚动（`rolling` / `rolling_apply`），
-  对应 `tests/fixtures` 的 107 个样本；
+  转换（`from_bool` / `from_int32` / `from_int64` / `from_float` / `to_bool` / `to_int32` / `to_int64` /
+  `to_float32` / `to_float64` / `slice_float_to_int` / `slice_to_float64` / `type_default`），
+  对应 `tests/fixtures` 的 126 个样本；
 - `NAME-MAP.tsv` 的 `authority` 仍是 `go`：逐批把语义切到 python，未切的继续以 Go 为临时基准。
 
 ---

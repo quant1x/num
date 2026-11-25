@@ -38,7 +38,7 @@ from .sqrt import sqrt
 from .stddev import std
 from .sum import sum
 from .type_bool import bool_to_float64, bool_to_int64
-from .type_dtype import dtype2int
+from .type_dtype import dtype2int, type_default
 from .where import where
 from .zeros import zeros
 
@@ -48,5 +48,5 @@ __all__ = [
     "expm1", "gt", "gte", "is_nan", "log1p", "logic_and", "logic_not", "logic_or", "lt", "lte",
     "max", "maximum", "mean", "median", "min", "minimum", "mul", "not_equal", "repeat", "rolling",
     "rolling_apply", "shift",
-    "sqrt", "std", "sub", "sum", "variance", "where", "zeros",
+    "sqrt", "std", "sub", "sum", "type_default", "variance", "where", "zeros",
 ]
