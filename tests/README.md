@@ -20,7 +20,7 @@
 
 ## 与上下层的关系
 
-- 上游：语义来自 Python（np / pd）；Python 未落地期间以 NumPy 语义 + Go `Xxx_Go` + 模块 `.md` 作临时基准。
+- 上游：语义来自 Python（`NAME-MAP` 标 `authority=python` 的行以 `*.py` 为准）；其余以 NumPy 语义 + Go `Xxx_Go` + 模块 `.md` 作临时基准。
 - 下游：`N1 ~ N4` 的实现与 C++ / Rust / Go 的发布物都按本目录的 fixture 判定一致性。
 - 契约表是**唯一事实源**：新增或改名功能先改 `contract/NAME-MAP.tsv`，再改实现。
 
