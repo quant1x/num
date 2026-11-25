@@ -164,10 +164,11 @@ G1 ◄─ G2
 
 | 项 | 缺口 | 卡在哪 | 影响批次 | 优先级 |
 | --- | --- | --- | --- | --- |
-| Python spec 未落地 | 语义源头仍是 Go 实现 + NumPy 语义推断；C1 的 `authority` 只能标 `go`（临时基准） | 无技术阻塞，待排期（需 `pyproject.toml` 与包骨架） | M5 | 高 |
+| Python spec 未落地 | 语义源头仍是 Go 实现 + NumPy 语义推断；C1 的 `authority` 只能标 `go`（临时基准） | 包布局待裁：[提案 0002](proposals/0002-python-package-layout.md)；定案后建 `pyproject.toml` 与首批实现 | M5 | 高 |
 | C++ 覆盖不全 | ~~25 个 `.cpp` / 59 个 `.h` 对 Go 全量算子仍有缺口~~ | 已补齐 `distance` / `manhattan_distance` / `cosine_similarity` / `sincos`，160 个样本全量对拍通过；余下差异见 CPP-GAPS §1 | M5 | 已解决 |
 | 无 fixture 机制 | ~~跨语言一致性只能人工比对~~ | 已由 C2 生成器与 C3 三语言读取器解决；新增算子仍需补样本 | M1 | 已解决 |
 | 无交换格式规范 | ~~各语言输出各写各的~~ | 已由 `docs/DATA-FORMAT.md`（D1）定稿 | M3 | 已解决 |
+| `.numb` 规范自相矛盾 | 头部写「dtype 码 1 字节」，码表却是 `f4` / `i8` 这类两字符码 | 待裁：[提案 0001](proposals/0001-numb-dtype-field.md)；无实现，现阶段改动代价最低 | D2 扩展 | 中 |
 | 表头方言污染 | 引入自带 `列名:类型` 表头的三方 dataframe 库会使 CSV 无法被 Python / Go 通用读取器直接消费 | 靠 D1 红线约束；选库时逐项核对表头约定 | M6 | 高 |
 | C++ 缺 min_periods | ~~Go 已支持 partial window，C++ 仍只有完整窗口入口~~ | 已补齐并通过 160 个 fixture 对拍 | M5 | 已解决 |
 | D3 发布物未落地 | ~~版本号只能由 autochangelog / tag 注入~~ | 已由 `docs/RELEASE.md` 的安装导出与 tag 派生链路解决；实际发版仍由 autochangelog 执行 | 发布 | 已解决 |
@@ -183,4 +184,5 @@ G1 ◄─ G2
 - 模块级文档：按 [MODULE-TEMPLATE.md](MODULE-TEMPLATE.md) 与代码同目录落 `.md`，§1 路线图须与本表批次对得上。
 - 命名与列序：对照表列序固定 `python → c++ → rust → go → zig → java`，见 [CONTRIBUTING.md](../CONTRIBUTING.md) §2.3。
 - 新增目录（`tests/`、`io/`）落地时同步登记 [BUILDING.md](../BUILDING.md) 的包清单与 [CONTRIBUTING.md](../CONTRIBUTING.md) §3.1 的根目录布局。
+- 需要走 [CONTRIBUTING.md](../CONTRIBUTING.md) §9.2 的变更（契约、落盘格式、权威实现替换）先写 [docs/proposals/](proposals/README.md) 的 RFC，定案结论回写正式文档。
 - 每个批次开工前先在 issue 系统建单，完成后关单并在本表回填状态。
