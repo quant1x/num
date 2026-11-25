@@ -199,6 +199,9 @@ go test ./io/
 python tests/io/roundtrip.py   # 需先构建 num_csv_roundtrip，见 tests/io/README.md
 python tests/io/pipeline.py    # 需先构建 num_csv_merge
 
+# 安装包冒烟（D3：装到 temp/install 后用 find_package(num) 编消费方）
+python tests/install/smoke.py
+
 # 单条用例
 go test ./internal/functions/ -run TestSumProd -v
 

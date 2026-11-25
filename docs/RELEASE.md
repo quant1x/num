@@ -31,6 +31,25 @@ cmake --build --preset release-static
 cmake --install build/release-static --prefix dist/cpp
 ```
 
+### 3.1 安装包与消费方
+
+`CMakeLists.txt` 的 install 段会产出 `include/num/*.h`、`lib/<libdir>` 与
+`lib/cmake/num/numConfig.cmake`；消费方用 `find_package(num CONFIG REQUIRED)` +
+`num::num_core` 即可。冒烟脚本验证这条链路：
+
+```bash
+python tests/install/smoke.py      # 装到 temp/install，再编一个只依赖安装面的消费方并运行
+```
+
+消费方需要知道两件事（都已在 `tests/install/consumer/` 里示范）：
+
+1. **xtensor 的 CMake 包也要能找到**：`numConfig.cmake` 里有 `find_dependency(xtensor)`，
+   消费方的 `CMAKE_PREFIX_PATH` 要同时包含 num 的安装前缀和 xtensor 的包目录
+   （用 conan 时通常是构建目录下的 `generators/`）。
+2. **MSVC 必须加 `/utf-8`**：头文件含中文注释，中文 Windows 默认按 GBK 读会误解码，
+   表现为 `type.h` 里的语法错误（`C2146` / `C2181`）。
+
+
 安装结果：
 
 ```text
