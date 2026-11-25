@@ -319,6 +319,115 @@ func compute(fixture *readgo.File) ([]float64, error) {
 			return nil, err
 		}
 		return []float64{num.Dot1D(x, y)}, nil
+	case "dot2d":
+		a, err := matrixF64(fixture, "a")
+		if err != nil {
+			return nil, err
+		}
+		b, err := matrixF64(fixture, "b")
+		if err != nil {
+			return nil, err
+		}
+		return flattenMatrix(num.Dot2D(a, b)), nil
+	case "dot2d1":
+		a, err := matrixF64(fixture, "a")
+		if err != nil {
+			return nil, err
+		}
+		v, err := floats(fixture, "v")
+		if err != nil {
+			return nil, err
+		}
+		return num.Dot2D1(a, v), nil
+	case "matmul":
+		x, err := matrixF64(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		y, err := matrixF64(fixture, "y")
+		if err != nil {
+			return nil, err
+		}
+		n, err := scalarInt(fixture, "n")
+		if err != nil {
+			return nil, err
+		}
+		out := x64.MatMul(flattenMatrix(x), flattenMatrix(y), n)
+		return out, nil
+	case "mat4mul":
+		x, err := matrixF64(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		y, err := matrixF64(fixture, "y")
+		if err != nil {
+			return nil, err
+		}
+		return x64.Mat4Mul(flattenMatrix(x), flattenMatrix(y)), nil
+	case "inverse":
+		a, err := matrixF64(fixture, "a")
+		if err != nil {
+			return nil, err
+		}
+		return flattenMatrix(num.Inverse(a)), nil
+	case "slope":
+		x1, err := scalarInt(fixture, "x1")
+		if err != nil {
+			return nil, err
+		}
+		y1, err := scalarFloat(fixture, "y1")
+		if err != nil {
+			return nil, err
+		}
+		x2, err := scalarInt(fixture, "x2")
+		if err != nil {
+			return nil, err
+		}
+		y2, err := scalarFloat(fixture, "y2")
+		if err != nil {
+			return nil, err
+		}
+		return []float64{num.Slope(x1, y1, x2, y2)}, nil
+	case "slope_to_degrees":
+		value, err := scalarFloat(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		return []float64{num.SlopeToDegrees(value)}, nil
+	case "degrees_to_slope":
+		value, err := scalarFloat(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		return []float64{num.DegreesToSlope(value)}, nil
+	case "triangle_bevel":
+		slope, err := scalarFloat(fixture, "slope")
+		if err != nil {
+			return nil, err
+		}
+		x1, err := scalarInt(fixture, "x1")
+		if err != nil {
+			return nil, err
+		}
+		y1, err := scalarFloat(fixture, "y1")
+		if err != nil {
+			return nil, err
+		}
+		xn, err := scalarInt(fixture, "xn")
+		if err != nil {
+			return nil, err
+		}
+		return []float64{num.TriangleBevel(slope, x1, y1, xn)}, nil
+	case "poly_val":
+		p, err := floats(fixture, "p")
+		if err != nil {
+			return nil, err
+		}
+		x, err := floats(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		return num.PolyVal(p, x), nil
 	case "zeros":
 		n, err := scalarInt(fixture, "n")
 		if err != nil {
@@ -1170,6 +1279,34 @@ func scalarBool(fixture *readgo.File, name string) (bool, error) {
 		return false, fmt.Errorf("%s 应为标量，实际长度 %d", name, len(values))
 	}
 	return values[0], nil
+}
+
+func matrixF64(fixture *readgo.File, name string) ([][]float64, error) {
+	array, ok := fixture.Arrays[name]
+	if !ok {
+		return nil, fmt.Errorf("缺少数组 %s", name)
+	}
+	if len(array.Shape) != 2 {
+		return nil, fmt.Errorf("%s 不是二维", name)
+	}
+	rows, cols := int(array.Shape[0]), int(array.Shape[1])
+	flat, err := array.Float64()
+	if err != nil {
+		return nil, err
+	}
+	matrix := make([][]float64, rows)
+	for i := 0; i < rows; i++ {
+		matrix[i] = flat[i*cols : (i+1)*cols]
+	}
+	return matrix, nil
+}
+
+func flattenMatrix(matrix [][]float64) []float64 {
+	var out []float64
+	for _, row := range matrix {
+		out = append(out, row...)
+	}
+	return out
 }
 
 func matrixOf(fixture *readgo.File, name string) ([][]float64, error) {

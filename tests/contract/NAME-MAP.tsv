@@ -95,7 +95,7 @@ dot1d	a:array, b:array	—	propagate	scalar	—	dot1d	—	num:Dot1D, x32:Dot, x6
 dot2d	a:matrix, b:matrix	—	propagate	[n][m]	—	dot2d, dot2d_v1, dot2d1	—	num:Dot, num:Dot2D, num:Dot2D_V1, num:Dot_v1	—	—	go	二维矩阵乘
 dot2d1	a:matrix, b:array	—	propagate	[n]	—	dot2d1	—	num:Dot2D1, num:Dot2D1_v2	—	—	go	矩阵乘向量
 matmul	x:array, y:array, n:int	—	propagate	[n][n]	—	matmul	—	x32:MatMul, x64:MatMul	—	—	go	定长方阵乘；门面无对应入口
-mat4mul	x:array, y:array	—	propagate	[4][4]	—	—	—	x32:Mat4Mul, x64:Mat4Mul	—	—	go	4x4 矩阵乘
+mat4mul	x:array, y:array	—	propagate	[4][4]	—	mat4mul	—	x32:Mat4Mul, x64:Mat4Mul	—	—	go	4x4 矩阵乘
 inverse	a:matrix	—	propagate	[n][n]	—	inverse	—	num:Inverse	—	—	go	矩阵求逆
 poly_fit	x:array, y:array, deg:int	—	propagate	[deg+1]	—	poly_fit	—	num:PolyFit	—	—	go	多项式拟合系数
 poly_val	p:array, x:array	—	propagate	same_as(x)	—	poly_val	—	num:PolyVal	—	—	go	多项式求值

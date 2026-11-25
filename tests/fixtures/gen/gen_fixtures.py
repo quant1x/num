@@ -501,6 +501,53 @@ def window_layer(out_dir: str) -> None:
          {"x": f64([1.5, 2.0, -3.0]), "expected": np.cumprod(f64([1.5, 2.0, -3.0]))})
 
 
+
+def linalg_layer(out_dir: str) -> None:
+    group = "linalg"
+    a = f64([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+    b = f64([[7.0, 8.0], [9.0, 10.0], [11.0, 12.0]])
+    save(out_dir, group, "dot2d-f64", "dot2d",
+         {"a": a, "b": b, "expected": np.matmul(a, b)}, tolerance=1e-12)
+
+    v = f64([1.0, 2.0, 3.0])
+    save(out_dir, group, "dot2d1-f64", "dot2d1",
+         {"a": a, "v": v, "expected": np.matmul(a, v)}, tolerance=1e-12)
+
+    x = f64([[1.0, 2.0], [3.0, 4.0]])
+    y = f64([[5.0, 6.0], [7.0, 8.0]])
+    save(out_dir, group, "matmul-f64", "matmul",
+         {"x": x, "y": y, "n": np.array(2, dtype=np.int64), "expected": np.matmul(x, y)},
+         tolerance=1e-12)
+
+    m4 = f64([[1.0, 0.0, 0.0, 0.0], [0.0, 2.0, 0.0, 0.0],
+              [0.0, 0.0, 3.0, 0.0], [0.0, 0.0, 0.0, 4.0]])
+    n4 = f64([[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0],
+              [9.0, 10.0, 11.0, 12.0], [13.0, 14.0, 15.0, 16.0]])
+    save(out_dir, group, "mat4mul-f64", "mat4mul",
+         {"x": m4, "y": n4, "expected": np.matmul(m4, n4)}, tolerance=1e-12)
+
+    inv = f64([[4.0, 7.0], [2.0, 6.0]])
+    save(out_dir, group, "inverse-f64", "inverse",
+         {"a": inv, "expected": np.linalg.inv(inv)}, tolerance=1e-12)
+
+
+def geometry_layer(out_dir: str) -> None:
+    group = "geometry"
+    save(out_dir, group, "slope-f64", "slope",
+         {"x1": np.array(1, dtype=np.int64), "y1": np.array(1.0), "x2": np.array(4, dtype=np.int64),
+          "y2": np.array(10.0), "expected": np.array(3.0)})
+    save(out_dir, group, "slope-to-degrees-f64", "slope_to_degrees",
+         {"x": np.array(1.0), "expected": np.array(45.0)}, tolerance=1e-12)
+    save(out_dir, group, "degrees-to-slope-f64", "degrees_to_slope",
+         {"x": np.array(45.0), "expected": np.array(1.0)}, tolerance=1e-12)
+    save(out_dir, group, "triangle-bevel-f64", "triangle_bevel",
+         {"slope": np.array(2.5), "x1": np.array(1, dtype=np.int64), "y1": np.array(10.0),
+          "xn": np.array(5, dtype=np.int64), "expected": np.array(20.0)})
+    coefficients = f64([2.0, -3.0, 1.0])
+    xs = f64([0.0, 1.0, 2.0, 3.0])
+    save(out_dir, group, "polyval-f64", "poly_val",
+         {"p": coefficients, "x": xs, "expected": np.polyval(coefficients, xs)})
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="生成跨语言 fixture")
     parser.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."),
@@ -515,6 +562,8 @@ def main() -> None:
     reduction_extras(out_dir)
     container(out_dir)
     window_layer(out_dir)
+    linalg_layer(out_dir)
+    geometry_layer(out_dir)
     print(f"fixtures written to {out_dir}")
 
 

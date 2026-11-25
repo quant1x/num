@@ -17,6 +17,9 @@
 #include <num/dot.h>
 #include <num/fillna.h>
 #include <num/log.h>
+#include <num/slope.h>
+#include <num/polynomial.h>
+#include <num/mat4mul.h>
 #include <num/periods.h>
 #include <num/type_bool.h>
 #include <num/cumprod.h>
@@ -229,6 +232,8 @@ bool compare(const File &fixture, const std::string &name, std::vector<double> &
     }
     return true;
 }
+
+num::Matrix<double> matrix_double(const File &fixture, const std::string &name);
 
 bool compute(const File &fixture, std::vector<double> &out, std::string &reason) {
     const std::string name = semantic_of(fixture);
@@ -678,10 +683,79 @@ bool compute(const File &fixture, std::vector<double> &out, std::string &reason)
         return true;
     }
 
+
+    if (name == "dot2d" || name == "matmul") {
+        const auto a = matrix_double(fixture, name == "dot2d" ? "a" : "x");
+        const auto b = matrix_double(fixture, name == "dot2d" ? "b" : "y");
+        num::Matrix<double> product = name == "dot2d" ? num::dot2d(a, b) : num::matmul(a, b);
+        out = flatten_matrix(product);
+        return true;
+    }
+    if (name == "dot2d1") {
+        const auto a = matrix_double(fixture, "a");
+        const auto v = make_vector<double>(floats(fixture, "v"));
+        out = to_doubles(num::dot2d1(a, v));
+        return true;
+    }
+    if (name == "mat4mul") {
+        const auto x = matrix_double(fixture, "x");
+        const auto y = matrix_double(fixture, "y");
+        out = to_doubles(num::mat4mul(make_vector<double>(flatten_matrix(x)), make_vector<double>(flatten_matrix(y))));
+        return true;
+    }
+    if (name == "inverse") {
+        const auto a = matrix_double(fixture, "a");
+        out = flatten_matrix(num::inverse(a));
+        return true;
+    }
+
+
+    if (name == "slope") {
+        out = {num::slope(scalar_i64(fixture, "x1"), scalar_f64(fixture, "y1"),
+                          scalar_i64(fixture, "x2"), scalar_f64(fixture, "y2"))};
+        return true;
+    }
+    if (name == "slope_to_degrees") {
+        out = {num::slope_to_degrees(scalar_f64(fixture, "x"))};
+        return true;
+    }
+    if (name == "degrees_to_slope") {
+        out = {num::degrees_to_slope(scalar_f64(fixture, "x"))};
+        return true;
+    }
+    if (name == "triangle_bevel") {
+        out = {num::triangle_bevel(scalar_f64(fixture, "slope"), scalar_i64(fixture, "x1"),
+                                   scalar_f64(fixture, "y1"), scalar_i64(fixture, "xn"))};
+        return true;
+    }
+    if (name == "poly_val") {
+        out = to_doubles(num::poly_val(make_vector<double>(floats(fixture, "p")),
+                                       make_vector<double>(floats(fixture, "x"))));
+        return true;
+    }
+
     reason = "C++ 尚无同语义实现";
     return false;
 }
 
+
+
+num::Matrix<double> matrix_double(const File &fixture, const std::string &name) {
+    const auto &array = fixture.arrays.at(name);
+    if (array.shape.size() != 2) {
+        throw std::runtime_error(name + ": 不是二维");
+    }
+    const auto rows = static_cast<std::size_t>(array.shape[0]);
+    const auto cols = static_cast<std::size_t>(array.shape[1]);
+    const auto flat = array.floats();
+    num::Matrix<double> matrix = num::Matrix<double>::from_shape({rows, cols});
+    for (std::size_t i = 0; i < rows; ++i) {
+        for (std::size_t j = 0; j < cols; ++j) {
+            matrix(i, j) = flat[i * cols + j];
+        }
+    }
+    return matrix;
+}
 
 bool close(double actual, double expected, double tolerance);
 

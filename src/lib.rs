@@ -6,6 +6,8 @@
 mod container;
 mod elementwise;
 mod float;
+mod geometry;
+mod matrix;
 mod reduction;
 mod scalar;
 mod window;
@@ -13,6 +15,8 @@ mod window;
 pub use container::*;
 pub use elementwise::*;
 pub use float::Float;
+pub use geometry::*;
+pub use matrix::*;
 pub use reduction::*;
 pub use scalar::*;
 pub use window::*;

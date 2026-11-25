@@ -379,6 +379,46 @@ fn compute(fixture: &Fixture) -> Result<Vec<f64>, String> {
             }
         }
         "dot1d" => Ok(vec![dot1d(&floats(fixture, "x")?, &floats(fixture, "y")?)]),
+        "dot2d" => {
+            let a = matrix_f64(fixture, "a")?;
+            let b = matrix_f64(fixture, "b")?;
+            Ok(flatten_matrix(&dot2d(&a, &b)))
+        }
+        "dot2d1" => {
+            let a = matrix_f64(fixture, "a")?;
+            let v = floats(fixture, "v")?;
+            Ok(dot2d1(&a, &v))
+        }
+        "matmul" => {
+            let x = matrix_f64(fixture, "x")?;
+            let y = matrix_f64(fixture, "y")?;
+            let n = scalar_i64(fixture, "n")? as usize;
+            Ok(matmul(&flatten_matrix(&x), &flatten_matrix(&y), n))
+        }
+        "mat4mul" => {
+            let x = matrix_f64(fixture, "x")?;
+            let y = matrix_f64(fixture, "y")?;
+            Ok(mat4mul(&flatten_matrix(&x), &flatten_matrix(&y)))
+        }
+        "inverse" => {
+            let a = matrix_f64(fixture, "a")?;
+            Ok(flatten_matrix(&inverse(&a)))
+        }
+        "slope" => Ok(vec![slope(
+            scalar_i64(fixture, "x1")?,
+            scalar_f64(fixture, "y1")?,
+            scalar_i64(fixture, "x2")?,
+            scalar_f64(fixture, "y2")?,
+        )]),
+        "slope_to_degrees" => Ok(vec![slope_to_degrees(scalar_f64(fixture, "x")?)]),
+        "degrees_to_slope" => Ok(vec![degrees_to_slope(scalar_f64(fixture, "x")?)]),
+        "triangle_bevel" => Ok(vec![triangle_bevel(
+            scalar_f64(fixture, "slope")?,
+            scalar_i64(fixture, "x1")?,
+            scalar_f64(fixture, "y1")?,
+            scalar_i64(fixture, "xn")?,
+        )]),
+        "poly_val" => Ok(poly_val(&floats(fixture, "p")?, &floats(fixture, "x")?)),
         "zeros" => Ok(zeros::<f64>(scalar_i64(fixture, "n")? as usize)),
         "ones" => Ok(ones::<f64>(scalar_i64(fixture, "n")? as usize)),
         "arange" => {
@@ -577,6 +617,26 @@ fn reduce_unary(
         return Ok(vec![f32_fn(&to_f32(&x)) as f64]);
     }
     Ok(vec![f64_fn(&x)])
+}
+
+fn matrix_f64(fixture: &Fixture, name: &str) -> Result<Vec<Vec<f64>>, String> {
+    let array = fixture
+        .arrays
+        .get(name)
+        .ok_or_else(|| format!("缺少数组 {name}"))?;
+    if array.shape.len() != 2 {
+        return Err(format!("{name} 不是二维"));
+    }
+    let rows = array.shape[0] as usize;
+    let cols = array.shape[1] as usize;
+    let flat = array.floats()?;
+    Ok((0..rows)
+        .map(|i| flat[i * cols..(i + 1) * cols].to_vec())
+        .collect())
+}
+
+fn flatten_matrix(matrix: &[Vec<f64>]) -> Vec<f64> {
+    matrix.iter().flat_map(|row| row.iter().copied()).collect()
 }
 
 fn matrix_i64(fixture: &Fixture, name: &str) -> Result<Vec<Vec<i64>>, String> {
