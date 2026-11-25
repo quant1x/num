@@ -74,7 +74,7 @@ diff	series:array, n:int	—	propagate	same_as(series)	diff.diff	diff	diff	num:D
 shift	series:array, n:int|int[]	—	—	same_as(series)	shift.shift	shift	shift	num:Shift	—	—	python	越界位填类型默认值；n=0 返回原序列
 rolling	series:array, window:int|int[], min_periods:int?	—	—	[n][window]	rolling.rolling	rolling	rolling	num:Rolling	—	—	python	不传 min_periods 时窗口不足返回空切片；传入后按 partial window 计算，min_periods > window 不产生窗口
 rolling_apply	series:array, window:int|int[], apply:func	—	—	same_as(series)	rolling.rolling_apply	rolling_apply	rolling_apply	num:RollingApply	—	—	python	逐窗口求值
-rolling_window	values:array, capacity:scalar	—	—	tuple	—	Window, rolling_window	—	num:RollingWindow, num:Any2Window	—	—	go	返回 Window；At / IsConst 为方法，不在函数粒度契约内
+rolling_window	values:array, capacity:scalar	—	—	tuple	—	Window, rolling_window	—	num:RollingWindow, num:Any2Window	—	—	go	返回 Window；At / IsConst 为方法，不在函数粒度契约内；窗口对象构造，Python 用 rolling 的参数表达
 periods	n:int|any	—	—	tuple	—	Periods	—	num:AnyToPeriod	—	—	go	周期序列；Min 字段由 Rolling 的 min_periods 参数写入；窗口周期序列；Python 侧由 rolling 的 window / min_periods 参数承担
 # --- N6 构造与整形 ---
 zeros	shape:int	—	—	[n]	zeros.zeros	zeros	zeros	num:Zeros, x32:Zeros, x64:Zeros	—	—	python	全零
@@ -118,19 +118,19 @@ confidence_interval_to_zscore	interval:f64	—	propagate	scalar	ztable.confidenc
 zscore_to_confidence_interval	zscore:f64	—	propagate	scalar	ztable.zscore_to_confidence_interval	zscore_to_confidence_interval	—	num:ZscoreToConfidenceInterval	—	—	python	z 值转置信区间
 parse_freq	freq:string	—	—	scalar	freq.parse_freq	parse_freq	parse_freq	num:ParseFreq	—	—	python	返回 time.Duration 与 error
 date_range	start:time, periods:int, freq:string	—	—	[n]	freq.date_range	date_range	date_range	num:DateRange	—	—	python	返回时间序列与 error
-peeks_and_valleys	x:array	—	—	tuple	—	arg_rel_extrema	—	num:PeeksAndValleys, num:ArgRelExtrema	—	—	go	PeeksAndValleys 目前为空实现返回 nil
+peeks_and_valleys	x:array	—	—	tuple	—	arg_rel_extrema	—	num:PeeksAndValleys, num:ArgRelExtrema	—	—	go	PeeksAndValleys 目前为空实现返回 nil；Go 侧就是空实现（返回 nil），无语义可对齐
 # --- 类型、转换与开关 ---
 type_default	—	—	—	scalar	type_dtype.type_default	type_default	type_default	num:TypeDefault	—	—	python	浮点 NaN、整型 0、bool false、string "NaN"
 nan_check	value:scalar	—	—	scalar	decimals.is_nan	nan, is_nan	is_nan	num:NaN, num:DTypeIsNaN, num:Float32NaN, num:Float32IsNaN, num:Float64NaN, num:Float64IsNaN, num:IsNaN	—	—	python	IsNaN 同时把 ±Inf 判为真
-any_to_scalar	v:any	—	—	scalar	—	to_bool, to_string	—	num:AnyToBool, num:AnyToFloat32, num:AnyToFloat64, num:AnyToInt32, num:AnyToInt64, num:AnyToString	—	—	go	any 到标量
-any2dtype	v:any	—	—	scalar	—	—	—	num:Any2DType	—	—	go	推断 DType
+any_to_scalar	v:any	—	—	scalar	—	to_bool, to_string	—	num:AnyToBool, num:AnyToFloat32, num:AnyToFloat64, num:AnyToInt32, num:AnyToInt64, num:AnyToString	—	—	go	any 到标量；Go 的 any 运行期转换；C++ / Rust 无型别擦除，不构成跨语言语义
+any2dtype	v:any	—	—	scalar	—	—	—	num:Any2DType	—	—	go	推断 DType；同上，Go 的 any 分派专用
 bool_to_numeric	b:bool	—	—	scalar	type_bool.bool_to_int64, type_bool.bool_to_float64	bool_to_int, bool_to_int32, bool_to_int64, bool_to_float32, bool_to_float64, bool_to_string	bool_to_i64, bool_to_f64, bools_to_f64	num:BoolToInt, num:BoolToInt32, num:BoolToInt64, num:BoolToFloat32, num:BoolToFloat64, num:BoolToString	—	—	python	标量入口；true=1 / false=0
-parse_scalar	text:string, dst:any	—	—	scalar	—	parse_bool, parse_int32, parse_int64, parse_float32, parse_float64	—	num:ParseBool, num:ParseInt32, num:ParseInt64, num:ParseFloat32, num:ParseFloat64	—	—	go	解析失败返回 dst 的当前值
-generic_parse	text:string	—	—	scalar	—	generic_parse	—	num:GenericParse	—	—	go	目标类型由泛型形参给出
-slice_to_bool	v:any	—	—	bool[n]	—	slice_to_bool	—	num:SliceToBool	—	—	go	切片转 bool
-slice_to_string	v:any	—	—	[n]	—	slice_to_string	—	num:SliceToString	—	—	go	切片转字符串
-slice_to_int	v:any	—	—	[n]	—	slice_to_ints	—	num:SliceToInts	—	—	go	切片转 int
-slice_to_float32	v:any	—	—	f32[n]	—	slice_to_float32	—	num:SliceToFloat32	—	—	go	切片转 f32
+parse_scalar	text:string, dst:any	—	—	scalar	—	parse_bool, parse_int32, parse_int64, parse_float32, parse_float64	—	num:ParseBool, num:ParseInt32, num:ParseInt64, num:ParseFloat32, num:ParseFloat64	—	—	go	解析失败返回 dst 的当前值；字符串解析族，只有 Go 落地；C++ / Rust 未实现，暂不进 fixture
+generic_parse	text:string	—	—	scalar	—	generic_parse	—	num:GenericParse	—	—	go	目标类型由泛型形参给出；同上，Go 的泛型解析入口
+slice_to_bool	v:any	—	—	bool[n]	—	slice_to_bool	—	num:SliceToBool	—	—	go	切片转 bool；切片类型转换，C++ / Rust 侧对应的是逐元素 to_*，未接 fixture
+slice_to_string	v:any	—	—	[n]	—	slice_to_string	—	num:SliceToString	—	—	go	切片转字符串；同上
+slice_to_int	v:any	—	—	[n]	—	slice_to_ints	—	num:SliceToInts	—	—	go	切片转 int；同上
+slice_to_float32	v:any	—	—	f32[n]	—	slice_to_float32	—	num:SliceToFloat32	—	—	go	切片转 f32；同上
 slice_to_float64	v:any	—	—	f64[n]	x32.vek.slice_to_float64	slice_to_float64	—	num:SliceToFloat64, num:Slice2DType	—	—	python	Slice2DType 为同义包装
 slice_float_to_int	v:array	—	—	tuple	x32.vek.slice_float_to_int	slice_float_to_int32, slice_float_to_int64	floats_to_int32, floats_to_int64	num:SliceFloatToInt32, num:SliceFloatToInt64	—	—	python	浮点切片转整型
 dtype2int	d:array	—	—	i32[n]	type_dtype.dtype2int	dtype2int	dtype2int	num:DType2Int	—	—	python	等同于 slice_float_to_int32
@@ -143,5 +143,5 @@ to_int32	x:array	—	—	i32[n]	x32.vek.to_int32	to_int32	to_int32	x32:ToInt32, 
 to_int64	x:array	—	—	i64[n]	x32.vek.to_int64	to_int64	to_int64	x32:ToInt64, x64:ToInt64	—	—	python	按截断转换
 to_float32	x:array	—	—	f32[n]	x32.vek.to_float32	to_float32	to_float32	x64:ToFloat32	—	—	python	浮点宽度互转
 to_float64	x:array	—	—	f64[n]	x32.vek.to_float64	to_float64	to_float64	x32:ToFloat64	—	—	python	浮点宽度互转
-string_check	s:string	—	—	scalar	—	is_empty, string_is_true, string_is_false, string_is_nan	—	num:IsEmpty, num:StringIsTrue, num:StringIsFalse, num:StringIsNaN	—	—	go	字符串判空 / 判真 / 判 NaN
+string_check	s:string	—	—	scalar	—	is_empty, string_is_true, string_is_false, string_is_nan	—	num:IsEmpty, num:StringIsTrue, num:StringIsFalse, num:StringIsNaN	—	—	go	字符串判空 / 判真 / 判 NaN；字符串判据（空 / 真 / 假 / NaN），只有 Go 落地
 avx2_switch	enabled:bool	—	—	—	—	—	—	num:GetAvx2Enabled, num:SetAvx2Enabled	—	—	go	非线程安全，仅限用例与基准；Go 的运行期 SIMD 开关；Python 无此概念，不适用
