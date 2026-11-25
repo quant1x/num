@@ -180,12 +180,14 @@ func TestNameMapPythonSymbols(t *testing.T) {
 			continue
 		}
 		for _, item := range strings.Split(cell, ", ") {
-			module, function, ok := strings.Cut(item, ".")
-			if !ok || module == "" || function == "" {
-				t.Errorf("第 %d 行 python 列无法解析: %q（应为 模块.函数）", i+2, item)
+			dot := strings.LastIndex(item, ".")
+			if dot <= 0 || dot == len(item)-1 {
+				t.Errorf("第 %d 行 python 列无法解析: %q（应为 模块.函数，允许多级模块）", i+2, item)
 				continue
 			}
-			path := filepath.Join(repoRoot, module+".py")
+			module := strings.ReplaceAll(item[:dot], ".", "/")
+			function := item[dot+1:]
+			path := filepath.Join(repoRoot, filepath.FromSlash(module)+".py")
 			data, err := os.ReadFile(path)
 			if err != nil {
 				t.Errorf("第 %d 行 python 符号 %q：读取 %s 失败: %v", i+2, item, path, err)

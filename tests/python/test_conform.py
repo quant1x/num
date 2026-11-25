@@ -23,6 +23,7 @@ if str(ROOT.parent) not in sys.path:
     sys.path.insert(0, str(ROOT.parent))
 
 import num  # noqa: E402  (路径注入后再导入)
+from num.x32 import vek  # noqa: E402
 
 
 def semantic_of(data: np.lib.npyio.NpzFile) -> str:
@@ -104,6 +105,27 @@ DISPATCH = {
     ),
     "expm1": lambda data: num.expm1(values_of(data, "x")),
     "log1p": lambda data: num.log1p(values_of(data, "x")),
+    "neg": lambda data: vek.neg(values_of(data, "x")),
+    "inv": lambda data: vek.inv(values_of(data, "x")),
+    "prod": lambda data: vek.prod(values_of(data, "x")),
+    "cumprod": lambda data: vek.cumprod(values_of(data, "x")),
+    "norm": lambda data: vek.norm(values_of(data, "x")),
+    "manhattan_norm": lambda data: vek.manhattan_norm(values_of(data, "x")),
+    "distance": lambda data: vek.distance(values_of(data, "x"), values_of(data, "y")),
+    "manhattan_distance": lambda data: vek.manhattan_distance(
+        values_of(data, "x"), values_of(data, "y")
+    ),
+    "cosine_similarity": lambda data: vek.cosine_similarity(
+        values_of(data, "x"), values_of(data, "y")
+    ),
+    "logic_xor": lambda data: vek.logic_xor(
+        [bool(value) for value in values_of(data, "x")],
+        [bool(value) for value in values_of(data, "y")],
+    ),
+    "none": lambda data: vek.none([bool(value) for value in values_of(data, "x")]),
+    "quantile": lambda data: vek.quantile(
+        values_of(data, "x"), float(np.asarray(data["q"]).reshape(-1)[0])
+    ),
 }
 
 
@@ -130,7 +152,7 @@ class FixtureConformance(unittest.TestCase):
                         f"{Path(path).name} {semantic}: 第 {index} 位 {got} != {want}",
                     )
                 covered += 1
-        self.assertGreaterEqual(covered, 73, f"只覆盖了 {covered} 个样本")
+        self.assertGreaterEqual(covered, 85, f"只覆盖了 {covered} 个样本")
 
 
 class EmptyInputs(unittest.TestCase):
