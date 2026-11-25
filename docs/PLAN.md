@@ -149,7 +149,7 @@ G1 ◄─ G2
 | **M5 公式族跨语言** | B1、B2、B3、B4、B6 | M1、M3 | 通达信口径用例在 4 门语言同值；`formula/README.md` 每行状态更新；研究脚本只产 fixture 不与生产耦合 | 进行中（B3 41 个、B2 39 个、Zig 39 个公式；39 个公式已在 Go / C++ / Rust / Zig 四端同值对拍。研究脚本 B4 未落地） |
 | **M6 数据管道** | B5 | M3 | 读 `D1` 格式、按主键覆盖、重复执行幂等；Arrow / Parquet 作为可选扩展单独验收 | 已完成（Arrow / Parquet 未做） |
 | **M7 Go 工程侧** | G1、G2 | M1 | Go 服务与管道可独立部署（单二进制、无 Python 运行时）；数值路径完整可用 | 已完成（`cmd/numctl`） |
-| **M8 机器学习侧** | M1、M2、M3 | M5、M6 | 训练与推理同一份特征 fixture 一致；同一 ONNX 模型三侧输出一致 | 进行中（特征 fixture 与冻结模型推理已三端对拍；ONNX 侧未接） |
+| **M8 机器学习侧** | M1、M2、M3 | M5、M6 | 训练与推理同一份特征 fixture 一致；同一 ONNX 模型三侧输出一致 | 进行中（特征 fixture 与冻结模型推理已三端对拍；ONNX 模型已导出并复核，三侧运行时未接） |
 
 **关键路径**：`M0 → M1 → M2 → M5 → M8`。Rust 线（`M4`）、格式线（`M3`）、管道线（`M6`）、Go 线（`M7`）在依赖满足后并行插入，互不阻塞。
 
@@ -173,7 +173,7 @@ G1 ◄─ G2
 | D3 发布物未落地 | ~~版本号只能由 autochangelog / tag 注入~~ | 已由 `docs/RELEASE.md` 的安装导出与 tag 派生链路解决；实际发版仍由 autochangelog 执行 | 发布 | 已解决 |
 | Rust 覆盖不全 | crate 已通过 160 个 fixture；线性代数、几何、时间与公式族尚未移植 | 按 `NAME-MAP.tsv` 逐行补齐，B3 在 pandas 仓库 | M5 | 中 |
 | Go 侧数值与 C++ 有差距 | 缺 AVX-512、迭代器开销、GC 峰值 | 属语言特性，不以牺牲 Go 交付面为代价硬追 | M7 | 低 |
-| ONNX 运行时未选型 | 三侧都要引入 onnxruntime：C++ 走 conan / vcpkg / FetchContent，Rust 用 `ort`，Go 用 `onnxruntime_go` + 共享库 | 建议共用同一份官方 release 动态库（CMake FetchContent 带 SHA256，Rust `load-dynamic`、Go cgo 指向同一 dll）；选型后再接三侧对拍 | M8 | 中 |
+| ONNX 三侧运行时未接 | 模型已导出（`pandas/tests/features/onnx/mlp.onnx`，onnxruntime 复核 `pred_mlp` 一致）；C++ / Rust / Go 仍缺运行时 | 建议共用同一份官方 release 动态库（CMake FetchContent 带 SHA256，Rust `ort` + `load-dynamic`、Go cgo 指向同一 dll）；选型确认后接三侧对拍 | M8 | 中 |
 | `LAST` 窗口不足口径不一 | ~~Go 填 1，C++ / Rust / Zig 取 NaN~~ | 已统一为 NaN（滚动族统一口径），Go 侧去掉 `num.Fill` 并补断言与 fixture 行 | M5 | 已解决 |
 | 重复实现风险 | 同名功能可能在两个包各写一套 | C1 已定“权威实现语言”列并由 `name_map_test.go` 校验符号覆盖；CI 自动校验尚未接入 | 全程 | 中 |
 | Python 源码外流 | 研究侧代码一旦进入交付链路即等于交出算法 | 交付物只含二进制 + 数据文件；评审项挂进发版检查 | 全程 | 高 |
