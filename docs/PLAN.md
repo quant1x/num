@@ -74,7 +74,7 @@
 | ID | 模块 | 载体 | 语言 | 交付物 | 现状 |
 | --- | --- | --- | --- | --- | --- |
 | B1 | 通达信公式族 | `pandas/formula/` | Python（研究口径）/ Go | ABS / REF / HHV / LLV / MA / EMA / SMA / DMA / WMA / STD / SUM / COUNT / CROSS …，口径以 `formula/README.md` 与注释为准 | Go 已落地 |
-| B2 | 公式族 C++ 版 | `pandas/cpp/` | C++ | 与 B1 最小参数集一致、结果一致 | 部分（39 个基础公式） |
+| B2 | 公式族 C++ 版 | `pandas/formula/*.h`（构建与用例在 `pandas/cpp/`） | C++ | 与 B1 最小参数集一致、结果一致 | 部分（39 个基础公式） |
 | B3 | 公式族 Rust 版 | `pandas/Cargo.toml`（crate `quant1x_pandas`）+ `formula/lib.rs` | Rust | 与 B1 最小参数集一致、结果一致 | 部分（41 个基础公式） |
 | B4 | 研究侧脚本 | `pandas/scripts/` | Python | 因子研究与定型；产出 fixture 与策略报告，不参与交付 | 已落地（`factor_report.py` 产出 `report.csv`；不 import 生产实现） |
 | B5 | 数据管道与 IO | `pandas/io/`、`num/io/` | Go / C++ / Rust | 读 `D1` 格式、按主键覆盖；Arrow / Parquet 作为可选扩展（不是基线） | 已落地（Go/C++ 生产实现，Rust 为 `tests/io/rs` 工具；Arrow/Parquet 未做，pandas/io 在另一仓库） |
