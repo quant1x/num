@@ -86,7 +86,7 @@
 | C++ 用例 | `ctest --preset release-static`（252 个用例，Debug 用 `debug-static`） |
 | Rust 编译 / 用例 / 检查 | `cargo build`、`cargo test`、`cargo clippy --all-targets -- -D warnings`、`cargo fmt --check` |
 | 单二进制（命令行） | `CGO_ENABLED=0 go build -o numctl ./cmd/numctl`；`go test ./cmd/numctl/` |
-| Python 用例（spec） | `python -m unittest discover -s tests/python -v`（119 个语义：160 个 npz 样本 + ztable / 解析族探针） |
+| Python 用例（spec） | `python -m unittest discover -s tests/python -v`（122 个语义：160 个 npz 样本 + ztable / 解析族 / 切片转换探针） |
 | Zig / Java | **尚未落地**：命令随各语言落地时补进 [BUILDING.md](BUILDING.md) 对应章节，此处不写未验证的命令 |
 
 ## 5. 交付前自检

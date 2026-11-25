@@ -16,3 +16,8 @@ def bool_to_int64(x: Sequence[bool]) -> list[int]:
 def bool_to_float64(x: Sequence[bool]) -> list[float]:
     """返回 1.0 / 0.0 序列。"""
     return [1.0 if value else 0.0 for value in x]
+
+
+def slice_to_bool(x: Sequence[float | int | bool]) -> list[bool]:
+    """把数值切片转成布尔切片：非零为真。"""
+    return [bool(value) for value in x]
