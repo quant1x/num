@@ -81,7 +81,7 @@
 | B6 | 公式族 Zig 版（扩展） | `pandas/zig/` | Zig | 与 B1 最小参数集一致、结果一致；只作扩展，不进交付主线 | 部分（实现 35 个，全部进 `tests/formula/cases.csv` 四端对拍） |
 | G1 | Go 工程侧 | `num/labs/`、`pandas/` | Go | 服务、调度、指标计算管道、单二进制分发 | 已落地（`cmd/numctl` 单二进制；pandas 侧服务在另一仓库） |
 | G2 | Go 完整数值路径 | `num/` 根包 | Go | 独立可用的数值实现，供只会 Go 的使用者直接落地 | 已落地 |
-| M1 | 特征 fixture | `pandas/tests/features/` | Python（生成器）/ Go / C++ / Rust（对拍） | 训练与推理同源的特征样本，落盘比对 | 已落地（40 根 Bar、11 个特征列，三端对拍） |
+| M1 | 特征 fixture | `pandas/tests/features/` | Python（生成器）/ Go / C++ / Rust（对拍） | 训练与推理同源的特征样本，落盘比对 | 已落地（40 根 Bar、11 个特征列 + 冻结模型的 `pred` 列，三端对拍） |
 | M2 | 模型推理侧 | `pandas/cpp/infer/`、`pandas-rust/src/infer/`、Go 侧 ONNX 加载 | C++ / Rust / Go | 同一 ONNX 文件（格式交换，非绑定）加载，输出与 Python 研究侧对齐 | 未落地 |
 | M3 | 回测一致性验收 | `pandas/tests/backtest/` | 跨语言 | 同一策略在 Python 研究侧与生产实现下逐笔一致 | 未落地 |
 
@@ -149,7 +149,7 @@ G1 ◄─ G2
 | **M5 公式族跨语言** | B1、B2、B3、B4、B6 | M1、M3 | 通达信口径用例在 4 门语言同值；`formula/README.md` 每行状态更新；研究脚本只产 fixture 不与生产耦合 | 进行中（B3 41 个、B2 35 个、Zig 35 个公式；35 个公式已在 Go / C++ / Rust / Zig 四端同值对拍。研究脚本 B4 未落地） |
 | **M6 数据管道** | B5 | M3 | 读 `D1` 格式、按主键覆盖、重复执行幂等；Arrow / Parquet 作为可选扩展单独验收 | 已完成（Arrow / Parquet 未做） |
 | **M7 Go 工程侧** | G1、G2 | M1 | Go 服务与管道可独立部署（单二进制、无 Python 运行时）；数值路径完整可用 | 已完成（`cmd/numctl`） |
-| **M8 机器学习侧** | M1、M2、M3 | M5、M6 | 训练与推理同一份特征 fixture 一致；同一 ONNX 模型三侧输出一致 | 进行中（特征 fixture 已落地并三端对拍；ONNX 推理侧未接） |
+| **M8 机器学习侧** | M1、M2、M3 | M5、M6 | 训练与推理同一份特征 fixture 一致；同一 ONNX 模型三侧输出一致 | 进行中（特征 fixture 与冻结模型推理已三端对拍；ONNX 侧未接） |
 
 **关键路径**：`M0 → M1 → M2 → M5 → M8`。Rust 线（`M4`）、格式线（`M3`）、管道线（`M6`）、Go 线（`M7`）在依赖满足后并行插入，互不阻塞。
 
