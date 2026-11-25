@@ -61,6 +61,21 @@ DISPATCH = {
     "median": lambda data: num.median(values_of(data, "x")),
     "shift": lambda data: num.shift(values_of(data, "x"), int(np.asarray(data["n"]).reshape(-1)[0])),
     "diff": lambda data: num.diff(values_of(data, "x"), int(np.asarray(data["n"]).reshape(-1)[0])),
+    "add": lambda data: num.add(values_of(data, "x"), values_of(data, "y")),
+    "sub": lambda data: num.sub(values_of(data, "x"), values_of(data, "y")),
+    "mul": lambda data: num.mul(values_of(data, "x"), values_of(data, "y")),
+    "div": lambda data: num.div(values_of(data, "x"), values_of(data, "y")),
+    "equal": lambda data: num.equal(values_of(data, "x"), values_of(data, "y")),
+    "not_equal": lambda data: num.not_equal(values_of(data, "x"), values_of(data, "y")),
+    "greater": lambda data: num.gt(values_of(data, "x"), values_of(data, "y")),
+    "greater_equal": lambda data: num.gte(values_of(data, "x"), values_of(data, "y")),
+    "less": lambda data: num.lt(values_of(data, "x"), values_of(data, "y")),
+    "less_equal": lambda data: num.lte(values_of(data, "x"), values_of(data, "y")),
+    "logic_and": lambda data: num.logic_and(values_of(data, "x"), values_of(data, "y")),
+    "logic_or": lambda data: num.logic_or(values_of(data, "x"), values_of(data, "y")),
+    "logic_not": lambda data: num.logic_not(values_of(data, "x")),
+    "all": lambda data: num.all(values_of(data, "x")),
+    "any": lambda data: num.any(values_of(data, "x")),
 }
 
 
@@ -87,7 +102,7 @@ class FixtureConformance(unittest.TestCase):
                         f"{Path(path).name} {semantic}: 第 {index} 位 {got} != {want}",
                     )
                 covered += 1
-        self.assertGreaterEqual(covered, 36, f"只覆盖了 {covered} 个样本")
+        self.assertGreaterEqual(covered, 57, f"只覆盖了 {covered} 个样本")
 
 
 class EmptyInputs(unittest.TestCase):

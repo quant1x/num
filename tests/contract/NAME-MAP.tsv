@@ -14,10 +14,10 @@ pow_integer	x:array, n:int	—	propagate	same_as(x)	—	pow	pow_integer	num:Pow	
 pow_float	x:array, y:array	—	propagate	first_len	—	pow	pow_float	x32:Pow, x64:Pow	—	—	go	逐元素幂；门面无对应入口
 expm1	x:array	—	propagate	same_as(x)	—	expm1	expm1	num:Expm1, num:Expm1Unrolled	—	—	go	结果为 f64 序列
 log1p	x:array	—	propagate	same_as(x)	—	log1p	log1p	num:Log1p, num:Log1pUnrolled	—	—	go	返回 (序列, error)
-add	x:array, y:array|scalar	—	propagate	first_len	—	add, add_inplace	add	num:Add, x32:Add, x64:Add	—	—	go	按第一个操作数长度对齐，短补默认值、长截断
-sub	x:array, y:array|scalar	—	propagate	first_len	—	sub, sub_inplace	sub	num:Sub, num:SubInplace, x32:Sub, x64:Sub	—	—	go	长度口径同 add
-mul	x:array, y:array|scalar	—	propagate	first_len	—	mul, mul_inplace	mul	num:Mul, x32:Mul, x64:Mul	—	—	go	长度口径同 add
-div	x:array, y:array|scalar	—	propagate	first_len	—	div, div_inplace	div	num:Div, x32:Div, x64:Div	—	—	go	除以 0 得 ±Inf；长度口径同 add
+add	x:array, y:array|scalar	—	propagate	first_len	arithmetics_add.add	add, add_inplace	add	num:Add, x32:Add, x64:Add	—	—	python	按第一个操作数长度对齐，短补默认值、长截断
+sub	x:array, y:array|scalar	—	propagate	first_len	arithmetics_sub.sub	sub, sub_inplace	sub	num:Sub, num:SubInplace, x32:Sub, x64:Sub	—	—	python	长度口径同 add
+mul	x:array, y:array|scalar	—	propagate	first_len	arithmetics_mul.mul	mul, mul_inplace	mul	num:Mul, x32:Mul, x64:Mul	—	—	python	长度口径同 add
+div	x:array, y:array|scalar	—	propagate	first_len	arithmetics_div.div	div, div_inplace	div	num:Div, x32:Div, x64:Div	—	—	python	除以 0 得 ±Inf；长度口径同 add
 maximum	x:array, y:array	—	no_special	max_len	maximum.maximum	maximum	maximum	num:Maximum, x32:Maximum, x64:Maximum	—	—	python	按最长对齐；第二操作数为 NaN 时保留第一操作数（与 NumPy 的传播不同）
 minimum	x:array, y:array	—	no_special	max_len	minimum.minimum	minimum	minimum	num:Minimum, x32:Minimum, x64:Minimum	—	—	python	口径同 maximum
 decimal	value:f64, digits:int?	digits=2	nan_to_zero	scalar	—	decimal	decimal	num:Decimal	—	—	go	半程远离零；负 digits 视为 0
@@ -34,15 +34,15 @@ log	x:array	—	propagate	same_as(x)	—	log	log	x32:Log	—	—	go	x64 缺同�
 log2	x:array	—	propagate	same_as(x)	—	log2	log2	x32:Log2	—	—	go	x64 缺同名实现
 log10	x:array	—	propagate	same_as(x)	—	log10	log10	x32:Log10	—	—	go	x64 缺同名实现
 # --- N2 逐元素：比较与逻辑 ---
-equal	x:array, y:array	—	comparison_false	bool[first_len]	—	equal	equal	num:Equal, x32:Eq, x64:Eq	—	—	go	按第一个操作数长度对齐
-not_equal	x:array, y:array	—	comparison_false	bool[first_len]	—	not_equal	not_equal	num:NotEqual, x32:Neq, x64:Neq	—	—	go	NaN != NaN 为 true
-greater	x:array, y:array	—	comparison_false	bool[max_len]	—	gt	greater	num:Gt, x32:Gt, x64:Gt	—	—	go	按最长对齐
-greater_equal	x:array, y:array	—	comparison_false	bool[max_len]	—	gte	greater_equal	num:Gte, x32:Gte, x64:Gte	—	—	go	按最长对齐
-less	x:array, y:array	—	comparison_false	bool[max_len]	—	lt	less	num:Lt, x32:Lt, x64:Lt	—	—	go	按最长对齐
-less_equal	x:array, y:array	—	comparison_false	bool[max_len]	—	lte	less_equal	num:Lte, x32:Lte, x64:Lte	—	—	go	按最长对齐
-logic_and	x:array, y:array	—	—	bool[max_len]	—	logic_and	logic_and	num:And, x32:And, x64:And	—	—	go	按最长对齐
-logic_or	x:array, y:array	—	—	bool[max_len]	—	logic_or	logic_or	num:Or, x32:Or, x64:Or	—	—	go	按最长对齐
-logic_not	x:array	—	—	bool[same_as(x)]	—	logic_not	logic_not	num:Not, x32:Not, x64:Not	—	—	go	逐元素取反
+equal	x:array, y:array	—	comparison_false	bool[first_len]	logic_equal.equal	equal	equal	num:Equal, x32:Eq, x64:Eq	—	—	python	按第一个操作数长度对齐
+not_equal	x:array, y:array	—	comparison_false	bool[first_len]	logic_equal.not_equal	not_equal	not_equal	num:NotEqual, x32:Neq, x64:Neq	—	—	python	NaN != NaN 为 true
+greater	x:array, y:array	—	comparison_false	bool[max_len]	logic.gt	gt	greater	num:Gt, x32:Gt, x64:Gt	—	—	python	按最长对齐
+greater_equal	x:array, y:array	—	comparison_false	bool[max_len]	logic.gte	gte	greater_equal	num:Gte, x32:Gte, x64:Gte	—	—	python	按最长对齐
+less	x:array, y:array	—	comparison_false	bool[max_len]	logic.lt	lt	less	num:Lt, x32:Lt, x64:Lt	—	—	python	按最长对齐
+less_equal	x:array, y:array	—	comparison_false	bool[max_len]	logic.lte	lte	less_equal	num:Lte, x32:Lte, x64:Lte	—	—	python	按最长对齐
+logic_and	x:array, y:array	—	—	bool[max_len]	logic.logic_and	logic_and	logic_and	num:And, x32:And, x64:And	—	—	python	按最长对齐
+logic_or	x:array, y:array	—	—	bool[max_len]	logic.logic_or	logic_or	logic_or	num:Or, x32:Or, x64:Or	—	—	python	按最长对齐
+logic_not	x:array	—	—	bool[same_as(x)]	logic.logic_not	logic_not	logic_not	num:Not, x32:Not, x64:Not	—	—	python	逐元素取反
 logic_xor	x:array, y:array	—	—	bool[first_len]	—	logic_xor	logic_xor	x32:Xor, x64:Xor	—	—	go	门面无对应入口
 where	condition:bool[], x:array, y:array	—	—	max_len	—	where	where_select	num:Where	—	—	go	按最长对齐，条件为真取 x；Go 门面的 condition 与取值同类型（StatType），不接受 bool 条件
 select	x:array, mask:bool[]	—	—	same_as(x)	—	select	select	x32:Select, x64:Select	—	—	go	掩码为真保留 x 元素
@@ -62,8 +62,8 @@ std	x:array	—	propagate	scalar	stddev.std	stddev	std	num:Std	—	—	python	�
 variance	x:array	—	propagate	scalar	covariance.variance	variance	variance	num:Variance	—	—	python	总体方差（ddof=0）；仅 f64 入口
 covariance	x:array, y:array	—	propagate	scalar	covariance.covariance	covariance	covariance	num:Covariance	—	—	python	逐对协方差
 count	x:array	—	comparison_false	scalar	count.count	count	count, count_true	num:Count, x32:Count, x64:Count	—	—	python	数值统计非零元素，布尔统计 true
-all	x:bool[]	—	—	scalar	—	all	all	num:All, x32:All, x64:All	—	—	go	空输入为 true
-any	x:bool[]	—	—	scalar	—	any	any	num:Any, x32:Any, x64:Any	—	—	go	空输入为 false
+all	x:bool[]	—	—	scalar	logic_all.all	all	all	num:All, x32:All, x64:All	—	—	python	空输入为 true
+any	x:bool[]	—	—	scalar	logic_any.any	any	any	num:Any, x32:Any, x64:Any	—	—	python	空输入为 false
 none	x:bool[]	—	—	scalar	—	none	none	x32:None, x64:None	—	—	go	全部为 false 时返回 true
 norm	x:array	—	propagate	scalar	—	norm	norm	x32:Norm, x64:Norm	—	—	go	欧氏范数
 quantile	x:array, q:f64	—	no_special	scalar	—	quantile	quantile	x32:Quantile, x64:Quantile	—	—	go	q=0 取最小、q=1 取最大

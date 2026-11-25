@@ -9,11 +9,19 @@
 from .abs import abs
 from .argmax import argmax
 from .argmin import argmin
+from .arithmetics_add import add
+from .arithmetics_div import div
+from .arithmetics_mul import mul
+from .arithmetics_sub import sub
 from .count import count
 from .covariance import covariance, variance
 from .cumsum import cumsum
 from .diff import diff
 from .dot import dot1d
+from .logic import gt, gte, logic_and, logic_not, logic_or, lt, lte
+from .logic_all import all
+from .logic_any import any
+from .logic_equal import equal, not_equal
 from .max import max
 from .maximum import maximum
 from .mean import mean
@@ -26,6 +34,8 @@ from .stddev import std
 from .sum import sum
 
 __all__ = [
-    "abs", "argmax", "argmin", "count", "covariance", "cumsum", "diff", "dot1d", "max",
-    "maximum", "mean", "median", "min", "minimum", "shift", "sqrt", "std", "sum", "variance",
+    "abs", "add", "all", "any", "argmax", "argmin", "count", "covariance", "cumsum", "diff",
+    "div", "dot1d", "equal", "gt", "gte", "logic_and", "logic_not", "logic_or", "lt", "lte",
+    "max", "maximum", "mean", "median", "min", "minimum", "mul", "not_equal", "shift", "sqrt",
+    "std", "sub", "sum", "variance",
 ]

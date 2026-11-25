@@ -276,9 +276,11 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
 ```
 
 - 依赖：`requires-python >= 3.11`；实现本身不依赖 NumPy，NumPy 只用于生成器与对拍用例；
-- 覆盖：19 个语义 —— `sum` / `mean` / `abs` / `dot1d` / `cumsum` / `std` / `variance` / `covariance` /
-  `sqrt` / `maximum` / `minimum` / `max` / `min` / `argmax` / `argmin` / `count` / `median` / `shift` / `diff`，
-  对应 `tests/fixtures` 的 37 个样本；
+- 覆盖：34 个语义 —— 归约（`sum` / `mean` / `std` / `variance` / `covariance` / `max` / `min` /
+  `argmax` / `argmin` / `count` / `median`）、逐元素（`abs` / `sqrt` / `maximum` / `minimum` /
+  `add` / `sub` / `mul` / `div`）、比较与逻辑（`equal` / `not_equal` / `gt` / `gte` / `lt` / `lte` /
+  `logic_and` / `logic_or` / `logic_not` / `all` / `any`）、序列变换（`cumsum` / `diff` / `shift` / `dot1d`），
+  对应 `tests/fixtures` 的 57 个样本；
 - `NAME-MAP.tsv` 的 `authority` 仍是 `go`：逐批把语义切到 python，未切的继续以 Go 为临时基准。
 
 ---
