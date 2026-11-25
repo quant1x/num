@@ -276,7 +276,7 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
 ```
 
 - 依赖：`requires-python >= 3.11`；实现本身不依赖 NumPy，NumPy 只用于生成器与对拍用例；
-- 覆盖：117 个语义 —— 归约（`sum` / `mean` / `std` / `variance` / `covariance` / `max` / `min` /
+- 覆盖：119 个语义 —— 归约（`sum` / `mean` / `std` / `variance` / `covariance` / `max` / `min` /
   `argmax` / `argmin` / `count` / `median`）、逐元素（`abs` / `sqrt` / `maximum` / `minimum` /
   `add` / `sub` / `mul` / `div` / `expm1` / `log1p` / `decimal`）、比较与逻辑（`equal` / `not_equal` /
   `gt` / `gte` / `lt` / `lte` / `logic_and` / `logic_or` / `logic_not` / `all` / `any`）、
@@ -293,8 +293,8 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
   日期（`parse_freq` / `date_range`）、其余逐元素（`ceil` / `floor` / `round` / `sin` / `cos` / `exp` /
   `log` / `log2` / `log10` / `pow_float` / `pow_integer` / `change_rate` / `net_change_rate`）、
   索引（`find` / `gather` / `select` / `scatter`）、构造补全（`ones` / `range_float`），
-  正态分布表（`ztable` 四项，按 Go 探针值核对，无 npz 样本），其余 113 个语义对应
-  `tests/fixtures` 的 160 个样本；
+  正态分布表（`ztable` 四项）与字符串解析（`parse_scalar` / `string_check`）按 Go 探针值核对，
+  无 npz 样本；其余 113 个语义对应 `tests/fixtures` 的 160 个样本；
 - `NAME-MAP.tsv` 的 `authority` 逐行标注：117 行已切到 `python`，其余以 Go 为临时基准（理由写在 note）；
 - `.numb` 读写：`numb.py` 与 Go / C++ / Rust 同格式，读 `tests/fixtures/numb/` 的 6 个黄金样本并重编码逐字节一致。
 

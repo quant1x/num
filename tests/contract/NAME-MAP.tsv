@@ -125,7 +125,7 @@ nan_check	value:scalar	—	—	scalar	decimals.is_nan	nan, is_nan	is_nan	num:NaN
 any_to_scalar	v:any	—	—	scalar	—	to_bool, to_string	—	num:AnyToBool, num:AnyToFloat32, num:AnyToFloat64, num:AnyToInt32, num:AnyToInt64, num:AnyToString	—	—	go	any 到标量；Go 的 any 运行期转换；C++ / Rust 无型别擦除，不构成跨语言语义
 any2dtype	v:any	—	—	scalar	—	—	—	num:Any2DType	—	—	go	推断 DType；同上，Go 的 any 分派专用
 bool_to_numeric	b:bool	—	—	scalar	type_bool.bool_to_int64, type_bool.bool_to_float64	bool_to_int, bool_to_int32, bool_to_int64, bool_to_float32, bool_to_float64, bool_to_string	bool_to_i64, bool_to_f64, bools_to_f64	num:BoolToInt, num:BoolToInt32, num:BoolToInt64, num:BoolToFloat32, num:BoolToFloat64, num:BoolToString	—	—	python	标量入口；true=1 / false=0
-parse_scalar	text:string, dst:any	—	—	scalar	—	parse_bool, parse_int32, parse_int64, parse_float32, parse_float64	—	num:ParseBool, num:ParseInt32, num:ParseInt64, num:ParseFloat32, num:ParseFloat64	—	—	go	解析失败返回 dst 的当前值；字符串解析族，只有 Go 落地；C++ / Rust 未实现，暂不进 fixture
+parse_scalar	text:string, dst:any	—	—	scalar	type_generic.parse_bool, type_generic.parse_int32, type_generic.parse_int64, type_generic.parse_float32, type_generic.parse_float64	parse_bool, parse_int32, parse_int64, parse_float32, parse_float64	—	num:ParseBool, num:ParseInt32, num:ParseInt64, num:ParseFloat32, num:ParseFloat64	—	—	python	Python 已落 spec（失败回落：整型 0、浮点 NaN、bool False）；C++ / Rust 未实现，暂不进 fixture
 generic_parse	text:string	—	—	scalar	—	generic_parse	—	num:GenericParse	—	—	go	目标类型由泛型形参给出；同上，Go 的泛型解析入口
 slice_to_bool	v:any	—	—	bool[n]	—	slice_to_bool	—	num:SliceToBool	—	—	go	切片转 bool；切片类型转换，C++ / Rust 侧对应的是逐元素 to_*，未接 fixture
 slice_to_string	v:any	—	—	[n]	—	slice_to_string	—	num:SliceToString	—	—	go	切片转字符串；同上
@@ -143,5 +143,5 @@ to_int32	x:array	—	—	i32[n]	x32.vek.to_int32	to_int32	to_int32	x32:ToInt32, 
 to_int64	x:array	—	—	i64[n]	x32.vek.to_int64	to_int64	to_int64	x32:ToInt64, x64:ToInt64	—	—	python	按截断转换
 to_float32	x:array	—	—	f32[n]	x32.vek.to_float32	to_float32	to_float32	x64:ToFloat32	—	—	python	浮点宽度互转
 to_float64	x:array	—	—	f64[n]	x32.vek.to_float64	to_float64	to_float64	x32:ToFloat64	—	—	python	浮点宽度互转
-string_check	s:string	—	—	scalar	—	is_empty, string_is_true, string_is_false, string_is_nan	—	num:IsEmpty, num:StringIsTrue, num:StringIsFalse, num:StringIsNaN	—	—	go	字符串判空 / 判真 / 判 NaN；字符串判据（空 / 真 / 假 / NaN），只有 Go 落地
+string_check	s:string	—	—	scalar	type_strings.is_empty, type_strings.string_is_true, type_strings.string_is_false, type_strings.string_is_nan	is_empty, string_is_true, string_is_false, string_is_nan	—	num:IsEmpty, num:StringIsTrue, num:StringIsFalse, num:StringIsNaN	—	—	python	Python 已落 spec（失败回落：整型 0、浮点 NaN、bool False）；C++ / Rust 未实现，暂不进 fixture
 avx2_switch	enabled:bool	—	—	—	—	—	—	num:GetAvx2Enabled, num:SetAvx2Enabled	—	—	go	非线程安全，仅限用例与基准；Go 的运行期 SIMD 开关；Python 无此概念，不适用
