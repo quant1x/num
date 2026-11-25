@@ -112,10 +112,10 @@ fit_line	x:array, y:array	—	no_special	tuple	line.fit_line	fit_line	fit_line	n
 point	x:number, y:number	—	—	tuple	—	new_point, Point, DataPoint	—	num:NewPoint	—	—	go	点构造；点构造；Python 用元组 / Line 的参数表达，不单设符号
 cross	a:array, b:array	—	comparison_false	[n]	cross.cross	cross, LinerTrend, TrendState	cross	num:Cross	—	—	python	判据为前后两根都严格分居两侧
 # --- 统计与时间 ---
-find_percent	zscore:f64	—	propagate	scalar	—	find_percent	—	num:FindPercent	—	—	go	正态分布分位
-find_zscore	percent:f64	—	propagate	scalar	—	find_zscore	—	num:FindZScore	—	—	go	分位转 z 值
-confidence_interval_to_zscore	interval:f64	—	propagate	scalar	—	confidence_interval_to_zscore	—	num:ConfidenceIntervalToZscore	—	—	go	置信区间转 z 值
-zscore_to_confidence_interval	zscore:f64	—	propagate	scalar	—	zscore_to_confidence_interval	—	num:ZscoreToConfidenceInterval	—	—	go	z 值转置信区间
+find_percent	zscore:f64	—	propagate	scalar	ztable.find_percent	find_percent	—	num:FindPercent	—	—	python	正态分布分位
+find_zscore	percent:f64	—	propagate	scalar	ztable.find_zscore	find_zscore	—	num:FindZScore	—	—	python	分位转 z 值
+confidence_interval_to_zscore	interval:f64	—	propagate	scalar	ztable.confidence_interval_to_zscore	confidence_interval_to_zscore	—	num:ConfidenceIntervalToZscore	—	—	python	置信区间转 z 值
+zscore_to_confidence_interval	zscore:f64	—	propagate	scalar	ztable.zscore_to_confidence_interval	zscore_to_confidence_interval	—	num:ZscoreToConfidenceInterval	—	—	python	z 值转置信区间
 parse_freq	freq:string	—	—	scalar	freq.parse_freq	parse_freq	parse_freq	num:ParseFreq	—	—	python	返回 time.Duration 与 error
 date_range	start:time, periods:int, freq:string	—	—	[n]	freq.date_range	date_range	date_range	num:DateRange	—	—	python	返回时间序列与 error
 peeks_and_valleys	x:array	—	—	tuple	—	arg_rel_extrema	—	num:PeeksAndValleys, num:ArgRelExtrema	—	—	go	PeeksAndValleys 目前为空实现返回 nil
