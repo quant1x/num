@@ -107,8 +107,8 @@ slope	x1:int, y1:f64, x2:int, y2:f64	—	propagate	scalar	slope.slope	slope	slop
 slope_to_degrees	m:f64	—	propagate	scalar	slope.slope_to_degrees	slope_to_degrees	slope_to_degrees	num:SlopeToDegrees	—	—	python	斜率转角
 degrees_to_slope	x:f64	—	propagate	scalar	slope.degrees_to_slope	degrees_to_slope	degrees_to_slope	num:DegreesToSlope	—	—	python	角转斜率
 triangle_bevel	slope:f64, x1:int, y1:f64, xn:int	—	propagate	scalar	slope.triangle_bevel	triangle_bevel	triangle_bevel	num:TriangleBevel	—	—	python	三角斜边
-calculate_line_equation	point1:Point, point2:Point	—	propagate	tuple	—	calculate_line_equation	calculate_line_equation	num:CalculateLineEquation	—	—	go	两点直线方程
-fit_line	x:array, y:array	—	no_special	tuple	—	fit_line	fit_line	num:FitLine	—	—	go	返回 (Line, 成功位)；单点返回水平线且标记失败
+calculate_line_equation	point1:Point, point2:Point	—	propagate	tuple	line.calculate_line_equation	calculate_line_equation	calculate_line_equation	num:CalculateLineEquation	—	—	python	两点直线方程
+fit_line	x:array, y:array	—	no_special	tuple	line.fit_line	fit_line	fit_line	num:FitLine	—	—	python	返回 (Line, 成功位)；单点返回水平线且标记失败
 point	x:number, y:number	—	—	tuple	—	new_point, Point, DataPoint	—	num:NewPoint	—	—	go	点构造
 cross	a:array, b:array	—	comparison_false	[n]	cross.cross	cross, LinerTrend, TrendState	cross	num:Cross	—	—	python	判据为前后两根都严格分居两侧
 # --- 统计与时间 ---

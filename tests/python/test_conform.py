@@ -229,6 +229,16 @@ DISPATCH = {
         )
     ],
     "cross": lambda data: num.cross(values_of(data, "a"), values_of(data, "b")),
+    "fit_line": lambda data: num.fit_line(values_of(data, "x"), values_of(data, "y")),
+    "calculate_line_equation": lambda data: (
+        num.calculate_line_equation(
+            values_of(data, "x1")[0],
+            values_of(data, "y1")[0],
+            values_of(data, "x2")[0],
+            values_of(data, "y2")[0],
+        ),
+        True,
+    ),
 }
 
 
@@ -247,6 +257,27 @@ class FixtureConformance(unittest.TestCase):
                     expected_state = [int(value) for value in values_of(data, "expected_state")]
                     self.assertEqual([item[0] for item in raw], expected_x, f"{Path(path).name}: 穿点下标")
                     self.assertEqual([item[1] for item in raw], expected_state, f"{Path(path).name}: 穿点方向")
+                    covered += 1
+                    continue
+                if semantic in {"fit_line", "calculate_line_equation"}:
+                    line, success = raw
+                    expected_a = values_of(data, "expected_a")[0]
+                    expected_b = values_of(data, "expected_b")[0]
+                    expected_c = values_of(data, "expected_c")[0]
+                    a, b, c = line.equation()
+                    self.assertTrue(close(a, expected_a, tolerance), f"{Path(path).name}: a {a} != {expected_a}")
+                    self.assertTrue(close(b, expected_b, tolerance), f"{Path(path).name}: b {b} != {expected_b}")
+                    self.assertTrue(close(c, expected_c, tolerance), f"{Path(path).name}: c {c} != {expected_c}")
+                    expected_degrees = values_of(data, "expected_degrees")[0]
+                    self.assertTrue(
+                        close(line.degrees(), expected_degrees, tolerance),
+                        f"{Path(path).name}: degrees {line.degrees()} != {expected_degrees}",
+                    )
+                    expected_success = values_of(data, "expected_success")[0]
+                    self.assertEqual(1 if success else 0, int(expected_success), f"{Path(path).name}: success")
+                    probe = values_of(data, "probe_x")
+                    expected_y = values_of(data, "expected_y")
+                    self.assertEqual([line.y(value) for value in probe], expected_y, f"{Path(path).name}: y")
                     covered += 1
                     continue
                 if semantic == "rolling":
@@ -268,7 +299,7 @@ class FixtureConformance(unittest.TestCase):
                         f"{Path(path).name} {semantic}: 第 {index} 位 {got} != {want}",
                     )
                 covered += 1
-        self.assertGreaterEqual(covered, 135, f"只覆盖了 {covered} 个样本")
+        self.assertGreaterEqual(covered, 138, f"只覆盖了 {covered} 个样本")
 
 
 class EmptyInputs(unittest.TestCase):

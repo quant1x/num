@@ -22,6 +22,7 @@ from .decimals import decimal, is_nan
 from .diff import diff
 from .fillna import fill, fill_na
 from .dot import dot1d
+from .line import Line, calculate_line_equation, fit_line
 from .logic import gt, gte, logic_and, logic_not, logic_or, lt, lte
 from .logic_all import all
 from .logic_any import any
@@ -50,7 +51,7 @@ __all__ = [
     "abs", "add", "align", "all", "any", "argmax", "argmin", "bool_to_float64", "bool_to_int64",
     "count", "covariance", "cross", "cumsum", "decimal", "degrees_to_slope", "diff", "div",
     "dot1d", "dtype2int", "equal",
-    "expm1", "fill", "fill_na", "gt", "gte", "is_nan", "log1p", "logic_and", "logic_not", "logic_or", "lt", "lte",
+    "expm1", "fill", "fill_na", "gt", "gte", "is_nan", "log1p", "logic_and", "logic_not", "logic_or", "lt", "lte", "Line", "calculate_line_equation", "fit_line",
     "max", "maximum", "mean", "median", "min", "minimum", "mul", "not_equal", "poly_fit", "poly_val", "repeat", "rolling",
     "rolling_apply", "shift", "slope", "slope_to_degrees",
     "sqrt", "std", "sub", "sum", "triangle_bevel", "type_default", "variance", "where", "zeros",
