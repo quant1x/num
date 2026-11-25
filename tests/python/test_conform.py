@@ -76,6 +76,34 @@ DISPATCH = {
     "logic_not": lambda data: num.logic_not(values_of(data, "x")),
     "all": lambda data: num.all(values_of(data, "x")),
     "any": lambda data: num.any(values_of(data, "x")),
+    "where": lambda data: num.where(
+        [bool(value) for value in values_of(data, "condition")],
+        values_of(data, "x"),
+        values_of(data, "y"),
+    ),
+    "align": lambda data: num.align(
+        values_of(data, "x"),
+        values_of(data, "value")[0],
+        int(np.asarray(data["n"]).reshape(-1)[0]),
+    ),
+    "repeat": lambda data: num.repeat(
+        values_of(data, "value")[0], int(np.asarray(data["n"]).reshape(-1)[0])
+    ),
+    "zeros": lambda data: num.zeros(int(np.asarray(data["n"]).reshape(-1)[0])),
+    "decimal": lambda data: [
+        num.decimal(value, int(np.asarray(data["digits"]).reshape(-1)[0]))
+        if "digits" in data.files else num.decimal(value)
+        for value in values_of(data, "x")
+    ],
+    "nan_check": lambda data: [num.is_nan(value) for value in values_of(data, "x")],
+    "dtype2int": lambda data: num.dtype2int(values_of(data, "x")),
+    "bool_to_numeric": lambda data: (
+        num.bool_to_float64([bool(value) for value in values_of(data, "x")])
+        if np.asarray(data["expected"]).dtype.kind == "f"
+        else num.bool_to_int64([bool(value) for value in values_of(data, "x")])
+    ),
+    "expm1": lambda data: num.expm1(values_of(data, "x")),
+    "log1p": lambda data: num.log1p(values_of(data, "x")),
 }
 
 
@@ -102,7 +130,7 @@ class FixtureConformance(unittest.TestCase):
                         f"{Path(path).name} {semantic}: 第 {index} 位 {got} != {want}",
                     )
                 covered += 1
-        self.assertGreaterEqual(covered, 57, f"只覆盖了 {covered} 个样本")
+        self.assertGreaterEqual(covered, 73, f"只覆盖了 {covered} 个样本")
 
 
 class EmptyInputs(unittest.TestCase):

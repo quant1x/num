@@ -12,15 +12,15 @@ inv	x:array	—	propagate	same_as(x)	—	inv	inv	x32:Inv, x64:Inv	—	—	go	倒
 sqrt	x:array	—	propagate	same_as(x)	sqrt.sqrt	sqrt	sqrt	num:Sqrt, x32:Sqrt, x64:Sqrt	—	—	python	负数得 NaN；非浮点编译期拒绝（C++）/ panic（Go）
 pow_integer	x:array, n:int	—	propagate	same_as(x)	—	pow	pow_integer	num:Pow	—	—	go	整数次幂
 pow_float	x:array, y:array	—	propagate	first_len	—	pow	pow_float	x32:Pow, x64:Pow	—	—	go	逐元素幂；门面无对应入口
-expm1	x:array	—	propagate	same_as(x)	—	expm1	expm1	num:Expm1, num:Expm1Unrolled	—	—	go	结果为 f64 序列
-log1p	x:array	—	propagate	same_as(x)	—	log1p	log1p	num:Log1p, num:Log1pUnrolled	—	—	go	返回 (序列, error)
+expm1	x:array	—	propagate	same_as(x)	log.expm1	expm1	expm1	num:Expm1, num:Expm1Unrolled	—	—	python	结果为 f64 序列
+log1p	x:array	—	propagate	same_as(x)	log.log1p	log1p	log1p	num:Log1p, num:Log1pUnrolled	—	—	python	返回 (序列, error)
 add	x:array, y:array|scalar	—	propagate	first_len	arithmetics_add.add	add, add_inplace	add	num:Add, x32:Add, x64:Add	—	—	python	按第一个操作数长度对齐，短补默认值、长截断
 sub	x:array, y:array|scalar	—	propagate	first_len	arithmetics_sub.sub	sub, sub_inplace	sub	num:Sub, num:SubInplace, x32:Sub, x64:Sub	—	—	python	长度口径同 add
 mul	x:array, y:array|scalar	—	propagate	first_len	arithmetics_mul.mul	mul, mul_inplace	mul	num:Mul, x32:Mul, x64:Mul	—	—	python	长度口径同 add
 div	x:array, y:array|scalar	—	propagate	first_len	arithmetics_div.div	div, div_inplace	div	num:Div, x32:Div, x64:Div	—	—	python	除以 0 得 ±Inf；长度口径同 add
 maximum	x:array, y:array	—	no_special	max_len	maximum.maximum	maximum	maximum	num:Maximum, x32:Maximum, x64:Maximum	—	—	python	按最长对齐；第二操作数为 NaN 时保留第一操作数（与 NumPy 的传播不同）
 minimum	x:array, y:array	—	no_special	max_len	minimum.minimum	minimum	minimum	num:Minimum, x32:Minimum, x64:Minimum	—	—	python	口径同 maximum
-decimal	value:f64, digits:int?	digits=2	nan_to_zero	scalar	—	decimal	decimal	num:Decimal	—	—	go	半程远离零；负 digits 视为 0
+decimal	value:f64, digits:int?	digits=2	nan_to_zero	scalar	decimals.decimal	decimal	decimal	num:Decimal	—	—	python	半程远离零；负 digits 视为 0
 change_rate	base:number, current:number	—	propagate	scalar	—	change_rate	change_rate	num:ChangeRate	—	—	go	current/base
 net_change_rate	base:number, current:number	—	propagate	scalar	—	net_change_rate	net_change_rate	num:NetChangeRate	—	—	go	(change_rate-1)*100
 ceil	x:array	—	propagate	same_as(x)	—	ceil	ceil	x32:Ceil, x64:Ceil	—	—	go	门面无对应入口
@@ -44,7 +44,7 @@ logic_and	x:array, y:array	—	—	bool[max_len]	logic.logic_and	logic_and	logic
 logic_or	x:array, y:array	—	—	bool[max_len]	logic.logic_or	logic_or	logic_or	num:Or, x32:Or, x64:Or	—	—	python	按最长对齐
 logic_not	x:array	—	—	bool[same_as(x)]	logic.logic_not	logic_not	logic_not	num:Not, x32:Not, x64:Not	—	—	python	逐元素取反
 logic_xor	x:array, y:array	—	—	bool[first_len]	—	logic_xor	logic_xor	x32:Xor, x64:Xor	—	—	go	门面无对应入口
-where	condition:bool[], x:array, y:array	—	—	max_len	—	where	where_select	num:Where	—	—	go	按最长对齐，条件为真取 x；Go 门面的 condition 与取值同类型（StatType），不接受 bool 条件
+where	condition:bool[], x:array, y:array	—	—	max_len	where.where	where	where_select	num:Where	—	—	python	按最长对齐，条件为真取 x；Go 门面的 condition 与取值同类型（StatType），不接受 bool 条件
 select	x:array, mask:bool[]	—	—	same_as(x)	—	select	select	x32:Select, x64:Select	—	—	go	掩码为真保留 x 元素
 find	x:array, value:scalar	—	comparison_false	index	—	find	find	x32:Find, x64:Find	—	—	go	未命中返回 -1
 gather	x:array, idx:int[]	—	—	same_as(idx)	—	gather	gather	x32:Gather, x64:Gather	—	—	go	按下标取值
@@ -77,14 +77,14 @@ rolling_apply	series:array, window:int|int[], apply:func	—	—	same_as(series)
 rolling_window	values:array, capacity:scalar	—	—	tuple	—	Window, rolling_window	—	num:RollingWindow, num:Any2Window	—	—	go	返回 Window；At / IsConst 为方法，不在函数粒度契约内
 periods	n:int|any	—	—	tuple	—	Periods	—	num:AnyToPeriod	—	—	go	周期序列；Min 字段由 Rolling 的 min_periods 参数写入
 # --- N6 构造与整形 ---
-zeros	shape:int	—	—	[n]	—	zeros	zeros	num:Zeros, x32:Zeros, x64:Zeros	—	—	go	全零
+zeros	shape:int	—	—	[n]	zeros.zeros	zeros	zeros	num:Zeros, x32:Zeros, x64:Zeros	—	—	python	全零
 ones	shape:int	—	—	[n]	—	ones	ones	num:Ones, x32:Ones, x64:Ones	—	—	go	全一；Go 门面按入参切片长度生成，不接受形状整数
 arange	start:number, end:number, step:number?	step=1	—	[n]	—	arange	arange_f64, arange_i64	num:Arange	—	—	go	不含 end
 linspace	start:number, end:number, n:int, endpoint:bool?	endpoint=true	—	[n]	—	linspace	linspace	num:Linspace	—	—	go	含 end（endpoint=true）
 range	n:int	—	—	[n]	—	range	range_i64	num:Range	—	—	go	0..n
 range_float	a:f64, b:f64	—	—	[n]	—	range	range_float	x32:Range, x64:Range	—	—	go	浮点区间；门面无对应入口
-repeat	value:scalar, n:int	—	—	[n]	—	repeat, repeat_into	repeat	num:Repeat, num:RepeatInto, x32:Repeat, x64:Repeat	—	—	go	同值重复
-align	x:array, value:scalar, n:int	—	—	[n]	—	align	align	num:Align	—	—	go	补默认值到指定长度
+repeat	value:scalar, n:int	—	—	[n]	repeat.repeat	repeat, repeat_into	repeat	num:Repeat, num:RepeatInto, x32:Repeat, x64:Repeat	—	—	python	同值重复
+align	x:array, value:scalar, n:int	—	—	[n]	align.align	align	align	num:Align	—	—	python	补默认值到指定长度
 shape	x:any	—	—	tuple	—	shape	shape, shape_2d	num:Shape	—	—	go	返回 (行, 列)
 concat1d	a:array, b:array, c:array	—	—	[n][3]	—	concat1d	concat1d	num:Concat1D	—	—	go	逐元素拼成 n×3（列式），不是 NumPy 的按行拼接
 transpose2d	x:matrix	—	—	[m][n]	—	transpose2d	transpose2d	num:Transpose2D	—	—	go	二维转置
@@ -121,10 +121,10 @@ date_range	start:time, periods:int, freq:string	—	—	[n]	—	date_range	date_
 peeks_and_valleys	x:array	—	—	tuple	—	arg_rel_extrema	—	num:PeeksAndValleys, num:ArgRelExtrema	—	—	go	PeeksAndValleys 目前为空实现返回 nil
 # --- 类型、转换与开关 ---
 type_default	—	—	—	scalar	—	type_default	type_default	num:TypeDefault	—	—	go	浮点 NaN、整型 0、bool false、string "NaN"
-nan_check	value:scalar	—	—	scalar	—	nan, is_nan	is_nan	num:NaN, num:DTypeIsNaN, num:Float32NaN, num:Float32IsNaN, num:Float64NaN, num:Float64IsNaN, num:IsNaN	—	—	go	IsNaN 同时把 ±Inf 判为真
+nan_check	value:scalar	—	—	scalar	decimals.is_nan	nan, is_nan	is_nan	num:NaN, num:DTypeIsNaN, num:Float32NaN, num:Float32IsNaN, num:Float64NaN, num:Float64IsNaN, num:IsNaN	—	—	python	IsNaN 同时把 ±Inf 判为真
 any_to_scalar	v:any	—	—	scalar	—	to_bool, to_string	—	num:AnyToBool, num:AnyToFloat32, num:AnyToFloat64, num:AnyToInt32, num:AnyToInt64, num:AnyToString	—	—	go	any 到标量
 any2dtype	v:any	—	—	scalar	—	—	—	num:Any2DType	—	—	go	推断 DType
-bool_to_numeric	b:bool	—	—	scalar	—	bool_to_int, bool_to_int32, bool_to_int64, bool_to_float32, bool_to_float64, bool_to_string	bool_to_i64, bool_to_f64, bools_to_f64	num:BoolToInt, num:BoolToInt32, num:BoolToInt64, num:BoolToFloat32, num:BoolToFloat64, num:BoolToString	—	—	go	标量入口；true=1 / false=0
+bool_to_numeric	b:bool	—	—	scalar	type_bool.bool_to_int64, type_bool.bool_to_float64	bool_to_int, bool_to_int32, bool_to_int64, bool_to_float32, bool_to_float64, bool_to_string	bool_to_i64, bool_to_f64, bools_to_f64	num:BoolToInt, num:BoolToInt32, num:BoolToInt64, num:BoolToFloat32, num:BoolToFloat64, num:BoolToString	—	—	python	标量入口；true=1 / false=0
 parse_scalar	text:string, dst:any	—	—	scalar	—	parse_bool, parse_int32, parse_int64, parse_float32, parse_float64	—	num:ParseBool, num:ParseInt32, num:ParseInt64, num:ParseFloat32, num:ParseFloat64	—	—	go	解析失败返回 dst 的当前值
 generic_parse	text:string	—	—	scalar	—	generic_parse	—	num:GenericParse	—	—	go	目标类型由泛型形参给出
 slice_to_bool	v:any	—	—	bool[n]	—	slice_to_bool	—	num:SliceToBool	—	—	go	切片转 bool
@@ -133,7 +133,7 @@ slice_to_int	v:any	—	—	[n]	—	slice_to_ints	—	num:SliceToInts	—	—	go	
 slice_to_float32	v:any	—	—	f32[n]	—	slice_to_float32	—	num:SliceToFloat32	—	—	go	切片转 f32
 slice_to_float64	v:any	—	—	f64[n]	—	slice_to_float64	—	num:SliceToFloat64, num:Slice2DType	—	—	go	Slice2DType 为同义包装
 slice_float_to_int	v:array	—	—	tuple	—	slice_float_to_int32, slice_float_to_int64	floats_to_int32, floats_to_int64	num:SliceFloatToInt32, num:SliceFloatToInt64	—	—	go	浮点切片转整型
-dtype2int	d:array	—	—	i32[n]	—	dtype2int	dtype2int	num:DType2Int	—	—	go	等同于 slice_float_to_int32
+dtype2int	d:array	—	—	i32[n]	type_dtype.dtype2int	dtype2int	dtype2int	num:DType2Int	—	—	python	等同于 slice_float_to_int32
 from_bool	x:bool[]	—	—	numeric[n]	—	from_bool	from_bool	x32:FromBool, x64:FromBool	—	—	go	bool 序列转数值序列
 from_int32	x:i32[]	—	—	numeric[n]	—	from_int32	from_int32	x32:FromInt32, x64:FromInt32	—	—	go	整型序列转浮点序列
 from_int64	x:i64[]	—	—	numeric[n]	—	from_int64	from_int64	x32:FromInt64, x64:FromInt64	—	—	go	整型序列转浮点序列

@@ -7,6 +7,7 @@
 """
 
 from .abs import abs
+from .align import align
 from .argmax import argmax
 from .argmin import argmin
 from .arithmetics_add import add
@@ -16,11 +17,13 @@ from .arithmetics_sub import sub
 from .count import count
 from .covariance import covariance, variance
 from .cumsum import cumsum
+from .decimals import decimal, is_nan
 from .diff import diff
 from .dot import dot1d
 from .logic import gt, gte, logic_and, logic_not, logic_or, lt, lte
 from .logic_all import all
 from .logic_any import any
+from .log import expm1, log1p
 from .logic_equal import equal, not_equal
 from .max import max
 from .maximum import maximum
@@ -28,14 +31,20 @@ from .mean import mean
 from .median import median
 from .min import min
 from .minimum import minimum
+from .repeat import repeat
 from .shift import shift
 from .sqrt import sqrt
 from .stddev import std
 from .sum import sum
+from .type_bool import bool_to_float64, bool_to_int64
+from .type_dtype import dtype2int
+from .where import where
+from .zeros import zeros
 
 __all__ = [
-    "abs", "add", "all", "any", "argmax", "argmin", "count", "covariance", "cumsum", "diff",
-    "div", "dot1d", "equal", "gt", "gte", "logic_and", "logic_not", "logic_or", "lt", "lte",
-    "max", "maximum", "mean", "median", "min", "minimum", "mul", "not_equal", "shift", "sqrt",
-    "std", "sub", "sum", "variance",
+    "abs", "add", "align", "all", "any", "argmax", "argmin", "bool_to_float64", "bool_to_int64",
+    "count", "covariance", "cumsum", "decimal", "diff", "div", "dot1d", "dtype2int", "equal",
+    "expm1", "gt", "gte", "is_nan", "log1p", "logic_and", "logic_not", "logic_or", "lt", "lte",
+    "max", "maximum", "mean", "median", "min", "minimum", "mul", "not_equal", "repeat", "shift",
+    "sqrt", "std", "sub", "sum", "variance", "where", "zeros",
 ]
