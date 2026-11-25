@@ -4,6 +4,7 @@
 //! `fill` 连 Inf 一起填、`concat1d` 列式 n×3 等）与 Go 保持一致。
 
 mod container;
+mod conversion;
 mod elementwise;
 mod float;
 mod geometry;
@@ -13,6 +14,7 @@ mod scalar;
 mod window;
 
 pub use container::*;
+pub use conversion::*;
 pub use elementwise::*;
 pub use float::Float;
 pub use geometry::*;

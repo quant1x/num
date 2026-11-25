@@ -7,7 +7,7 @@
 
 ## 0. 对拍状态
 
-`tests/fixtures/conform_cpp` 已把 C++ 已有算子全部接入 fixture：**140 个样本逐值通过，0 跳过**。
+`tests/fixtures/conform_cpp` 已把 C++ 已有算子全部接入 fixture：**151 个样本逐值通过，0 跳过**。
 
 最近补齐：`rolling`（含 `min_periods`）/ `rolling_apply` / `cumprod` / `bool_to_numeric`，以及上一批的
 一元、舍入、三角与指数对数、逻辑异或、选择/索引、prod/norm/quantile/none、浮点幂与浮点区间。
@@ -16,9 +16,6 @@
 
 | 语义 | 现状 | 说明 |
 | --- | --- | --- |
-| `from_bool` / `from_int32` / `from_int64` / `from_float` | 无（C++ 直接用模板构造） | 转换族没有 fixture |
-| `to_bool` / `to_int32` / `to_int64` / `to_float32` / `to_float64` | 无（C++ 用 `xt::cast`） | 同上 |
-| `dtype2int` | 无 | 同上 |
 | `any_to_scalar` | 只有 `to_bool` / `to_string` 的值重载 | C++ 无运行期 `any`，可判为不适用 |
 
 ## 2. Go 侧不对称（先定 Go 落点，再谈 C++ 对位）

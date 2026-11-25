@@ -165,6 +165,7 @@ add_library(num_core STATIC
         logic_none.h
         cumprod.h
         mat4mul.h
+        conversions.h
 )
 
 # 包含根是仓库根的上一级：公共头的包含形态为 <num/<模块>/<头文件>.h>，

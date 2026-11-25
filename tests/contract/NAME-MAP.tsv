@@ -133,15 +133,15 @@ slice_to_int	v:any	—	—	[n]	—	slice_to_ints	—	num:SliceToInts	—	—	go	
 slice_to_float32	v:any	—	—	f32[n]	—	slice_to_float32	—	num:SliceToFloat32	—	—	go	切片转 f32
 slice_to_float64	v:any	—	—	f64[n]	—	slice_to_float64	—	num:SliceToFloat64, num:Slice2DType	—	—	go	Slice2DType 为同义包装
 slice_float_to_int	v:array	—	—	tuple	—	slice_float_to_int32, slice_float_to_int64	—	num:SliceFloatToInt32, num:SliceFloatToInt64	—	—	go	浮点切片转整型
-dtype2int	d:array	—	—	i32[n]	—	—	—	num:DType2Int	—	—	go	等同于 slice_float_to_int32
-from_bool	x:bool[]	—	—	numeric[n]	—	—	—	x32:FromBool, x64:FromBool	—	—	go	bool 序列转数值序列
-from_int32	x:i32[]	—	—	numeric[n]	—	—	—	x32:FromInt32, x64:FromInt32	—	—	go	整型序列转浮点序列
-from_int64	x:i64[]	—	—	numeric[n]	—	—	—	x32:FromInt64, x64:FromInt64	—	—	go	整型序列转浮点序列
-from_float	x:f64[]/f32[]	—	—	numeric[n]	—	—	—	x32:FromFloat64, x64:FromFloat32	—	—	go	浮点宽度互转
-to_bool	x:array	—	—	bool[n]	—	—	—	x32:ToBool, x64:ToBool	—	—	go	数值序列转 bool
-to_int32	x:array	—	—	i32[n]	—	—	—	x32:ToInt32, x64:ToInt32	—	—	go	按截断转换
-to_int64	x:array	—	—	i64[n]	—	—	—	x32:ToInt64, x64:ToInt64	—	—	go	按截断转换
-to_float32	x:array	—	—	f32[n]	—	—	—	x64:ToFloat32	—	—	go	浮点宽度互转
-to_float64	x:array	—	—	f64[n]	—	—	—	x32:ToFloat64	—	—	go	浮点宽度互转
+dtype2int	d:array	—	—	i32[n]	—	dtype2int	—	num:DType2Int	—	—	go	等同于 slice_float_to_int32
+from_bool	x:bool[]	—	—	numeric[n]	—	from_bool	—	x32:FromBool, x64:FromBool	—	—	go	bool 序列转数值序列
+from_int32	x:i32[]	—	—	numeric[n]	—	from_int32	—	x32:FromInt32, x64:FromInt32	—	—	go	整型序列转浮点序列
+from_int64	x:i64[]	—	—	numeric[n]	—	from_int64	—	x32:FromInt64, x64:FromInt64	—	—	go	整型序列转浮点序列
+from_float	x:f64[]/f32[]	—	—	numeric[n]	—	from_float32, from_float64	—	x32:FromFloat64, x64:FromFloat32	—	—	go	浮点宽度互转
+to_bool	x:array	—	—	bool[n]	—	to_bool	—	x32:ToBool, x64:ToBool	—	—	go	数值序列转 bool
+to_int32	x:array	—	—	i32[n]	—	to_int32	—	x32:ToInt32, x64:ToInt32	—	—	go	按截断转换
+to_int64	x:array	—	—	i64[n]	—	to_int64	—	x32:ToInt64, x64:ToInt64	—	—	go	按截断转换
+to_float32	x:array	—	—	f32[n]	—	to_float32	—	x64:ToFloat32	—	—	go	浮点宽度互转
+to_float64	x:array	—	—	f64[n]	—	to_float64	—	x32:ToFloat64	—	—	go	浮点宽度互转
 string_check	s:string	—	—	scalar	—	is_empty, string_is_true, string_is_false, string_is_nan	—	num:IsEmpty, num:StringIsTrue, num:StringIsFalse, num:StringIsNaN	—	—	go	字符串判空 / 判真 / 判 NaN
 avx2_switch	enabled:bool	—	—	—	—	—	—	num:GetAvx2Enabled, num:SetAvx2Enabled	—	—	go	非线程安全，仅限用例与基准

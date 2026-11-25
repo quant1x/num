@@ -554,6 +554,39 @@ def geometry_layer(out_dir: str) -> None:
     save(out_dir, group, "polyval-f64", "poly_val",
          {"p": coefficients, "x": xs, "expected": np.polyval(coefficients, xs)})
 
+
+def conversion_layer(out_dir: str) -> None:
+    group = "conversion"
+    flags = np.array([True, False, True])
+    save(out_dir, group, "from-bool-f64", "from_bool",
+         {"x": flags, "expected": f64([1.0, 0.0, 1.0])})
+    i32 = np.array([-2, 0, 3], dtype=np.int32)
+    save(out_dir, group, "from-int32-f64", "from_int32",
+         {"x": i32, "expected": i32.astype(np.float64)})
+    i64 = np.array([-2, 0, 3], dtype=np.int64)
+    save(out_dir, group, "from-int64-f64", "from_int64",
+         {"x": i64, "expected": i64.astype(np.float64)})
+    wide = f64([1.5, -2.25])
+    save(out_dir, group, "from-float64-f32", "from_float",
+         {"x": wide, "expected": wide.astype(np.float32)})
+    narrow = f32([1.5, -2.25])
+    save(out_dir, group, "from-float32-f64", "from_float",
+         {"x": narrow, "expected": narrow.astype(np.float64)})
+    mixed = f64([0.0, -0.0, 2.0])
+    to_bool = np.not_equal(mixed, 0.0)
+    save(out_dir, group, "to-bool-f64", "to_bool", {"x": mixed, "expected": to_bool})
+    trunc = f64([1.9, -2.9, 0.0])
+    save(out_dir, group, "to-int32-f64", "to_int32",
+         {"x": trunc, "expected": np.trunc(trunc).astype(np.int32)})
+    save(out_dir, group, "to-int64-f64", "to_int64",
+         {"x": trunc, "expected": np.trunc(trunc).astype(np.int64)})
+    save(out_dir, group, "to-float32-f64", "to_float32",
+         {"x": wide, "expected": wide.astype(np.float32)})
+    save(out_dir, group, "to-float64-f32", "to_float64",
+         {"x": narrow, "expected": narrow.astype(np.float64)})
+    save(out_dir, group, "dtype2int-f64", "dtype2int",
+         {"x": trunc, "expected": np.trunc(trunc).astype(np.int32)})
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="生成跨语言 fixture")
     parser.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."),
@@ -570,6 +603,7 @@ def main() -> None:
     window_layer(out_dir)
     linalg_layer(out_dir)
     geometry_layer(out_dir)
+    conversion_layer(out_dir)
     print(f"fixtures written to {out_dir}")
 
 

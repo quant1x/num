@@ -188,13 +188,13 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 
 ### 4.6 契约 / 一致性测试
 
-跨**架构**一致性由 `x32/` / `x64/` 与 `internal/functions/` 的用例承担，不在本包；跨**语言**一致性由 `tests/fixtures/` 的 npz 样本承担 —— Go 有 `tests/fixtures/conform`、Rust 有根 crate 的 `tests/conform.rs`、C++ 有 `tests/fixtures/conform_cpp`（140 个样本全量通过）：
+跨**架构**一致性由 `x32/` / `x64/` 与 `internal/functions/` 的用例承担，不在本包；跨**语言**一致性由 `tests/fixtures/` 的 npz 样本承担 —— Go 有 `tests/fixtures/conform`、Rust 有根 crate 的 `tests/conform.rs`、C++ 有 `tests/fixtures/conform_cpp`（151 个样本全量通过）：
 
 | 场景 | 测试位置 | 断言内容 | 运行命令 |
 | --- | --- | --- | --- |
 | AVX2（amd64） / NEON（arm64） 与 Go 路径等价 | `x32/*_test.go`、`x64/*_test.go`、`internal/functions/*_test.go` | 逐元素相等；长度 1、块大小 ±1；`NaN` / `±Inf` / `±0` | `go test ./x32/ ./x64/ ./internal/functions/` |
 | 门面层两条路径 | 本包 Go 用例（**缺**） | `UseAVX2 = false` 与 `true` 下结果一致 | 见 §5 TODO |
-| C++ 与 Go 逐值一致 | `tests/fixtures/conform_cpp`（140 个样本） | 已覆盖语义逐值相等；未覆盖语义跳过并列在 `CPP-GAPS.md` | `ctest --preset release-static -R fixtures_conform_cpp` |
+| C++ 与 Go 逐值一致 | `tests/fixtures/conform_cpp`（151 个样本） | 已覆盖语义逐值相等；未覆盖语义跳过并列在 `CPP-GAPS.md` | `ctest --preset release-static -R fixtures_conform_cpp` |
 
 ## 5. TODO
 
@@ -206,13 +206,14 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 | `fit_line` 的失败返回 | 单点输入返回 `intercept = y[0]` 的水平线同时标记失败（`std::pair<Line,bool>`），C++ 照此保留 | 补 spec 时确认失败位与半成品是否都要保留 | §2 | 待建单 | 低 |
 | 补 Python spec | 整包无 `.py`，语义准绳缺失 | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
 | 扩 Rust 覆盖面 | crate 已通过 129 个 fixture；线性代数、几何、时间与公式族未移植 | 按 `NAME-MAP.tsv` 逐行补，B3 在 pandas 仓库 | §1 / §2 | #21 | 中 |
-| C++ 对拍覆盖 | `num_fixture_conform` 已全量接入 140 个样本；无 fixture 的转换族与 mat4mul 不在范围 | 新增 fixture 时同步扩展分派 | §4.6 | #27 | 低 |
+| C++ 对拍覆盖 | `num_fixture_conform` 已全量接入 151 个样本；无 fixture 的转换族与 mat4mul 不在范围 | 新增 fixture 时同步扩展分派 | §4.6 | #27 | 低 |
 | C++ 打包与导出 | `conan create` 与 `cmake --install` 未落地，`num_core` 只能源码内使用 | 安装布局要与扁平目录一起设计（头文件按 `num/` 前缀导出） | §3 | #11 | 中 |
 | C++ 指令集分发 | 只按编译器基线下发，未做运行期多版本分发（Go 侧有 `UseAVX2` 开关与两套内核） | 需要 CMake 多目标编译 + 运行期 `__builtin_cpu_supports` / `IsProcessorFeaturePresent` 探测；会牺牲老 CPU 兼容，须先定策略 | §2 精度与平台 | #11 | 中 |
 | `diff` 方向文档化核对 | C++ 已按 Go 口径实现为 `s[i-n] - s[i]`（与 pandas 相反），但 Go 侧无文档说明 | 需确认是设计意图还是历史包袱 | §2 | #11 | 低 |
 | `Median` 是否内置排序 | Go 与 C++ 均按入参顺序取中间元素、**不排序**（空输入 `NaN`、单元素 `0`），排序责任在调用方 | 两侧已逐行一致（`median.h` 照抄 Go），待补 spec 时确认「不排序」是意图；定案后一起改 | §2 | 待建单 | 低 |
 | C++ 覆盖率与基准 | 无覆盖率工具接入、无 Google Benchmark 用例与基线 | 需要在 CMake 侧引入 `llvm-cov` / `benchmark` | §4.2 / §4.5 | #11 | 低 |
 | 清 `go vet` 报错 | 5 处 `unreachable code`：`type.go:211`、`type.go:296`、`type_float64.go:134`、`type_integer.go:75`、`type_strings.go:188` | 无技术阻塞；需逐个确认是死分支还是 `panic` 之后的正常不可达 | §4.4 | 待建单 | 中 |
+| `ToBool` 的 NaN 口径 | `x64.ToBool` 的 AVX2 路径把 NaN 判为 false，Go 参考路径 `x != 0` 判为 true | 需在 AVX2 内核统一按「非零为真」处理，fixture 暂不含 NaN | §4.6 | 待建单 | 中 |
 | 根包用例按 `accel` 两遍跑 | 84 个 `Test` 均未引用 `functions.Info().Acceleration`，`UseAVX2 = false` 分支在根包层无用例（`x32` / `x64` 的用例已按 §7 跑两遍） | 无技术阻塞，待排期 | §4.1 / §4.6 | 待建单 | 中 |
 | 提升覆盖率并设门槛 | 语句覆盖 42.1%，仓库未设门槛；`window_test.go` 只有基准、无 `Test` | 无技术阻塞，待排期 | §4.2 | 待建单 | 中 |
 | 登记基准基线 | 46 个 `Benchmark*` 均无基线值与环境说明 | 需固定一台基准机，并写明 CPU / OS / commit | §4.5 | 待建单 | 中 |

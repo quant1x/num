@@ -404,6 +404,42 @@ fn compute(fixture: &Fixture) -> Result<Vec<f64>, String> {
             let a = matrix_f64(fixture, "a")?;
             Ok(flatten_matrix(&inverse(&a)))
         }
+        "from_bool" => Ok(from_bool(&bools(fixture, "x")?)),
+        "from_int32" => Ok(from_int32(
+            &ints(fixture, "x")?
+                .into_iter()
+                .map(|value| value as i32)
+                .collect::<Vec<_>>(),
+        )),
+        "from_int64" => Ok(from_int64(&ints(fixture, "x")?)),
+        "from_float" => {
+            if fixture.arrays["expected"].descr == "<f4" {
+                Ok(from_float64(&floats(fixture, "x")?)
+                    .into_iter()
+                    .map(f64::from)
+                    .collect())
+            } else {
+                Ok(from_float32(&to_f32(&floats(fixture, "x")?)))
+            }
+        }
+        "to_bool" => Ok(bools_to_numbers(to_bool(&floats(fixture, "x")?))),
+        "to_int32" => Ok(to_int32(&floats(fixture, "x")?)
+            .into_iter()
+            .map(|value| value as f64)
+            .collect()),
+        "to_int64" => Ok(to_int64(&floats(fixture, "x")?)
+            .into_iter()
+            .map(|value| value as f64)
+            .collect()),
+        "to_float32" => Ok(to_float32(&floats(fixture, "x")?)
+            .into_iter()
+            .map(f64::from)
+            .collect()),
+        "to_float64" => Ok(to_float64(&to_f32(&floats(fixture, "x")?))),
+        "dtype2int" => Ok(dtype2int(&floats(fixture, "x")?)
+            .into_iter()
+            .map(|value| value as f64)
+            .collect()),
         "slope" => Ok(vec![slope(
             scalar_i64(fixture, "x1")?,
             scalar_f64(fixture, "y1")?,

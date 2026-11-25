@@ -370,6 +370,95 @@ func compute(fixture *readgo.File) ([]float64, error) {
 			return nil, err
 		}
 		return flattenMatrix(num.Inverse(a)), nil
+	case "from_bool":
+		values, err := bools(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		return x64.FromBool(values), nil
+	case "from_int32":
+		values, err := ints(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		converted := make([]int32, len(values))
+		for i, value := range values {
+			converted[i] = int32(value)
+		}
+		return x64.FromInt32(converted), nil
+	case "from_int64":
+		values, err := ints(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		converted := make([]int64, len(values))
+		for i, value := range values {
+			converted[i] = int64(value)
+		}
+		return x64.FromInt64(converted), nil
+	case "from_float":
+		values, err := floats(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		if fixture.Arrays["expected"].Descr == "<f4" {
+			return toFloat64(x32.FromFloat64(values)), nil
+		}
+		converted := make([]float32, len(values))
+		for i, value := range values {
+			converted[i] = float32(value)
+		}
+		return x64.FromFloat32(converted), nil
+	case "to_bool":
+		values, err := floats(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		return boolToFloat64s(x64.ToBool(values)), nil
+	case "to_int32":
+		values, err := floats(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		converted := x64.ToInt32(values)
+		out := make([]float64, len(converted))
+		for i, value := range converted {
+			out[i] = float64(value)
+		}
+		return out, nil
+	case "to_int64":
+		values, err := floats(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		return toFloat64(x64.ToInt64(values)), nil
+	case "to_float32":
+		values, err := floats(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		return toFloat64(x64.ToFloat32(values)), nil
+	case "to_float64":
+		values, err := floats(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		converted := make([]float32, len(values))
+		for i, value := range values {
+			converted[i] = float32(value)
+		}
+		return toFloat64(x32.ToFloat64(converted)), nil
+	case "dtype2int":
+		values, err := floats(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		converted := num.DType2Int(values)
+		out := make([]float64, len(converted))
+		for i, value := range converted {
+			out[i] = float64(value)
+		}
+		return out, nil
 	case "slope":
 		x1, err := scalarInt(fixture, "x1")
 		if err != nil {

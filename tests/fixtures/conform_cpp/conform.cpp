@@ -17,6 +17,7 @@
 #include <num/dot.h>
 #include <num/fillna.h>
 #include <num/log.h>
+#include <num/conversions.h>
 #include <num/slope.h>
 #include <num/polynomial.h>
 #include <num/mat4mul.h>
@@ -737,6 +738,65 @@ bool compute(const File &fixture, std::vector<double> &out, std::string &reason)
     if (name == "poly_val") {
         out = to_doubles(num::poly_val(make_vector<double>(floats(fixture, "p")),
                                        make_vector<double>(floats(fixture, "x"))));
+        return true;
+    }
+
+
+    if (name == "from_bool") {
+        out = to_doubles(num::from_bool<double>(make_vector<bool>(bools(fixture, "x"))));
+        return true;
+    }
+    if (name == "from_int32") {
+        const auto values = ints(fixture, "x");
+        auto source = num::Vector<num::i32>::from_shape({values.size()});
+        for (std::size_t i = 0; i < values.size(); ++i) {
+            source[i] = static_cast<num::i32>(values[i]);
+        }
+        out = to_doubles(num::from_int32<double>(source));
+        return true;
+    }
+    if (name == "from_int64") {
+        const auto values = ints(fixture, "x");
+        auto source = num::Vector<num::i64>::from_shape({values.size()});
+        for (std::size_t i = 0; i < values.size(); ++i) {
+            source[i] = values[i];
+        }
+        out = to_doubles(num::from_int64<double>(source));
+        return true;
+    }
+    if (name == "from_float") {
+        if (fixture.arrays.at("expected").descr == "<f4") {
+            out = to_doubles(num::from_float64<float>(make_vector<double>(floats(fixture, "x"))));
+        } else {
+            out = to_doubles(num::from_float32<double>(make_vector<float>(floats(fixture, "x"))));
+        }
+        return true;
+    }
+    if (name == "to_bool") {
+        const auto result = num::to_bool(make_vector<double>(floats(fixture, "x")));
+        for (std::size_t i = 0; i < result.size(); ++i) {
+            out.push_back(result[i] ? 1.0 : 0.0);
+        }
+        return true;
+    }
+    if (name == "to_int32") {
+        out = to_doubles(num::to_int32(make_vector<double>(floats(fixture, "x"))));
+        return true;
+    }
+    if (name == "to_int64") {
+        out = to_doubles(num::to_int64(make_vector<double>(floats(fixture, "x"))));
+        return true;
+    }
+    if (name == "to_float32") {
+        out = to_doubles(num::to_float32(make_vector<double>(floats(fixture, "x"))));
+        return true;
+    }
+    if (name == "to_float64") {
+        out = to_doubles(num::to_float64(make_vector<float>(floats(fixture, "x"))));
+        return true;
+    }
+    if (name == "dtype2int") {
+        out = to_doubles(num::dtype2int(make_vector<double>(floats(fixture, "x"))));
         return true;
     }
 
