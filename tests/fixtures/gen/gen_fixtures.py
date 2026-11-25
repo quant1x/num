@@ -423,6 +423,84 @@ def container(out_dir: str) -> None:
           "expected": np.where(np.isnan(holes), -9.0, holes)})
 
 
+def rolling_windows(values, window, min_periods=None):
+    """按 Go 的 v1At 口径生成窗口：min 未设置要求完整窗口，设置后用 partial window。"""
+    out = []
+    for i in range(len(values)):
+        size = window[i] if isinstance(window, list) else window
+        available = i + 1
+        if min_periods is None or min_periods <= 0:
+            if size > available:
+                out.append([])
+                continue
+        else:
+            if size > available:
+                if available < min_periods:
+                    out.append([])
+                    continue
+                size = available
+            elif size < min_periods:
+                out.append([])
+                continue
+        out.append(list(values[available - size:available]))
+
+    lengths = [len(block) for block in out]
+    flat = [value for block in out for value in block]
+    return lengths, flat
+
+
+def shift_expected(values, n):
+    out = []
+    for i, _ in enumerate(values):
+        j = i - n
+        out.append(values[j] if 0 <= j < len(values) else float("nan"))
+    return out
+
+
+def window_layer(out_dir: str) -> None:
+    group = "window"
+    series = f64([1.0, 2.0, 3.0, 4.0, 5.0])
+
+    def save_rolling(case, window, min_periods=None):
+        lengths, flat = rolling_windows(list(series), window, min_periods)
+        payload = {
+            "x": series,
+            "window": np.array(window, dtype=np.int64),
+            "expected_lengths": np.array(lengths, dtype=np.int64),
+            "expected_flat": f64(flat),
+        }
+        if min_periods is not None:
+            payload["min_periods"] = np.array(min_periods, dtype=np.int64)
+        save(out_dir, group, case, "rolling", payload)
+
+    save_rolling("rolling-basic-f64", 3)
+    save_rolling("rolling-min1-f64", 3, 1)
+    save_rolling("rolling-min2-f64", 3, 2)
+    save_rolling("rolling-min-window-f64", 3, 3)
+    save_rolling("rolling-min-gt-window-f64", 3, 4)
+    save_rolling("rolling-window-array-f64", [2, 3, 3, 3, 3], 2)
+
+    means = [float("nan") if i < 2 else float(np.mean(series[i - 2:i + 1])) for i in range(len(series))]
+    save(out_dir, group, "rolling-apply-mean-f64", "rolling_apply",
+         {"x": series, "window": np.array(3, dtype=np.int64), "expected": f64(means)})
+
+    save(out_dir, group, "shift-right-f64", "shift",
+         {"x": series, "n": np.array(2, dtype=np.int64), "expected": f64(shift_expected(list(series), 2))})
+    save(out_dir, group, "shift-left-f64", "shift",
+         {"x": series, "n": np.array(-1, dtype=np.int64), "expected": f64(shift_expected(list(series), -1))})
+    save(out_dir, group, "shift-zero-f64", "shift",
+         {"x": series, "n": np.array(0, dtype=np.int64), "expected": series})
+
+    for n in (1, 2):
+        shifted = shift_expected(list(series), n)
+        expected = [float("nan") if math.isnan(a) else a - b for a, b in zip(shifted, series)]
+        save(out_dir, group, f"diff-n{n}-f64", "diff",
+             {"x": series, "n": np.array(n, dtype=np.int64), "expected": f64(expected)})
+
+    save(out_dir, group, "cumprod-f64", "cumprod",
+         {"x": f64([1.5, 2.0, -3.0]), "expected": np.cumprod(f64([1.5, 2.0, -3.0]))})
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="生成跨语言 fixture")
     parser.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."),
@@ -436,6 +514,7 @@ def main() -> None:
     reduction(out_dir)
     reduction_extras(out_dir)
     container(out_dir)
+    window_layer(out_dir)
     print(f"fixtures written to {out_dir}")
 
 

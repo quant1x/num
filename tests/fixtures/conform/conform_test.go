@@ -42,6 +42,10 @@ func checkFixture(t *testing.T, path string) {
 	if err := fixture.Verify(); err != nil {
 		t.Fatalf("校验: %v", err)
 	}
+	if _, ok := fixture.Arrays["expected_lengths"]; ok {
+		checkRagged(t, fixture)
+		return
+	}
 	got, err := compute(fixture)
 	if err != nil {
 		t.Fatalf("计算: %v", err)
@@ -66,6 +70,79 @@ func checkFixture(t *testing.T, path string) {
 		}
 		t.Fatalf("第 %d 位 %v，期望 %v（容差 %g）", i, got[i], want[i], tolerance)
 	}
+}
+
+func checkRagged(t *testing.T, fixture *readgo.File) {
+	t.Helper()
+	x, err := floats(fixture, "x")
+	if err != nil {
+		t.Fatalf("读 x: %v", err)
+	}
+	windows, err := ints(fixture, "window")
+	if err != nil {
+		t.Fatalf("读 window: %v", err)
+	}
+	var blocks [][]float64
+	if len(windows) == 1 {
+		if minimum, ok := optionalInt(fixture, "min_periods"); ok {
+			blocks = num.Rolling(x, windows[0], minimum)
+		} else {
+			blocks = num.Rolling(x, windows[0])
+		}
+	} else {
+		if minimum, ok := optionalInt(fixture, "min_periods"); ok {
+			blocks = num.Rolling(x, windows, minimum)
+		} else {
+			blocks = num.Rolling(x, windows)
+		}
+	}
+
+	wantLengths, err := numeric(fixture, "expected_lengths")
+	if err != nil {
+		t.Fatalf("读期望长度: %v", err)
+	}
+	if len(blocks) != len(wantLengths) {
+		t.Fatalf("窗口数 %d，期望 %d", len(blocks), len(wantLengths))
+	}
+	var gotFlat []float64
+	for i, block := range blocks {
+		if float64(len(block)) != wantLengths[i] {
+			t.Fatalf("第 %d 个窗口长度 %d，期望 %v", i, len(block), wantLengths[i])
+		}
+		gotFlat = append(gotFlat, block...)
+	}
+
+	wantFlat, err := numeric(fixture, "expected_flat")
+	if err != nil {
+		t.Fatalf("读期望值: %v", err)
+	}
+	tolerance, err := scalarFloat(fixture, "meta_tolerance")
+	if err != nil {
+		t.Fatalf("读容差: %v", err)
+	}
+	if len(gotFlat) != len(wantFlat) {
+		t.Fatalf("展平后长度 %d，期望 %d", len(gotFlat), len(wantFlat))
+	}
+	for i := range wantFlat {
+		if equalFloat(gotFlat[i], wantFlat[i]) {
+			continue
+		}
+		if tolerance > 0 && math.Abs(gotFlat[i]-wantFlat[i]) <= tolerance*math.Max(1, math.Abs(wantFlat[i])) {
+			continue
+		}
+		t.Fatalf("第 %d 位 %v，期望 %v（容差 %g）", i, gotFlat[i], wantFlat[i], tolerance)
+	}
+}
+
+func optionalInt(fixture *readgo.File, name string) (int, bool) {
+	if _, ok := fixture.Arrays[name]; !ok {
+		return 0, false
+	}
+	values, err := ints(fixture, name)
+	if err != nil || len(values) != 1 {
+		return 0, false
+	}
+	return values[0], true
 }
 
 func compute(fixture *readgo.File) ([]float64, error) {
@@ -284,6 +361,14 @@ func compute(fixture *readgo.File) ([]float64, error) {
 		return fillOp(fixture, false)
 	case "fill_na":
 		return fillOp(fixture, true)
+	case "rolling_apply":
+		return rollingApplyOp(fixture)
+	case "shift":
+		return shiftOp(fixture)
+	case "diff":
+		return diffOp(fixture)
+	case "cumprod":
+		return cumprodOp(fixture)
 	default:
 		return nil, fmt.Errorf("未覆盖的语义 %q", semanticOf(fixture))
 	}
@@ -876,6 +961,63 @@ func transposeOp(fixture *readgo.File) ([]float64, error) {
 		}
 	}
 	return flattenInt(num.Transpose2D(rows)), nil
+}
+
+func rollingApplyOp(fixture *readgo.File) ([]float64, error) {
+	x, err := floats(fixture, "x")
+	if err != nil {
+		return nil, err
+	}
+	windows, err := ints(fixture, "window")
+	if err != nil {
+		return nil, err
+	}
+	mean := func(n num.DType, values ...float64) float64 {
+		total := 0.0
+		for _, v := range values {
+			total += v
+		}
+		return total / float64(n)
+	}
+	if len(windows) == 1 {
+		return num.RollingApply(x, windows[0], mean), nil
+	}
+	return num.RollingApply(x, windows, mean), nil
+}
+
+func shiftOp(fixture *readgo.File) ([]float64, error) {
+	x, err := floats(fixture, "x")
+	if err != nil {
+		return nil, err
+	}
+	n, err := scalarInt(fixture, "n")
+	if err != nil {
+		return nil, err
+	}
+	return num.Shift(x, n), nil
+}
+
+func diffOp(fixture *readgo.File) ([]float64, error) {
+	x, err := floats(fixture, "x")
+	if err != nil {
+		return nil, err
+	}
+	n, err := scalarInt(fixture, "n")
+	if err != nil {
+		return nil, err
+	}
+	return num.Diff(x, n), nil
+}
+
+func cumprodOp(fixture *readgo.File) ([]float64, error) {
+	x, err := floats(fixture, "x")
+	if err != nil {
+		return nil, err
+	}
+	if isF32(fixture, "x") {
+		return toFloat64(x32.CumProd(toFloat32(x))), nil
+	}
+	return x64.CumProd(x), nil
 }
 
 func fillOp(fixture *readgo.File, fillNa bool) ([]float64, error) {

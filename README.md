@@ -28,13 +28,14 @@ num 是类似 numpy 的数值工具包，按语言**平行实现、语义相同*
 
 num 提供了灵活的滑动窗口工具。推荐且唯一的对外调用方式为：
 
-- Rolling(S, N)            // 原始行为
-- Rolling(S, N, minPeriod) // 启用 min_period
+- Rolling(S, N)            // 完整窗口
+- Rolling(S, N, minPeriod) // 启用 min_period：可用观测数达到 minPeriod 即可计算
 
 参数说明：
 - S: 源序列（例如 []float64）
 - N: 窗口，可以是常量（int）或切片（每个位置不同窗口），也可以直接传入支持的类型（AnyToSlice 可识别的类型）
-- minPeriod: 可选参数。如果提供，则启用 min_period 语义
+- minPeriod: 可选参数。提供时启用 min_period 语义：可用观测数 >= minPeriod 即计算，窗口不足时用已有观测
+  （partial window）；`minPeriod <= 0` 视为未设置，`minPeriod` 大于窗口长度时不产生窗口
 
 示例：
 
@@ -43,8 +44,8 @@ xs := []float64{1,2,3,4,5}
 // 普通窗口
 blocks := Rolling(xs, 3)
 
-// 启用 min_period，要至少 4 个观测才计算
-blocksMin := Rolling(xs, 3, 4)
+// 启用 min_period：至少 3 个观测即可计算，窗口不足时用已有观测
+blocksMin := Rolling(xs, 5, 3)
 
 // apply 版本：求移动均值
 ma := RollingApply(xs, 5, func(N DType, vals ...float64) float64 {
@@ -58,7 +59,8 @@ blocks2 := Rolling(xs, p)
 ```
 
 兼容性说明：
-- 旧的调用 `Rolling(S, N)` 行为不变。
+- 不传 minPeriod 时 `Rolling(S, N)` 行为不变（窗口不足的位置返回空切片）。
+- `minPeriod` 必须不大于窗口长度；大于时该位置不产生窗口，避免与 pandas 的 `min_periods > window` 语义混淆。
 - `Periods` 仍保留作为实现细节，推荐使用 `Rolling(S,N,min)` 或 `RollingApply`。
 
 

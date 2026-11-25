@@ -16,7 +16,7 @@ func Add_AVX2_F64(x, y []float64) {
 func AddNumber_AVX2_F64(x []float64, a float64) {
 	panic("not implemented")
 }
-func Sub_AVX2_F64(x, y []float64) []float64 {
+func Sub_AVX2_F64(x, y []float64) {
 	panic("not implemented")
 }
 func SubNumber_AVX2_F64(x []float64, a float64) {

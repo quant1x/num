@@ -42,7 +42,7 @@
 | N1 | 标量与类型边界 | 根包 + `kind/` | Go / C++ / Rust | `DType` ↔ f32 / f64 / i8..u64 映射、NaN / ±Inf / ±0 约定 | Go 已落地，C++ 部分 |
 | N2 | 逐元素算子 | 根包 + `x32/` + `x64/` | Go / C++ / Rust | 算术、比较、逻辑、取整、三角 | Go 已落地，C++ 部分 |
 | N3 | 归约族 | 根包 + `internal/functions/` | Go / C++ / Rust | sum / mean / std / var / min / max / argmin / argmax | Go 已落地，C++ 部分 |
-| N4 | 窗口与滚动族 | `internal/functions/` | Go / C++ / Rust | rolling / apply / min_periods / 移动统计 | Go 已落地，C++ 未落地 |
+| N4 | 窗口与滚动族 | `internal/functions/` | Go / C++ / Rust | rolling / apply / min_periods / 移动统计 | Go 已落地，C++ 部分（缺 min_periods） |
 | N5 | 向量化内核 | `x32/*_amd64.s`、`*_arm64.s` | Go / C++ | `Xxx_AVX2_F32/F64` 双架构实现；C++ 走 xsimd | Go 已落地 |
 | N6 | 向量与容器 | `vectors/`、`binary/` | Go / C++ / Rust | 序列裁剪、对齐、字节序读写 | Go 已落地 |
 
@@ -142,7 +142,7 @@ G1 ◄─ G2
 | --- | --- | --- | --- | --- |
 | **M0 契约地基** | C1 → C2 → C3；D1 并行 | 无 | NAME-MAP 覆盖已落地的 Go 公开符号；`DATA-FORMAT.md` 定稿；3 门语言读同一个 npz 且断言通过 | 已完成 |
 | **M1 内核对齐** | N1、N2、N3、N6 | M0 | N1 ~ N3、N6 的 fixture 全绿；产出 C++ 相对 Go 的缺口清单 | 已完成 |
-| **M2 窗口与向量化** | N4、N5 | M1 | 滚动族 fixture 全绿；AVX2 / NEON 与标量路径对拍通过 | 未开始 |
+| **M2 窗口与向量化** | N4、N5 | M1 | 滚动族 fixture 全绿；AVX2 / NEON 与标量路径对拍通过 | 已完成 |
 | **M3 交换格式落地** | D2、D3 | M0（D2）、M1/M2（D3） | Go / C++ / Rust 互读互写同一 CSV：Go 产 Python 读、Python 产 Go 与 C++ 读，值逐元素一致；发布物含版本号 | 未开始 |
 | **M4 Rust 定型** | Rust crate、B3 | M1（与 M2 并行） | crate 按 NAME-MAP 暴露符号并通过同一批 fixture；命名与最小参数集对位 | 未开始 |
 | **M5 公式族跨语言** | B1、B2、B3、B4 | M1、M3 | 通达信口径用例在 4 门语言同值；`formula/README.md` 每行状态更新；研究脚本只产 fixture 不与生产耦合 | 未开始 |
@@ -168,6 +168,7 @@ G1 ◄─ G2
 | 无 fixture 机制 | ~~跨语言一致性只能人工比对~~ | 已由 C2 生成器与 C3 三语言读取器解决；新增算子仍需补样本 | M1 | 已解决 |
 | 无交换格式规范 | ~~各语言输出各写各的~~ | 已由 `docs/DATA-FORMAT.md`（D1）定稿 | M3 | 已解决 |
 | 表头方言污染 | 引入自带 `列名:类型` 表头的三方 dataframe 库会使 CSV 无法被 Python / Go 通用读取器直接消费 | 靠 D1 红线约束；选库时逐项核对表头约定 | M6 | 高 |
+| C++ 缺 min_periods | Go 的 `rolling` 已支持 partial window（`min_periods`），C++ 仍只有完整窗口入口 | 补 C++ 形参并复用同一 fixture 口径 | M5 | 中 |
 | Rust 无 crate | `Cargo.toml` 与 module 结构均未定 | 依赖 C1 定名 | M4 | 中 |
 | Go 侧数值与 C++ 有差距 | 缺 AVX-512、迭代器开销、GC 峰值 | 属语言特性，不以牺牲 Go 交付面为代价硬追 | M7 | 低 |
 | 重复实现风险 | 同名功能可能在两个包各写一套 | C1 已定“权威实现语言”列并由 `name_map_test.go` 校验符号覆盖；CI 自动校验尚未接入 | 全程 | 中 |

@@ -315,7 +315,7 @@ func AddNumber_AVX2_F64(x []float64, a float64) {
 	}
 }
 
-func Sub_AVX2_F64(x, y []float64) []float64 {
+func Sub_AVX2_F64(x, y []float64) {
 	n := len(x) &^ 3
 	if n > 0 {
 		neonSubF64(unsafe.Pointer(&x[0]), unsafe.Pointer(&y[0]), n)
@@ -323,7 +323,6 @@ func Sub_AVX2_F64(x, y []float64) []float64 {
 	for i := n; i < len(x); i++ {
 		x[i] -= y[i]
 	}
-	return x
 }
 
 func SubNumber_AVX2_F64(x []float64, a float64) {
@@ -827,7 +826,7 @@ func AddNumber_AVX2_F32(x []float32, a float32) {
 	}
 }
 
-func Sub_AVX2_F32(x, y []float32) []float32 {
+func Sub_AVX2_F32(x, y []float32) {
 	n := len(x) &^ 7
 	if n > 0 {
 		neonSubF32(unsafe.Pointer(&x[0]), unsafe.Pointer(&y[0]), n)
@@ -835,7 +834,6 @@ func Sub_AVX2_F32(x, y []float32) []float32 {
 	for i := n; i < len(x); i++ {
 		x[i] -= y[i]
 	}
-	return x
 }
 
 func SubNumber_AVX2_F32(x []float32, a float32) {

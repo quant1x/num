@@ -11,6 +11,7 @@ tests/fixtures/
 ├── scalar/                 # N1 标量与类型边界样本
 ├── elementwise/            # N2 逐元素样本
 ├── reduction/              # N3 归约样本
+├── window/                 # N4 滚动族样本（rolling / shift / diff）
 ├── container/              # N6 向量与容器样本
 ├── conform/                # Go 实现对拍用例（M1 准入）
 ├── read_go/                # Go 读取器（package read_go，读取器用例在 npz_test.go）
@@ -20,8 +21,8 @@ tests/fixtures/
 ```
 
 样本路径为 `<分组>/<用例>.npz`，分组对应 N 层（`scalar` = N1、`elementwise` = N2、`reduction` = N3、
-`container` = N6）。当前共 116 个样本，覆盖 N1 ~ N3、N6 的数值语义；字符串解析、`any` 分派与反射类转换
-不在样本范围内（其口径见契约表，落地时另补）。
+`window` = N4、`container` = N6）。当前共 129 个样本，覆盖 N1 ~ N4、N6 的数值语义；字符串解析、`any` 分派与
+反射类转换不在样本范围内（其口径见契约表，落地时另补）。
 
 ## npz 约定
 
@@ -29,6 +30,7 @@ tests/fixtures/
 | --- | --- |
 | `x` / `y` / `condition` … | 输入数组，名字取自 `tests/contract/NAME-MAP.tsv` 的 `min_params` |
 | `expected` | 期望输出；返回值多于一个时用 `expected_0`、`expected_1` |
+| `expected_flat` / `expected_lengths` | 嵌套或不等长输出（`Rolling` 的窗口列表）用展平值 + 每段长度表示 |
 | `meta_semantic` | `S32` 定宽字节串标量（numpy 的 `S32` dtype），语义名，对应契约表 `semantic` 列 |
 | `meta_tolerance` | `f8` 标量；0 表示逐位相等，非 0 为该用例的浮点容差 |
 | `meta_checksum` | `u8` 标量；所有非 `meta_` 数组按名字排序串联后的 FNV-1a 64 |

@@ -24,6 +24,7 @@ go test ./tests/fixtures/conform/ -run 'TestFixtures/container' -v
 - `meta_semantic` 决定调用哪个算子；dtype 决定走 f32 还是 f64 入口。
 - 标量参数（`n`、`q`、`size`、`start` 等）以 0 元素数组存放，由 `scalarFloat` / `scalarInt` / `scalarBool` 读取。
 - 二维结果（`concat1d` / `transpose2d`）按行主序展平后比较；`shape` 的期望是 `[行, 列]`。
+- 不等长输出（`rolling`）走 `expected_flat` + `expected_lengths`：先逐个窗口比对长度，再比对展平值。
 - 容差取 `meta_tolerance`：0 表示逐位相等，NaN 与 NaN 视为相等。
 
 ## 新增样本

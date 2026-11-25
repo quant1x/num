@@ -39,6 +39,58 @@ func TestRolling(t *testing.T) {
 	}
 }
 
+func TestRollingMinPeriods(t *testing.T) {
+	s := []float64{1, 2, 3, 4, 5, 6}
+	tests := []struct {
+		name string
+		n    any
+		min  int
+		want [][]float64
+	}{
+		{
+			name: "min=2",
+			n:    3,
+			min:  2,
+			want: [][]float64{{}, {1, 2}, {1, 2, 3}, {2, 3, 4}, {3, 4, 5}, {4, 5, 6}},
+		},
+		{
+			name: "min=1",
+			n:    3,
+			min:  1,
+			want: [][]float64{{1}, {1, 2}, {1, 2, 3}, {2, 3, 4}, {3, 4, 5}, {4, 5, 6}},
+		},
+		{
+			name: "min=window",
+			n:    3,
+			min:  3,
+			want: [][]float64{{}, {}, {1, 2, 3}, {2, 3, 4}, {3, 4, 5}, {4, 5, 6}},
+		},
+		{
+			name: "min>window",
+			n:    3,
+			min:  4,
+			want: [][]float64{{}, {}, {}, {}, {}, {}},
+		},
+		{
+			name: "per-position window",
+			n:    []int{2, 3, 3, 3, 3, 3},
+			min:  2,
+			want: [][]float64{{}, {1, 2}, {1, 2, 3}, {2, 3, 4}, {3, 4, 5}, {4, 5, 6}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Rolling(s, tt.n, tt.min); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Rolling() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
+	if got := Rolling([]float64{}, 3, 2); len(got) != 0 {
+		t.Errorf("空输入应返回空切片, got %v", got)
+	}
+}
+
 func Test_v3Rolling(t *testing.T) {
 	type args[E BaseType] struct {
 		S     []E

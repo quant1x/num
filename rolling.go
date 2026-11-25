@@ -1,28 +1,45 @@
 package num
 
-// Rolling returns an array with elements that roll beyond the last position are re-introduced at the first.
-// 滑动窗口, 数据不足是用空数组占位
-func Rolling[E BaseType](S []E, N any, min ...int) [][]E {
-	return v2Rolling[E](S, N)
+// Rolling 滑动窗口, 数据不足是用空数组占位
+//
+//	minPeriods 是可选的最小观测数:
+//	  - 不传时与原先一致, 窗口不足（可用观测数 < 窗口长度）的位置返回空切片;
+//	  - 传入时, 可用观测数 >= minPeriods 即可计算, 窗口不足时用已有观测（partial window）;
+//	  - minPeriods <= 0 视为未设置; minPeriods > 窗口长度时不产生任何窗口。
+func Rolling[E BaseType](S []E, N any, minPeriods ...int) [][]E {
+	periods := toPeriods(N)
+	if len(minPeriods) > 0 {
+		periods.Min = minPeriods[0]
+	}
+	return v3Rolling(S, periods)
 }
 
-func v2Rolling[E BaseType](S []E, N any) [][]E {
-	sLength := len(S)
-	// 这样就具备了序列化滑动窗口的特性了
-	window := AnyToSlice[DType](N, sLength)
-	blocks := make([][]E, sLength)
-	for i := 0; i < sLength; i++ {
-		n := window[i]
-		shift := int(n)
-		if DTypeIsNaN(n) || shift > i+1 {
+// toPeriods 把 Rolling 的窗口参数统一成 Periods。
+func toPeriods(N any) Periods {
+	switch win := N.(type) {
+	case Window[DType]:
+		return Periods{Array: win.V, N: win.C}
+	case Periods:
+		return win
+	default:
+		return AnyToPeriod(N)
+	}
+}
+
+func v3Rolling[E BaseType](S []E, periods Periods) [][]E {
+	blocks := make([][]E, len(S))
+	for i := range S {
+		n, ok := periods.v1At(i)
+		if !ok {
 			blocks[i] = []E{}
 			continue
 		}
-		offset := i + 1
-		start := offset - shift
-		end := offset
-		subSet := S[start:end]
-		blocks[i] = subSet
+		shift := int(n)
+		start := i + 1 - shift
+		if start < 0 {
+			start = 0
+		}
+		blocks[i] = S[start : i+1]
 	}
 	return blocks
 }
