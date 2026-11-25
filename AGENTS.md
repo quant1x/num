@@ -83,7 +83,7 @@
 | 提交（Windows） | 写入 `.git/commit-msg.tmp` 后 `git commit -F .git/commit-msg.tmp` |
 | 建 / 查 / 关工单 | `labs-git-issue`（不传 `--host` / `--repo`，按 `origin` 自动识别），正文模板见 [§9.1](CONTRIBUTING.md#91-先建单再动手) |
 | C++ 取依赖 / 配置 / 编译 | `conan install . -s build_type=Release -s compiler.runtime=static`、`cmake --preset release-static`、`cmake --build --preset release-static` |
-| C++ 用例 | `ctest --preset release-static`（247 个用例，Debug 用 `debug-static`） |
+| C++ 用例 | `ctest --preset release-static`（252 个用例，Debug 用 `debug-static`） |
 | Rust 编译 / 用例 / 检查 | `cargo build`、`cargo test`、`cargo clippy --all-targets -- -D warnings`、`cargo fmt --check` |
 | 单二进制（命令行） | `CGO_ENABLED=0 go build -o numctl ./cmd/numctl`；`go test ./cmd/numctl/` |
 | Python 用例（spec） | `python -m unittest discover -s tests/python -v`（首批 8 个语义、16 个 npz 样本） |

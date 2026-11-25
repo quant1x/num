@@ -11,6 +11,7 @@ mod float;
 mod geometry;
 mod line;
 mod matrix;
+pub mod numb;
 mod reduction;
 mod scalar;
 mod time;

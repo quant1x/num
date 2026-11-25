@@ -162,6 +162,7 @@ add_library(num_core STATIC
         prod.h
         norm.h
         distance.h
+        numb.h
         quantile.h
         logic_none.h
         cumprod.h
@@ -309,9 +310,13 @@ if(NUM_BUILD_TESTS)
             type_integer_test.cpp
             # 泛型解析入口
             type_generic_test.cpp
+            # .numb 二进制样本（D1 §3.2，版本 2）
+            numb_test.cpp
     )
 
     target_link_libraries(num_cpp_tests PRIVATE num_core GTest::gtest_main)
+    target_compile_definitions(num_cpp_tests PRIVATE
+            NUMB_FIXTURES="${CMAKE_SOURCE_DIR}/tests/fixtures/numb")
 
     include(GoogleTest)
     gtest_discover_tests(num_cpp_tests)

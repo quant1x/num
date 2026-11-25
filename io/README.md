@@ -13,8 +13,22 @@ import numio "github.com/quant1x/num/io"
 ## 职责与边界
 
 - **收**：带 schema 的 CSV 读取与写出、表头与字段校验、缺失值与无穷的文本映射、时间归一化。
-- **不收**：CSV 之外的交换格式（JSON Lines / 二进制见 D1 的可选扩展，尚未落地）、
+- **不收**：JSON Lines 与 `.numb` 二进制（`.numb` 见同目录 `numb.go` 与本文件 §`.numb`）、
   业务主键合并、按列统计。上层数据管道（B5）在这里之上做覆盖写。
+
+## `.numb` 二进制（D1 §3.2）
+
+`numb.go` 实现版本 2 的二进制样本：头部 9 字节 + 8×ndim，dtype 码 2 字节 ASCII
+（`b1` / `i1` / `i2` / `i4` / `i8` / `u1` / `u2` / `u4` / `u8` / `f4` / `f8`）。
+
+```go
+numb := numio.NumbF64([]uint64{3}, []float64{1, 2, 3})
+err := numio.WriteNumbFile("x.numb", numb)
+back, err := numio.ReadNumbFile("x.numb")
+values, err := back.Floats()          // f4 → Floats32，i8 → Int64s，b1 → Bools
+```
+
+长度、版本、dtype、形状任一不自洽都返回错误；版本 1 的旧布局不兼容（提案 0001）。
 
 ## API
 
