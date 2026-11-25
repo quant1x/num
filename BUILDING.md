@@ -295,7 +295,8 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
   索引（`find` / `gather` / `select` / `scatter`）、构造补全（`ones` / `range_float`），
   正态分布表（`ztable` 四项，按 Go 探针值核对，无 npz 样本），其余 113 个语义对应
   `tests/fixtures` 的 160 个样本；
-- `NAME-MAP.tsv` 的 `authority` 仍是 `go`：逐批把语义切到 python，未切的继续以 Go 为临时基准。
+- `NAME-MAP.tsv` 的 `authority` 逐行标注：117 行已切到 `python`，其余以 Go 为临时基准（理由写在 note）；
+- `.numb` 读写：`numb.py` 与 Go / C++ / Rust 同格式，读 `tests/fixtures/numb/` 的 6 个黄金样本并重编码逐字节一致。
 
 ---
 
