@@ -1,10 +1,10 @@
 # num 跨语言符号与签名契约表（C1）。列说明与取值见 README.md。
 # 每行一个功能；同一功能的各语言实现填同一行，未落地写 —。
-# authority 当前固定为 go（临时基准，Python spec 落地后改为 python）。
+# authority 逐行标注：已由 Python spec 实现的写 python（python 列必须有符号），其余写 go（临时基准）。
 # go 列带包限定符：num（门面）/ x32 / x64。
 # semantic	min_params	defaults	nan_convention	return_shape	python	cpp	rust	go	zig	java	authority	note
 # --- N2 逐元素：取绝对值与算术 ---
-abs	x:array	—	no_special	same_as(x)	—	abs	abs	num:Abs, x32:Abs, x64:Abs	—	—	go	无符号输入门面层原样返回
+abs	x:array	—	no_special	same_as(x)	abs.abs	abs	abs	num:Abs, x32:Abs, x64:Abs	—	—	python	无符号输入门面层原样返回
 abs_int	n:int	—	—	scalar	—	abs_int, abs_int8, abs_int16, abs_int32, abs_int64	—	num:AbsInt, num:AbsInt8, num:AbsInt16, num:AbsInt32, num:AbsInt64	—	—	go	有符号整型绝对值
 abs_float	n:f32/f64	—	propagate	scalar	—	abs_float32, abs_float64	—	num:AbsFloat32, num:AbsFloat64	—	—	go	浮点标量绝对值
 neg	x:array	—	propagate	same_as(x)	—	neg	neg	x32:Neg, x64:Neg	—	—	go	门面无对应入口
@@ -50,17 +50,17 @@ find	x:array, value:scalar	—	comparison_false	index	—	find	find	x32:Find, x6
 gather	x:array, idx:int[]	—	—	same_as(idx)	—	gather	gather	x32:Gather, x64:Gather	—	—	go	按下标取值
 scatter	x:array, idx:int[], size:int	—	—	[size]	—	scatter	scatter	x32:Scatter, x64:Scatter	—	—	go	按下标写入新序列
 # --- N3 归约 ---
-sum	x:array	—	propagate	scalar	—	sum	sum	num:Sum, x32:Sum, x64:Sum	—	—	go	归约顺序见 CONTRIBUTING §5.6.3
+sum	x:array	—	propagate	scalar	sum.sum	sum	sum	num:Sum, x32:Sum, x64:Sum	—	—	python	归约顺序见 CONTRIBUTING §5.6.3
 prod	x:array	—	propagate	scalar	—	prod	prod	x32:Prod, x64:Prod	—	—	go	门面无对应入口
-mean	x:array	—	propagate	scalar	—	mean	mean	num:Mean, num:Mean2, x32:Mean, x64:Mean	—	—	go	空输入为 NaN（浮点）/ 0（整型）
+mean	x:array	—	propagate	scalar	mean.mean	mean	mean	num:Mean, num:Mean2, x32:Mean, x64:Mean	—	—	python	空输入为 NaN（浮点）/ 0（整型）
 median	x:array	—	propagate	scalar	—	median	median	num:Median, x32:Median, x64:Median	—	—	go	按入参顺序取中间元素，不排序；空输入 NaN、单元素 0
 max	x:array	—	no_special	scalar	—	max	max	num:Max, num:Max2, x32:Max, x64:Max	—	—	go	空输入 panic；NaN 结果取决于比较顺序
 min	x:array	—	no_special	scalar	—	min	min	num:Min, num:Min2, x32:Min, x64:Min	—	—	go	口径同 max
 argmax	x:array	—	no_special	index	—	argmax	argmax	num:ArgMax, num:ArgMax2, x32:ArgMax, x64:ArgMax	—	—	go	空输入 panic
 argmin	x:array	—	no_special	index	—	argmin	argmin	num:ArgMin, num:ArgMin2, x32:ArgMin, x64:ArgMin	—	—	go	空输入 panic
-std	x:array	—	propagate	scalar	—	stddev	std	num:Std	—	—	go	总体标准差（ddof=0）；空输入返回类型默认值
-variance	x:array	—	propagate	scalar	—	variance	variance	num:Variance	—	—	go	总体方差（ddof=0）；仅 f64 入口
-covariance	x:array, y:array	—	propagate	scalar	—	covariance	covariance	num:Covariance	—	—	go	逐对协方差
+std	x:array	—	propagate	scalar	stddev.std	stddev	std	num:Std	—	—	python	总体标准差（ddof=0）；空输入返回类型默认值
+variance	x:array	—	propagate	scalar	covariance.variance	variance	variance	num:Variance	—	—	python	总体方差（ddof=0）；仅 f64 入口
+covariance	x:array, y:array	—	propagate	scalar	covariance.covariance	covariance	covariance	num:Covariance	—	—	python	逐对协方差
 count	x:array	—	comparison_false	scalar	—	count	count, count_true	num:Count, x32:Count, x64:Count	—	—	go	数值统计非零元素，布尔统计 true
 all	x:bool[]	—	—	scalar	—	all	all	num:All, x32:All, x64:All	—	—	go	空输入为 true
 any	x:bool[]	—	—	scalar	—	any	any	num:Any, x32:Any, x64:Any	—	—	go	空输入为 false
@@ -68,7 +68,7 @@ none	x:bool[]	—	—	scalar	—	none	none	x32:None, x64:None	—	—	go	全部�
 norm	x:array	—	propagate	scalar	—	norm	norm	x32:Norm, x64:Norm	—	—	go	欧氏范数
 quantile	x:array, q:f64	—	no_special	scalar	—	quantile	quantile	x32:Quantile, x64:Quantile	—	—	go	q=0 取最小、q=1 取最大
 # --- N4 窗口与滚动 ---
-cumsum	x:array	—	propagate	same_as(x)	—	cumsum, cumsum_inplace	cumsum	num:CumSum, x32:CumSum, x64:CumSum	—	—	go	前缀和
+cumsum	x:array	—	propagate	same_as(x)	cumsum.cumsum	cumsum, cumsum_inplace	cumsum	num:CumSum, x32:CumSum, x64:CumSum	—	—	python	前缀和
 cumprod	x:array	—	propagate	same_as(x)	—	cumprod	cumprod	x32:CumProd, x64:CumProd	—	—	go	门面无对应入口
 diff	series:array, n:int	—	propagate	same_as(series)	—	diff	diff	num:Diff, num:V2Diff	—	—	go	方向为 s[i-n]-s[i]（与 pandas 相反）；n=0 返回全 0
 shift	series:array, n:int|int[]	—	—	same_as(series)	—	shift	shift	num:Shift	—	—	go	越界位填类型默认值；n=0 返回原序列
@@ -91,7 +91,7 @@ transpose2d	x:matrix	—	—	[m][n]	—	transpose2d	transpose2d	num:Transpose2D	
 fill	v:array, d:scalar, inplace:bool?	inplace=false	—	same_as(v)	—	fill, fill_inplace	fill	num:Fill	—	—	go	默认复制入参再填
 fill_na	x:array, v:any	inplace=false	—	same_as(x)	—	fill_na, fill_na_inplace	fill_na	num:FillNa	—	—	go	按 NaN 判定填充
 # --- 线代与几何 ---
-dot1d	a:array, b:array	—	propagate	scalar	—	dot1d	dot1d	num:Dot1D, x32:Dot, x64:Dot	—	—	go	一维点积
+dot1d	a:array, b:array	—	propagate	scalar	dot.dot1d	dot1d	dot1d	num:Dot1D, x32:Dot, x64:Dot	—	—	python	一维点积
 dot2d	a:matrix, b:matrix	—	propagate	[n][m]	—	dot2d, dot2d_v1, dot2d1	dot2d	num:Dot, num:Dot2D, num:Dot2D_V1, num:Dot_v1	—	—	go	二维矩阵乘
 dot2d1	a:matrix, b:array	—	propagate	[n]	—	dot2d1	dot2d1	num:Dot2D1, num:Dot2D1_v2	—	—	go	矩阵乘向量
 matmul	x:array, y:array, n:int	—	propagate	[n][n]	—	matmul	matmul	x32:MatMul, x64:MatMul	—	—	go	定长方阵乘；门面无对应入口

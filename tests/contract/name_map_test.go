@@ -61,8 +61,11 @@ func TestNameMapFormat(t *testing.T) {
 		if !shapePattern.MatchString(row[4]) {
 			t.Errorf("第 %d 行 return_shape 取值非法: %s", line, row[4])
 		}
-		if row[11] != "go" {
-			t.Errorf("第 %d 行 authority 当前应为 go（临时基准）: %s", line, row[11])
+		if row[11] != "go" && row[11] != "python" {
+			t.Errorf("第 %d 行 authority 只能是 go（临时基准）或 python: %s", line, row[11])
+		}
+		if row[11] == "python" && row[5] == "—" {
+			t.Errorf("第 %d 行 authority 标了 python，但 python 列没登记符号", line)
 		}
 	}
 }
@@ -166,6 +169,33 @@ func rustPublicFunctions(t *testing.T) map[string]bool {
 		t.Fatal("src/ 未枚举到 pub fn")
 	}
 	return out
+}
+
+// TestNameMapPythonSymbols 校验 python 列登记的 `模块.函数` 确实在仓库根的 `.py` 里。
+func TestNameMapPythonSymbols(t *testing.T) {
+	rows := readTable(t, "NAME-MAP.tsv", nameMapColumns)
+	for i, row := range rows {
+		cell := row[5]
+		if cell == "—" {
+			continue
+		}
+		for _, item := range strings.Split(cell, ", ") {
+			module, function, ok := strings.Cut(item, ".")
+			if !ok || module == "" || function == "" {
+				t.Errorf("第 %d 行 python 列无法解析: %q（应为 模块.函数）", i+2, item)
+				continue
+			}
+			path := filepath.Join(repoRoot, module+".py")
+			data, err := os.ReadFile(path)
+			if err != nil {
+				t.Errorf("第 %d 行 python 符号 %q：读取 %s 失败: %v", i+2, item, path, err)
+				continue
+			}
+			if !strings.Contains(string(data), "def "+function+"(") {
+				t.Errorf("第 %d 行 python 符号 %q：%s 里没有 def %s(", i+2, item, path, function)
+			}
+		}
+	}
 }
 
 func TestTableEncoding(t *testing.T) {

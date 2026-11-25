@@ -21,7 +21,7 @@
 | `nan_convention` | `propagate` / `comparison_false` / `no_special` / `nan_to_zero` / `default` / `—` |
 | `return_shape` | `scalar` / `tuple` / `index`（未命中返回 `-1`）/ `first_len` / `max_len` / `same_as(x)` / `bool[...]` / `[n]` / `[n][m]` 等 |
 | `python` `cpp` `rust` `go` `zig` `java` | 各语言符号名；`go` 列带包限定符 `num:` / `x32:` / `x64:` |
-| `authority` | 权威实现语言；当前固定 `go`（临时基准，Python 落地后改为 `python`） |
+| `authority` | 权威实现语言：已由 Python spec 实现的写 `python`，其余写 `go`（临时基准）；标 `python` 的行必须在 `python` 列有符号 |
 | `note` | 边界、失败约定与已知缺口 |
 
 ## 覆盖规则
@@ -31,6 +31,8 @@
 - 校验只枚举**导出顶层函数**；方法（`Line.Angle`、`Window.At` 等）不在函数粒度契约内。
 - `rust` 列登记 `src/*.rs` 里的 `pub fn` 名称（逗号分隔），由 `TestNameMapRustSymbols` 校验存在性；
   Rust 未实现的语义写 `—`。
+- `python` 列登记 `模块.函数`（模块是仓库根的 `.py` 文件名），由 `TestNameMapPythonSymbols`
+  校验「文件存在且含 `def 函数名(`」；Python 未实现的语义写 `—`。
 - 新增公开函数时二选一：在 `NAME-MAP.tsv` 补一行，或在 `NAME-MAP-EXCLUDED.tsv` 写明排除理由。
 - `tests/contract` 只读当前工作树，不联网、不读写 `temp/`。
 
@@ -40,5 +42,5 @@
 go test ./tests/contract/
 ```
 
-失败信息会列出三类问题：`未登记契约表`（新增符号漏登记）、`登记的符号不存在`（Go 改名或删除后未同步）
-与 `rust 符号在 src/ 中不存在`（Rust 列写错或函数被删除）。
+失败信息会列出四类问题：`未登记契约表`（新增符号漏登记）、`登记的符号不存在`（Go 改名或删除后未同步）、
+`rust 符号在 src/ 中不存在`、`python 符号在根目录 .py 里不存在`。
