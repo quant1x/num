@@ -7,11 +7,25 @@
 """
 
 from .abs import abs
+from .argmax import argmax
+from .argmin import argmin
+from .count import count
 from .covariance import covariance, variance
 from .cumsum import cumsum
+from .diff import diff
 from .dot import dot1d
+from .max import max
+from .maximum import maximum
 from .mean import mean
+from .median import median
+from .min import min
+from .minimum import minimum
+from .shift import shift
+from .sqrt import sqrt
 from .stddev import std
 from .sum import sum
 
-__all__ = ["abs", "covariance", "cumsum", "dot1d", "mean", "std", "sum", "variance"]
+__all__ = [
+    "abs", "argmax", "argmin", "count", "covariance", "cumsum", "diff", "dot1d", "max",
+    "maximum", "mean", "median", "min", "minimum", "shift", "sqrt", "std", "sum", "variance",
+]

@@ -50,6 +50,17 @@ DISPATCH = {
     "variance": lambda data: num.variance(values_of(data, "x")),
     "dot1d": lambda data: num.dot1d(values_of(data, "x"), values_of(data, "y")),
     "covariance": lambda data: num.covariance(values_of(data, "x"), values_of(data, "y")),
+    "sqrt": lambda data: num.sqrt(values_of(data, "x")),
+    "maximum": lambda data: num.maximum(values_of(data, "x"), values_of(data, "y")),
+    "minimum": lambda data: num.minimum(values_of(data, "x"), values_of(data, "y")),
+    "max": lambda data: num.max(values_of(data, "x")),
+    "min": lambda data: num.min(values_of(data, "x")),
+    "argmax": lambda data: num.argmax(values_of(data, "x")),
+    "argmin": lambda data: num.argmin(values_of(data, "x")),
+    "count": lambda data: num.count(values_of(data, "x")),
+    "median": lambda data: num.median(values_of(data, "x")),
+    "shift": lambda data: num.shift(values_of(data, "x"), int(np.asarray(data["n"]).reshape(-1)[0])),
+    "diff": lambda data: num.diff(values_of(data, "x"), int(np.asarray(data["n"]).reshape(-1)[0])),
 }
 
 
@@ -76,7 +87,7 @@ class FixtureConformance(unittest.TestCase):
                         f"{Path(path).name} {semantic}: 第 {index} 位 {got} != {want}",
                     )
                 covered += 1
-        self.assertGreaterEqual(covered, 16, f"只覆盖了 {covered} 个样本")
+        self.assertGreaterEqual(covered, 36, f"只覆盖了 {covered} 个样本")
 
 
 class EmptyInputs(unittest.TestCase):
@@ -95,6 +106,10 @@ class EmptyInputs(unittest.TestCase):
     def test_length_mismatch(self) -> None:
         with self.assertRaises(ValueError):
             num.dot1d([1.0, 2.0], [1.0])
+        with self.assertRaises(ValueError):
+            num.maximum([1.0, 2.0], [1.0])
+        with self.assertRaises(ValueError):
+            num.minimum([1.0, 2.0], [1.0])
 
 
 if __name__ == "__main__":
