@@ -36,3 +36,7 @@ CMakeUserPresets.json
 
 # 编译数据库：VS 生成器不产出，改用单配置生成器（Ninja）时才有
 compile_commands.json
+
+# Python 打包与字节码
+__pycache__/
+*.egg-info/

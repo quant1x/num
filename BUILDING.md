@@ -265,6 +265,21 @@ go test -bench BenchmarkSumProd -benchmem ./internal/functions
 - 基准在目标架构上跑，`arm64` 的结果必须注明运行方式（真机 / qemu ——qemu 的绝对耗时不可信，
   只看相对趋势）。
 
+### 4.5 Python（spec）
+
+Python 包就是仓库根（[提案 0002](docs/proposals/0002-python-package-layout.md)），因此从源码运行要先把仓库的
+**父目录**放进 `sys.path`；`tests/python/` 的用例已内置这一步。
+
+```bash
+pip install --no-deps .                     # 安装（包名 num，版本 0.0.0，发布时由 tag 注入）
+python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz 逐值对拍
+```
+
+- 依赖：`requires-python >= 3.11`；实现本身不依赖 NumPy，NumPy 只用于生成器与对拍用例；
+- 覆盖：首批 `sum` / `mean` / `abs` / `dot1d` / `cumsum` / `std` / `variance` / `covariance`，
+  对应 `tests/fixtures` 的 16 个样本；
+- `NAME-MAP.tsv` 的 `authority` 仍是 `go`：逐批把语义切到 python，未切的继续以 Go 为临时基准。
+
 ---
 
 ## 5. 汇编内核与架构

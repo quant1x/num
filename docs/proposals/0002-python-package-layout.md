@@ -1,6 +1,6 @@
 # 提案 0002：Python spec 的包布局与模块可导入方式
 
-- 状态：**待裁决**
+- 状态：**已定案（方案 A）**，2026-11-25 落地；结论已回写 `CONTRIBUTING.md` §3.1 / §3.2 与 `BUILDING.md` §4.5
 - 影响面：`pyproject.toml`、Python 模块文件位置、`tests/` 的导入方式、`CONTRIBUTING.md` §3.1 / §3.2、
   `docs/PLAN.md` 的 `authority` 切换（go → python）
 - 归属：新增权威实现前的结构决定，须走 §9.2
@@ -71,11 +71,15 @@ py-modules = ["sum", "mean", "dot"]
 4. 首批实现的函数（建议从 `sum` / `mean` / `abs` / `dot1d` 起）与 `tests/fixtures` 的 npz 对拍，
    通过后才把 `NAME-MAP.tsv` 的 `authority` 由 `go` 改为 `python`（分批改，不一次切）。
 
-## 4. 待裁决问题
+## 4. 定案
 
-1. 采用 A 还是 C？（B 不可接受；若选 C，需同时改 §3.2）
-2. 最低 Python 版本定到多少？（建议 3.11，与现有 `ruff`/`mypy` 生态常见基线一致）
-3. Python 侧是否允许运行时依赖 NumPy？（建议：实现不依赖，仅在测试与生成器里用）
+1. **采用方案 A**：根目录即包，`packages = ["num"]` + `package-dir = { num = "." }`；
+2. 最低 Python 版本 **3.11**；
+3. Python 实现**不依赖 NumPy**，NumPy 只用于生成器与对拍用例。
+
+落地物：根目录 `pyproject.toml` / `__init__.py` 与 `sum.py` / `mean.py` / `abs.py` / `dot.py` /
+`cumsum.py` / `stddev.py` / `covariance.py`；`tests/python/test_conform.py` 读 16 个 npz 样本对拍。
+`NAME-MAP.tsv` 的 `authority` 逐批切换，未切的语义仍以 Go 为临时基准。
 
 ## 5. 附：首批建议实现顺序
 
