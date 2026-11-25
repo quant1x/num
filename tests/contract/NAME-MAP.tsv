@@ -28,7 +28,7 @@ floor	x:array	—	propagate	same_as(x)	—	floor	—	x32:Floor, x64:Floor	—	�
 round	x:array	—	propagate	same_as(x)	—	round	—	x32:Round, x64:Round	—	—	go	门面无对应入口；半数远离零
 sin	x:array	—	propagate	same_as(x)	—	sin	—	x32:Sin	—	—	go	x64 缺同名实现
 cos	x:array	—	propagate	same_as(x)	—	cos	—	x32:Cos	—	—	go	x64 缺同名实现
-sincos	x:array	—	propagate	tuple	—	—	—	x32:SinCos_Into	—	—	go	仅原地双输出形态
+sincos	x:array	—	propagate	tuple	—	sincos	—	x32:SinCos_Into	—	—	go	仅原地双输出形态
 exp	x:array	—	propagate	same_as(x)	—	exp	—	x32:Exp	—	—	go	x64 缺同名实现
 log	x:array	—	propagate	same_as(x)	—	log	—	x32:Log	—	—	go	x64 缺同名实现
 log2	x:array	—	propagate	same_as(x)	—	log2	—	x32:Log2	—	—	go	x64 缺同名实现
@@ -99,10 +99,10 @@ mat4mul	x:array, y:array	—	propagate	[4][4]	—	mat4mul	—	x32:Mat4Mul, x64:M
 inverse	a:matrix	—	propagate	[n][n]	—	inverse	—	num:Inverse	—	—	go	矩阵求逆
 poly_fit	x:array, y:array, deg:int	—	propagate	[deg+1]	—	poly_fit	—	num:PolyFit	—	—	go	多项式拟合系数
 poly_val	p:array, x:array	—	propagate	same_as(x)	—	poly_val	—	num:PolyVal	—	—	go	多项式求值
-distance	x:array, y:array	—	propagate	scalar	—	—	—	x32:Distance, x64:Distance	—	—	go	欧氏距离
-manhattan_distance	x:array, y:array	—	propagate	scalar	—	—	—	x32:ManhattanDistance, x64:ManhattanDistance	—	—	go	曼哈顿距离
+distance	x:array, y:array	—	propagate	scalar	—	distance	—	x32:Distance, x64:Distance	—	—	go	欧氏距离
+manhattan_distance	x:array, y:array	—	propagate	scalar	—	manhattan_distance	—	x32:ManhattanDistance, x64:ManhattanDistance	—	—	go	曼哈顿距离
 manhattan_norm	x:array	—	propagate	scalar	—	manhattan_norm	—	x32:ManhattanNorm, x64:ManhattanNorm	—	—	go	曼哈顿范数
-cosine_similarity	x:array, y:array	—	propagate	scalar	—	—	—	x32:CosineSimilarity, x64:CosineSimilarity	—	—	go	余弦相似度
+cosine_similarity	x:array, y:array	—	propagate	scalar	—	cosine_similarity	—	x32:CosineSimilarity, x64:CosineSimilarity	—	—	go	余弦相似度
 slope	x1:int, y1:f64, x2:int, y2:f64	—	propagate	scalar	—	slope	—	num:Slope	—	—	go	两点斜率
 slope_to_degrees	m:f64	—	propagate	scalar	—	slope_to_degrees	—	num:SlopeToDegrees	—	—	go	斜率转角
 degrees_to_slope	x:f64	—	propagate	scalar	—	degrees_to_slope	—	num:DegreesToSlope	—	—	go	角转斜率

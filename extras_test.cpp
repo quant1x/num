@@ -3,6 +3,7 @@
 #include <cmath>
 #include <vector>
 
+#include "distance.h"
 #include "type_bool.h"
 #include "cumprod.h"
 #include "find.h"
@@ -68,6 +69,29 @@ TEST(Extras, TrigExpLog) {
     EXPECT_NEAR(num::log(x)[1], 0.0, 1e-12);
     EXPECT_NEAR(num::log2(Vector<f64>{8.0})[0], 3.0, 1e-12);
     EXPECT_NEAR(num::log10(Vector<f64>{100.0})[0], 2.0, 1e-12);
+}
+
+TEST(Extras, DistanceFamily) {
+    const Vector<f64> a = {1.0, 2.0, 3.0};
+    const Vector<f64> b = {4.0, 5.0, 6.0};
+    EXPECT_NEAR(num::distance(a, b), std::sqrt(27.0), 1e-12);
+    EXPECT_NEAR(num::manhattan_distance(a, b), 9.0, 1e-12);
+    EXPECT_NEAR(num::cosine_similarity(a, b),
+                (1.0 * 4.0 + 2.0 * 5.0 + 3.0 * 6.0) / (std::sqrt(14.0) * std::sqrt(77.0)), 1e-12);
+    EXPECT_THROW(num::distance(a, Vector<f64>{1.0}), num::LengthMismatch);
+}
+
+TEST(Extras, SinCosInto) {
+    const Vector<f64> x = {0.0, 1.0, 2.0};
+    Vector<f64> s;
+    Vector<f64> c;
+    num::sincos(x, s, c);
+    ASSERT_EQ(s.size(), x.size());
+    ASSERT_EQ(c.size(), x.size());
+    for (std::size_t i = 0; i < x.size(); ++i) {
+        EXPECT_NEAR(s[i], std::sin(x[i]), 1e-12);
+        EXPECT_NEAR(c[i], std::cos(x[i]), 1e-12);
+    }
 }
 
 TEST(Extras, LogicXor) {

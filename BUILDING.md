@@ -15,7 +15,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | 汇编内核（amd64 / arm64） | 随 Go 包编译 | `.s` 编进库 | **已落地** |
 | Python | `pyproject.toml`（未建） | 包 | 未落地 |
 | C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | 部分落地（59 个功能行） |
-| Rust | `Cargo.toml` | 库 + 129 个 fixture 的对拍用例 | **已落地（fixture 覆盖子集）** |
+| Rust | `Cargo.toml` | 库 + 160 个 fixture 的对拍用例 | **已落地（fixture 覆盖子集）** |
 | Zig / Java | 无清单文件 | — | 未落地（扩展语言） |
 
 ---
@@ -210,7 +210,7 @@ gofmt -l .
 C++ 侧：
 
 ```bash
-ctest --preset release-static      # 245 个用例，Release + /MT
+ctest --preset release-static      # 247 个用例，Release + /MT
 ctest --preset debug-static        # 同一批用例，Debug + /MTd
 ```
 
@@ -433,7 +433,7 @@ cmake --preset ninja-compile-db
 
 ```bash
 cargo build
-cargo test                                   # 含 tests/conform.rs：129 个 fixture 对拍
+cargo test                                   # 含 tests/conform.rs：160 个 fixture 对拍
 cargo clippy --all-targets -- -D warnings
 cargo fmt --check
 ```
@@ -459,7 +459,8 @@ cargo fmt --check
 3. 浮点按 fixture 的 `meta_tolerance` 比较（f64 默认 1e-12、f32 1e-6），布尔 / 整型严格相等。
 
 Go 侧另有**包内对拍**：`Xxx_Go` 作为期望值，`Xxx_AVX2_F32/F64` 作为被测对象
-（`internal/functions/*_test.go`）。C++ 的计算侧对拍尚未接入，缺口见 `tests/fixtures/CPP-GAPS.md`。
+（`internal/functions/*_test.go`）。C++ 的计算侧对拍已接入 `tests/fixtures/conform_cpp`（160 个样本全量通过），
+剩余差异见 `tests/fixtures/CPP-GAPS.md`。
 
 ---
 

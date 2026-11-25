@@ -535,6 +535,23 @@ func compute(fixture *readgo.File) ([]float64, error) {
 			return nil, err
 		}
 		return []float64{num.Dot1D(x, y)}, nil
+	case "distance", "manhattan_distance", "cosine_similarity":
+		x, err := floats(fixture, "x")
+		if err != nil {
+			return nil, err
+		}
+		y, err := floats(fixture, "y")
+		if err != nil {
+			return nil, err
+		}
+		switch semanticOf(fixture) {
+		case "distance":
+			return []float64{x64.Distance(x, y)}, nil
+		case "manhattan_distance":
+			return []float64{x64.ManhattanDistance(x, y)}, nil
+		default:
+			return []float64{x64.CosineSimilarity(x, y)}, nil
+		}
 	case "dot2d":
 		a, err := matrixF64(fixture, "a")
 		if err != nil {

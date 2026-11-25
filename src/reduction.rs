@@ -164,6 +164,41 @@ pub fn manhattan_norm<T: Float>(x: &[T]) -> T {
     total
 }
 
+/// distance 欧氏距离；长度不等 panic（与 Go 的 checkEqualLength 一致）。
+pub fn distance<T: Float>(x: &[T], y: &[T]) -> T {
+    assert_eq!(x.len(), y.len(), "序列长度不一致");
+    let mut total = T::zero();
+    for (left, right) in x.iter().zip(y.iter()) {
+        let delta = *left - *right;
+        total += delta * delta;
+    }
+    total.sqrt()
+}
+
+/// manhattan_distance 曼哈顿距离；长度不等 panic。
+pub fn manhattan_distance<T: Float>(x: &[T], y: &[T]) -> T {
+    assert_eq!(x.len(), y.len(), "序列长度不一致");
+    let mut total = T::zero();
+    for (left, right) in x.iter().zip(y.iter()) {
+        total += (*left - *right).abs();
+    }
+    total
+}
+
+/// cosine_similarity 余弦相似度；长度不等 panic。
+pub fn cosine_similarity<T: Float>(x: &[T], y: &[T]) -> T {
+    assert_eq!(x.len(), y.len(), "序列长度不一致");
+    let mut dot = T::zero();
+    let mut norm_x = T::zero();
+    let mut norm_y = T::zero();
+    for (left, right) in x.iter().zip(y.iter()) {
+        dot += *left * *right;
+        norm_x += *left * *left;
+        norm_y += *right * *right;
+    }
+    dot / (norm_x * norm_y).sqrt()
+}
+
 /// quantile 线性插值分位；q 超出 [0,1] 时截断。
 pub fn quantile<T: Float>(x: &[T], q: f64) -> T {
     if x.is_empty() {

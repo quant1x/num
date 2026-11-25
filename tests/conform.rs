@@ -500,6 +500,18 @@ fn compute(fixture: &Fixture) -> Result<Vec<f64>, String> {
             }
         }
         "dot1d" => Ok(vec![dot1d(&floats(fixture, "x")?, &floats(fixture, "y")?)]),
+        "distance" => Ok(vec![distance(
+            &floats(fixture, "x")?,
+            &floats(fixture, "y")?,
+        )]),
+        "manhattan_distance" => Ok(vec![manhattan_distance(
+            &floats(fixture, "x")?,
+            &floats(fixture, "y")?,
+        )]),
+        "cosine_similarity" => Ok(vec![cosine_similarity(
+            &floats(fixture, "x")?,
+            &floats(fixture, "y")?,
+        )]),
         "dot2d" => {
             let a = matrix_f64(fixture, "a")?;
             let b = matrix_f64(fixture, "b")?;

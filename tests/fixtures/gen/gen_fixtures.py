@@ -166,6 +166,15 @@ def reduction(out_dir: str) -> None:
     a, b = f64([1.0, 2.0, 3.0]), f64([4.0, 5.0, 6.0])
     save(out_dir, group, "dot1d-basic-f64", "dot1d", {"x": a, "y": b, "expected": np.array(np.dot(a, b))})
 
+    # 向量对归约：欧氏距离 / 曼哈顿距离 / 余弦相似度（Go 侧 x32 / x64 的 Distance 族）。
+    save(out_dir, group, "distance-basic-f64", "distance",
+         {"x": a, "y": b, "expected": np.array(np.sqrt(np.sum((a - b) ** 2)))}, tolerance=1e-12)
+    save(out_dir, group, "manhattan_distance-basic-f64", "manhattan_distance",
+         {"x": a, "y": b, "expected": np.array(np.sum(np.abs(a - b)))}, tolerance=1e-12)
+    save(out_dir, group, "cosine_similarity-basic-f64", "cosine_similarity",
+         {"x": a, "y": b,
+          "expected": np.array(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))}, tolerance=1e-12)
+
     with np.errstate(invalid="ignore"):
         nan_sum = np.sum(f64([1.0, float("nan"), 2.0]))
     save(out_dir, group, "sum-nan-f64", "sum",

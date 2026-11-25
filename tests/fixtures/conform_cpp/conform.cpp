@@ -14,6 +14,7 @@
 #include <num/cumsum.h>
 #include <num/decimals.h>
 #include <num/diff.h>
+#include <num/distance.h>
 #include <num/dot.h>
 #include <num/fillna.h>
 #include <num/log.h>
@@ -431,6 +432,21 @@ bool compute(const File &fixture, std::vector<double> &out, std::string &reason)
     if (name == "dot1d") {
         out = {num::dot1d(make_vector<double>(floats(fixture, "x")),
                           make_vector<double>(floats(fixture, "y")))};
+        return true;
+    }
+    if (name == "distance") {
+        out = {num::distance(make_vector<double>(floats(fixture, "x")),
+                             make_vector<double>(floats(fixture, "y")))};
+        return true;
+    }
+    if (name == "manhattan_distance") {
+        out = {num::manhattan_distance(make_vector<double>(floats(fixture, "x")),
+                                       make_vector<double>(floats(fixture, "y")))};
+        return true;
+    }
+    if (name == "cosine_similarity") {
+        out = {num::cosine_similarity(make_vector<double>(floats(fixture, "x")),
+                                      make_vector<double>(floats(fixture, "y")))};
         return true;
     }
     if (name == "covariance") {

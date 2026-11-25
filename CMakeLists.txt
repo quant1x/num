@@ -161,6 +161,7 @@ add_library(num_core STATIC
         scatter.h
         prod.h
         norm.h
+        distance.h
         quantile.h
         logic_none.h
         cumprod.h

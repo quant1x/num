@@ -7,9 +7,10 @@
 
 ## 0. 对拍状态
 
-`tests/fixtures/conform_cpp` 已把 C++ 已有算子全部接入 fixture：**157 个样本逐值通过，0 跳过**。
+`tests/fixtures/conform_cpp` 已把 C++ 已有算子全部接入 fixture：**160 个样本逐值通过，0 跳过**。
 
-最近补齐：`rolling`（含 `min_periods`）/ `rolling_apply` / `cumprod` / `bool_to_numeric`，以及上一批的
+最近补齐：`distance` / `manhattan_distance` / `cosine_similarity` / `sincos`，样本总数 160。
+更早补齐：`rolling`（含 `min_periods`）/ `rolling_apply` / `cumprod` / `bool_to_numeric`，以及
 一元、舍入、三角与指数对数、逻辑异或、选择/索引、prod/norm/quantile/none、浮点幂与浮点区间。
 
 ## 1. 无 fixture 的接口（不在对拍范围）
@@ -17,6 +18,8 @@
 | 语义 | 现状 | 说明 |
 | --- | --- | --- |
 | `any_to_scalar` | 只有 `to_bool` / `to_string` 的值重载 | C++ 无运行期 `any`，可判为不适用 |
+| `any2dtype` | 无 | 同上，运行期 `any` 分派在 C++ 不适用 |
+| `avx2_switch` | 无 | `UseAVX2` 是 Go 的运行期开关；C++ 由编译期指令集决定，不设开关 |
 
 ## 2. Go 侧不对称（先定 Go 落点，再谈 C++ 对位）
 
@@ -48,6 +51,7 @@
 
 ## 4. 下一步
 
-1. C++ 补齐优先按 §1 的顺序走：先 N2 逐元素（`neg` / `inv` / 舍入 / 三角与指数对数），再 N3（`prod` / `norm` / `quantile` / `none`），最后 N6（`gather` / `scatter` / `select` / `mat4mul`）。
-2. 补 C++ 之前先定 §2 的两条宽度问题（尤其 f64 三角 / 指数对数的落点），否则补出来的符号没有 Go 对照。
-3. `num_fixture_conform` 已全量接入 129 个样本；后续新增 fixture 时同步扩展分派。
+1. C++ 侧相对 NAME-MAP 的符号缺口已清零：§1 余下三条都是运行期 `any` 与 AVX2 开关，不属 C++ 语义面。
+2. 剩余工作是 §2 的 Go 侧不对称项（f64 三角 / 指数对数、f32 方差、`Where` 条件、`Ones` 形状、`Expm1` / `Log1p` 失败约定），
+   定下 Go 落点后 C++ 才能补齐对照。
+3. `num_fixture_conform` 已全量接入 160 个样本；后续新增 fixture 时同步扩展分派。
