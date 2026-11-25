@@ -15,7 +15,7 @@
 | 路径 | 用途 |
 | --- | --- |
 | `contract/` | C1 符号与签名契约表 + 覆盖校验（`go test ./tests/contract/`） |
-| `fixtures/` | C2 生成器、C3 三语言读取器、Go 对拍用例（`conform/`）与 `CPP-GAPS.md`，按 `<分组>/<用例>.npz` 存放样本 |
+| `fixtures/` | C2 生成器、C3 三语言读取器、Go / C++ 对拍（`conform/`、`conform_cpp/`）与 `CPP-GAPS.md`，按 `<分组>/<用例>.npz` 存放样本 |
 | `io/` | D2 跨语言 CSV 互读互写与 B5 按主键合并的驱动器与工具，见 `io/README.md` |
 
 ## 与上下层的关系

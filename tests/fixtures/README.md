@@ -14,6 +14,7 @@ tests/fixtures/
 ├── window/                 # N4 滚动族样本（rolling / shift / diff）
 ├── container/              # N6 向量与容器样本
 ├── conform/                # Go 实现对拍用例（M1 准入）
+├── conform_cpp/            # C++ 对拍（未实现语义跳过，缺口见 CPP-GAPS）
 ├── read_go/                # Go 读取器（package read_go，读取器用例在 npz_test.go）
 ├── read_cpp/               # C++ 读取器（num_fixture_check 目标）
 ├── read_rs/                # Rust 读取器（独立 crate，无三方依赖）
@@ -55,9 +56,10 @@ go test ./tests/contract/ ./tests/fixtures/conform/ ./tests/fixtures/read_go/
 # 三套读取器
 cargo run --quiet --release --manifest-path tests/fixtures/read_rs/Cargo.toml -- tests/fixtures
 ctest --preset release-static -R fixtures_npz_read_cpp
+ctest --preset release-static -R fixtures_conform_cpp
 ```
 
-Go 对拍用例把每个样本交给 Go 实现算一遍并与 `expected` 比较；三套读取器保证同一批样本能被三门语言读出。
+Go / C++ 对拍用例把样本交给各自实现计算并与 `expected` 比较（C++ 未实现的语义跳过并在 `CPP-GAPS.md` 留痕）；三套读取器保证同一批样本能被三门语言读出。
 新增样本时三处都要重跑，不只看自己那门语言。
 
 C++ 相对 Go 的缺口（缺哪些算子、哪些口径待核）见 [CPP-GAPS.md](CPP-GAPS.md)。

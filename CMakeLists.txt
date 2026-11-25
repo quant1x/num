@@ -219,6 +219,14 @@ add_executable(num_fixture_check
 )
 target_include_directories(num_fixture_check PRIVATE tests/fixtures/read_cpp)
 
+# C++ 对拍：把已有算子接入 fixture，未实现的语义跳过并打印
+add_executable(num_fixture_conform
+        tests/fixtures/conform_cpp/conform.cpp
+        tests/fixtures/read_cpp/npz.cpp
+)
+target_include_directories(num_fixture_conform PRIVATE tests/fixtures/read_cpp)
+target_link_libraries(num_fixture_conform PRIVATE num_core)
+
 # D2 跨语言 CSV 往返工具（tests/io/roundtrip.py 调用）
 add_executable(num_csv_roundtrip tests/io/cpp_roundtrip/main.cpp)
 target_link_libraries(num_csv_roundtrip PRIVATE num_core)
@@ -290,4 +298,6 @@ if(NUM_BUILD_TESTS)
 
     add_test(NAME fixtures_npz_read_cpp
             COMMAND num_fixture_check ${CMAKE_SOURCE_DIR}/tests/fixtures)
+    add_test(NAME fixtures_conform_cpp
+            COMMAND num_fixture_conform ${CMAKE_SOURCE_DIR}/tests/fixtures)
 endif()

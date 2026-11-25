@@ -169,6 +169,7 @@ C++ 侧另有一条：新增算子必须在 `CMakeLists.txt` 里**逐文件显�
 | `tests/fixtures/conform` | Go 包 `conform` | M1 Go 对拍用例：读样本 → 调 Go 实现 → 逐值比较 |
 | `tests/fixtures/read_go` | Go 包 `read_go` | C3 Go 读取器与用例 |
 | `tests/fixtures/read_cpp` | C++ 源文件 | C3 C++ 读取器，目标是 `num_fixture_check` |
+| `tests/fixtures/conform_cpp` | C++ 源文件 | C++ 对拍，目标是 `num_fixture_conform`（未实现语义跳过） |
 | `tests/fixtures/read_rs` | 独立 crate | C3 Rust 读取器，不进生产 crate |
 | `tests/io` | Python + 三个工具 | D2 互读互写与 B5 按主键合并，见 `tests/io/README.md` |
 
@@ -209,7 +210,7 @@ gofmt -l .
 C++ 侧：
 
 ```bash
-ctest --preset release-static      # 235 个用例，Release + /MT
+ctest --preset release-static      # 236 个用例，Release + /MT
 ctest --preset debug-static        # 同一批用例，Debug + /MTd
 ```
 

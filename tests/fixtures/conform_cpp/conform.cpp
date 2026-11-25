@@ -1,0 +1,605 @@
+// C++ 对拍：把 tests/fixtures 的 npz 交给 num_core 计算，与 expected 逐值比较。
+// 未实现的语义计数跳过并打印；已覆盖的语义必须全绿。
+
+#include <num/abs.h>
+#include <num/align.h>
+#include <num/argmax.h>
+#include <num/argmin.h>
+#include <num/arithmetics_add.h>
+#include <num/arithmetics_div.h>
+#include <num/arithmetics_mul.h>
+#include <num/arithmetics_sub.h>
+#include <num/count.h>
+#include <num/covariance.h>
+#include <num/cumsum.h>
+#include <num/decimals.h>
+#include <num/diff.h>
+#include <num/dot.h>
+#include <num/fillna.h>
+#include <num/log.h>
+#include <num/logic.h>
+#include <num/logic_all.h>
+#include <num/logic_any.h>
+#include <num/logic_equal.h>
+#include <num/matrix.h>
+#include <num/max.h>
+#include <num/maximum.h>
+#include <num/mean.h>
+#include <num/median.h>
+#include <num/min.h>
+#include <num/minimum.h>
+#include <num/pow.h>
+#include <num/range.h>
+#include <num/repeat.h>
+#include <num/shape.h>
+#include <num/shift.h>
+#include <num/sqrt.h>
+#include <num/stddev.h>
+#include <num/sum.h>
+#include <num/type.h>
+#include <num/type_float64.h>
+#include <num/type_int32.h>
+#include <num/type_int64.h>
+#include <num/where.h>
+#include <num/zeros.h>
+#include <num/ones.h>
+
+#include "npz.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <exception>
+#include <filesystem>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
+
+namespace {
+
+using num::fixture::Array;
+using num::fixture::File;
+
+template<typename T>
+num::Vector<T> make_vector(const std::vector<double> &values) {
+    num::Vector<T> out = num::Vector<T>::from_shape({values.size()});
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        out[i] = static_cast<T>(values[i]);
+    }
+    return out;
+}
+
+template<typename T>
+num::Vector<T> make_vector(const std::vector<bool> &values) {
+    num::Vector<T> out = num::Vector<T>::from_shape({values.size()});
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        out[i] = static_cast<T>(values[i]);
+    }
+    return out;
+}
+
+template<typename T>
+num::Vector<T> make_vector(const std::vector<std::int64_t> &values) {
+    num::Vector<T> out = num::Vector<T>::from_shape({values.size()});
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        out[i] = static_cast<T>(values[i]);
+    }
+    return out;
+}
+
+template<typename T>
+std::vector<double> to_doubles(const num::Vector<T> &values) {
+    std::vector<double> out;
+    out.reserve(values.size());
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        out.push_back(static_cast<double>(values[i]));
+    }
+    return out;
+}
+
+template<typename T>
+std::vector<double> flatten_matrix(const num::Matrix<T> &matrix) {
+    std::vector<double> out;
+    out.reserve(matrix.size());
+    for (std::size_t i = 0; i < matrix.shape(0); ++i) {
+        for (std::size_t j = 0; j < matrix.shape(1); ++j) {
+            out.push_back(static_cast<double>(matrix(i, j)));
+        }
+    }
+    return out;
+}
+
+std::string semantic_of(const File &fixture) {
+    const auto &array = fixture.arrays.at("meta_semantic");
+    std::string text(array.data.begin(), array.data.end());
+    while (!text.empty() && text.back() == '\0') {
+        text.pop_back();
+    }
+    return text;
+}
+
+bool is_f32(const File &fixture, const std::string &name) {
+    const auto it = fixture.arrays.find(name);
+    return it != fixture.arrays.end() && it->second.descr == "<f4";
+}
+
+std::vector<double> floats(const File &fixture, const std::string &name) {
+    return fixture.arrays.at(name).floats();
+}
+
+std::vector<std::int64_t> ints(const File &fixture, const std::string &name) {
+    return fixture.arrays.at(name).ints();
+}
+
+std::vector<bool> bools(const File &fixture, const std::string &name) {
+    return fixture.arrays.at(name).bools();
+}
+
+double scalar_f64(const File &fixture, const std::string &name) {
+    return fixture.arrays.at(name).scalar_f64();
+}
+
+std::int64_t scalar_i64(const File &fixture, const std::string &name) {
+    return fixture.arrays.at(name).scalar_i64();
+}
+
+std::vector<double> numeric(const Array &array) {
+    if (array.descr == "|b1") {
+        std::vector<double> out;
+        for (const bool value : array.bools()) {
+            out.push_back(value ? 1.0 : 0.0);
+        }
+        return out;
+    }
+    if (array.descr == "<f8" || array.descr == "<f4") {
+        return array.floats();
+    }
+    std::vector<double> out;
+    for (const auto value : array.ints()) {
+        out.push_back(static_cast<double>(value));
+    }
+    return out;
+}
+
+template<typename T>
+bool binary(const File &fixture, const std::string &name, std::vector<double> &out) {
+    const auto x = make_vector<T>(floats(fixture, "x"));
+    const auto y = make_vector<T>(floats(fixture, "y"));
+    if (name == "add") {
+        out = to_doubles(num::add(x, y));
+    } else if (name == "sub") {
+        out = to_doubles(num::sub(x, y));
+    } else if (name == "mul") {
+        out = to_doubles(num::mul(x, y));
+    } else if (name == "div") {
+        out = to_doubles(num::div(x, y));
+    } else if (name == "maximum") {
+        out = to_doubles(num::maximum(x, y));
+    } else if (name == "minimum") {
+        out = to_doubles(num::minimum(x, y));
+    } else {
+        return false;
+    }
+    return true;
+}
+
+template<typename T>
+bool compare(const File &fixture, const std::string &name, std::vector<double> &out) {
+    const auto x = make_vector<T>(floats(fixture, "x"));
+    const auto y = make_vector<T>(floats(fixture, "y"));
+    num::Vector<bool> result;
+    if (name == "equal") {
+        result = num::equal(x, y);
+    } else if (name == "not_equal") {
+        result = num::not_equal(x, y);
+    } else if (name == "greater") {
+        result = num::gt(x, y);
+    } else if (name == "greater_equal") {
+        result = num::gte(x, y);
+    } else if (name == "less") {
+        result = num::lt(x, y);
+    } else if (name == "less_equal") {
+        result = num::lte(x, y);
+    } else {
+        return false;
+    }
+    out.clear();
+    for (std::size_t i = 0; i < result.size(); ++i) {
+        out.push_back(result[i] ? 1.0 : 0.0);
+    }
+    return true;
+}
+
+bool compute(const File &fixture, std::vector<double> &out, std::string &reason) {
+    const std::string name = semantic_of(fixture);
+
+    if (name == "type_default") {
+        const std::string dtype = fixture.arrays.at("expected").descr;
+        if (dtype == "<f8") {
+            out = {num::type_default<double>()};
+        } else if (dtype == "<f4") {
+            out = {static_cast<double>(num::type_default<float>())};
+        } else if (dtype == "<i8") {
+            out = {static_cast<double>(num::type_default<std::int64_t>())};
+        } else if (dtype == "|b1") {
+            out = {num::type_default<bool>() ? 1.0 : 0.0};
+        } else {
+            reason = "type_default 的 dtype 未覆盖";
+            return false;
+        }
+        return true;
+    }
+    if (name == "nan_check") {
+        out.clear();
+        for (const double value : floats(fixture, "x")) {
+            out.push_back(num::is_nan(value) ? 1.0 : 0.0);
+        }
+        return true;
+    }
+    if (name == "slice_to_float64") {
+        if (fixture.arrays.at("x").descr == "|b1") {
+            out = to_doubles(num::slice_to_float64(make_vector<bool>(bools(fixture, "x"))));
+        } else if (fixture.arrays.at("x").descr == "<i8") {
+            out = to_doubles(num::slice_to_float64(make_vector<std::int64_t>(ints(fixture, "x"))));
+        } else {
+            reason = "slice_to_float64 的输入类型未覆盖";
+            return false;
+        }
+        return true;
+    }
+    if (name == "slice_float_to_int") {
+        const auto x = make_vector<double>(floats(fixture, "x"));
+        if (fixture.arrays.at("expected").descr == "<i4") {
+            out = to_doubles(num::slice_float_to_int32(x));
+        } else {
+            out = to_doubles(num::slice_float_to_int64(x));
+        }
+        return true;
+    }
+    if (name == "add" || name == "sub" || name == "mul" || name == "div" || name == "maximum" ||
+        name == "minimum") {
+        if (is_f32(fixture, "x")) {
+            return binary<float>(fixture, name, out);
+        }
+        return binary<double>(fixture, name, out);
+    }
+    if (name == "abs" || name == "sqrt") {
+        if (is_f32(fixture, "x")) {
+            const auto x = make_vector<float>(floats(fixture, "x"));
+            out = to_doubles(name == "abs" ? num::abs(x) : num::sqrt(x));
+        } else {
+            const auto x = make_vector<double>(floats(fixture, "x"));
+            out = to_doubles(name == "abs" ? num::abs(x) : num::sqrt(x));
+        }
+        return true;
+    }
+    if (name == "pow_integer") {
+        if (is_f32(fixture, "x")) {
+            out = to_doubles(num::pow(make_vector<float>(floats(fixture, "x")), 2));
+        } else {
+            out = to_doubles(num::pow(make_vector<double>(floats(fixture, "x")), 2));
+        }
+        return true;
+    }
+    if (name == "expm1") {
+        out = to_doubles(num::expm1(make_vector<double>(floats(fixture, "x"))));
+        return true;
+    }
+    if (name == "log1p") {
+        out = to_doubles(num::log1p(make_vector<double>(floats(fixture, "x"))));
+        return true;
+    }
+    if (name == "decimal") {
+        const int digits = fixture.arrays.contains("digits")
+                               ? static_cast<int>(scalar_i64(fixture, "digits"))
+                               : 2;
+        out.clear();
+        for (const double value : floats(fixture, "x")) {
+            out.push_back(num::decimal(value, digits));
+        }
+        return true;
+    }
+    if (name == "change_rate") {
+        out = {num::change_rate(scalar_f64(fixture, "base"), scalar_f64(fixture, "current"))};
+        return true;
+    }
+    if (name == "net_change_rate") {
+        out = {num::net_change_rate(scalar_f64(fixture, "base"), scalar_f64(fixture, "current"))};
+        return true;
+    }
+    if (name == "equal" || name == "not_equal" || name == "greater" || name == "greater_equal" ||
+        name == "less" || name == "less_equal") {
+        if (is_f32(fixture, "x")) {
+            return compare<float>(fixture, name, out);
+        }
+        return compare<double>(fixture, name, out);
+    }
+    if (name == "logic_and" || name == "logic_or" || name == "logic_not") {
+        const auto x = make_vector<bool>(bools(fixture, "x"));
+        num::Vector<bool> result;
+        if (name == "logic_not") {
+            result = num::logic_not(x);
+        } else {
+            const auto y = make_vector<bool>(bools(fixture, "y"));
+            result = name == "logic_and" ? num::logic_and(x, y) : num::logic_or(x, y);
+        }
+        out.clear();
+        for (std::size_t i = 0; i < result.size(); ++i) {
+            out.push_back(result[i] ? 1.0 : 0.0);
+        }
+        return true;
+    }
+    if (name == "where") {
+        std::vector<double> condition;
+        for (const bool value : bools(fixture, "condition")) {
+            condition.push_back(value ? 1.0 : 0.0);
+        }
+        const auto c = make_vector<double>(condition);
+        const auto x = make_vector<double>(floats(fixture, "x"));
+        const auto y = make_vector<double>(floats(fixture, "y"));
+        out = to_doubles(num::where(c, x, y));
+        return true;
+    }
+    if (name == "sum" || name == "mean" || name == "std" || name == "min" || name == "max") {
+        if (is_f32(fixture, "x")) {
+            const auto x = make_vector<float>(floats(fixture, "x"));
+            const double value = name == "sum"   ? static_cast<double>(num::sum(x))
+                                 : name == "mean" ? static_cast<double>(num::mean(x))
+                                 : name == "std"  ? static_cast<double>(num::stddev(x))
+                                 : name == "min"  ? static_cast<double>(num::min(x))
+                                                  : static_cast<double>(num::max(x));
+            out = {value};
+        } else {
+            const auto x = make_vector<double>(floats(fixture, "x"));
+            const double value = name == "sum"   ? static_cast<double>(num::sum(x))
+                                 : name == "mean" ? static_cast<double>(num::mean(x))
+                                 : name == "std"  ? static_cast<double>(num::stddev(x))
+                                 : name == "min"  ? static_cast<double>(num::min(x))
+                                                  : static_cast<double>(num::max(x));
+            out = {value};
+        }
+        return true;
+    }
+    if (name == "variance") {
+        out = {num::variance(make_vector<double>(floats(fixture, "x")))};
+        return true;
+    }
+    if (name == "argmin" || name == "argmax") {
+        if (is_f32(fixture, "x")) {
+            const auto x = make_vector<float>(floats(fixture, "x"));
+            out = {static_cast<double>(name == "argmin" ? num::argmin(x) : num::argmax(x))};
+        } else {
+            const auto x = make_vector<double>(floats(fixture, "x"));
+            out = {static_cast<double>(name == "argmin" ? num::argmin(x) : num::argmax(x))};
+        }
+        return true;
+    }
+    if (name == "median") {
+        out = {num::median(make_vector<double>(floats(fixture, "x")))};
+        return true;
+    }
+    if (name == "count") {
+        if (fixture.arrays.at("x").descr == "|b1") {
+            out = {static_cast<double>(num::count(make_vector<bool>(bools(fixture, "x"))))};
+        } else {
+            out = {static_cast<double>(num::count(make_vector<double>(floats(fixture, "x"))))};
+        }
+        return true;
+    }
+    if (name == "all" || name == "any") {
+        const auto x = make_vector<bool>(bools(fixture, "x"));
+        const bool value = name == "all" ? num::all(x) : num::any(x);
+        out = {value ? 1.0 : 0.0};
+        return true;
+    }
+    if (name == "cumsum") {
+        if (is_f32(fixture, "x")) {
+            out = to_doubles(num::cumsum(make_vector<float>(floats(fixture, "x"))));
+        } else {
+            out = to_doubles(num::cumsum(make_vector<double>(floats(fixture, "x"))));
+        }
+        return true;
+    }
+    if (name == "dot1d") {
+        out = {num::dot1d(make_vector<double>(floats(fixture, "x")),
+                          make_vector<double>(floats(fixture, "y")))};
+        return true;
+    }
+    if (name == "covariance") {
+        out = {num::covariance(make_vector<double>(floats(fixture, "x")),
+                               make_vector<double>(floats(fixture, "y")))};
+        return true;
+    }
+    if (name == "zeros") {
+        out = to_doubles(num::zeros<double>(static_cast<std::size_t>(scalar_i64(fixture, "n"))));
+        return true;
+    }
+    if (name == "ones") {
+        const auto n = static_cast<std::size_t>(scalar_i64(fixture, "n"));
+        out = to_doubles(num::ones(num::zeros<double>(n)));
+        return true;
+    }
+    if (name == "arange") {
+        if (fixture.arrays.at("expected").descr == "<i8") {
+            out = to_doubles(num::arange<std::int64_t>(
+                scalar_i64(fixture, "start"), scalar_i64(fixture, "end"), scalar_i64(fixture, "step")));
+        } else {
+            out = to_doubles(num::arange<double>(scalar_f64(fixture, "start"),
+                                                 scalar_f64(fixture, "end"),
+                                                 scalar_f64(fixture, "step")));
+        }
+        return true;
+    }
+    if (name == "linspace") {
+        out = to_doubles(num::linspace<double>(scalar_f64(fixture, "start"),
+                                               scalar_f64(fixture, "end"),
+                                               static_cast<std::size_t>(scalar_i64(fixture, "n")),
+                                               bools(fixture, "endpoint")[0]));
+        return true;
+    }
+    if (name == "range") {
+        const auto n = static_cast<std::size_t>(scalar_i64(fixture, "n"));
+        if (fixture.arrays.at("expected").descr == "<i8") {
+            out = to_doubles(num::range<std::int64_t>(n));
+        } else {
+            out = to_doubles(num::range<double>(n));
+        }
+        return true;
+    }
+    if (name == "repeat") {
+        const auto n = static_cast<std::size_t>(scalar_i64(fixture, "n"));
+        if (fixture.arrays.at("expected").descr == "<i8") {
+            out = to_doubles(num::repeat<std::int64_t>(scalar_i64(fixture, "value"), n));
+        } else {
+            out = to_doubles(num::repeat<double>(scalar_f64(fixture, "value"), n));
+        }
+        return true;
+    }
+    if (name == "align") {
+        out = to_doubles(num::align(make_vector<double>(floats(fixture, "x")),
+                                    scalar_f64(fixture, "value"),
+                                    static_cast<std::size_t>(scalar_i64(fixture, "n"))));
+        return true;
+    }
+    if (name == "shape") {
+        if (fixture.arrays.at("x").shape.size() == 2) {
+            const auto rows = static_cast<std::size_t>(fixture.arrays.at("x").shape[0]);
+            const auto cols = static_cast<std::size_t>(fixture.arrays.at("x").shape[1]);
+            const auto flat = floats(fixture, "x");
+            num::Matrix<double> matrix = num::Matrix<double>::from_shape({rows, cols});
+            for (std::size_t i = 0; i < rows; ++i) {
+                for (std::size_t j = 0; j < cols; ++j) {
+                    matrix(i, j) = flat[i * cols + j];
+                }
+            }
+            const auto [r, c] = num::shape(matrix);
+            out = {static_cast<double>(r), static_cast<double>(c)};
+        } else {
+            const auto [r, c] = num::shape(make_vector<double>(floats(fixture, "x")));
+            out = {static_cast<double>(r), static_cast<double>(c)};
+        }
+        return true;
+    }
+    if (name == "concat1d") {
+        const auto a = make_vector<std::int64_t>(ints(fixture, "a"));
+        const auto b = make_vector<std::int64_t>(ints(fixture, "b"));
+        const auto c = make_vector<std::int64_t>(ints(fixture, "c"));
+        out = flatten_matrix(num::concat1d(a, b, c));
+        return true;
+    }
+    if (name == "transpose2d") {
+        const auto rows = static_cast<std::size_t>(fixture.arrays.at("x").shape[0]);
+        const auto cols = static_cast<std::size_t>(fixture.arrays.at("x").shape[1]);
+        const auto flat = ints(fixture, "x");
+        num::Matrix<std::int64_t> matrix = num::Matrix<std::int64_t>::from_shape({rows, cols});
+        for (std::size_t i = 0; i < rows; ++i) {
+            for (std::size_t j = 0; j < cols; ++j) {
+                matrix(i, j) = flat[i * cols + j];
+            }
+        }
+        num::Matrix<std::int64_t> transposed = num::transpose2d(matrix);
+        out = flatten_matrix(transposed);
+        return true;
+    }
+    if (name == "fill") {
+        out = to_doubles(num::fill(make_vector<double>(floats(fixture, "x")), scalar_f64(fixture, "value")));
+        return true;
+    }
+    if (name == "fill_na") {
+        out = to_doubles(
+            num::fill_na(make_vector<double>(floats(fixture, "x")), scalar_f64(fixture, "value")));
+        return true;
+    }
+    if (name == "shift") {
+        out = to_doubles(num::shift(make_vector<double>(floats(fixture, "x")),
+                                    static_cast<int>(scalar_i64(fixture, "n"))));
+        return true;
+    }
+    if (name == "diff") {
+        out = to_doubles(num::diff(make_vector<double>(floats(fixture, "x")),
+                                   static_cast<int>(scalar_i64(fixture, "n"))));
+        return true;
+    }
+
+    reason = "C++ 尚无同语义实现";
+    return false;
+}
+
+bool close(double actual, double expected, double tolerance) {
+    if (std::isnan(actual) && std::isnan(expected)) {
+        return true;
+    }
+    if (actual == expected) {
+        return true;
+    }
+    if (tolerance > 0 && std::abs(actual - expected) <= tolerance * std::max(1.0, std::abs(expected))) {
+        return true;
+    }
+    return false;
+}
+
+}  // namespace
+
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        std::fprintf(stderr, "usage: num_fixture_conform <fixtures-dir>\n");
+        return 2;
+    }
+    const std::filesystem::path root(argv[1]);
+    int conformed = 0;
+    int skipped = 0;
+    std::set<std::string> skipped_semantics;
+    try {
+        for (const auto &group : std::filesystem::directory_iterator(root)) {
+            if (!group.is_directory()) {
+                continue;
+            }
+            const std::string group_name = group.path().filename().string();
+            if (group_name == "gen" || group_name == "conform" || group_name.rfind("read_", 0) == 0) {
+                continue;
+            }
+            for (const auto &entry : std::filesystem::directory_iterator(group.path())) {
+                if (!entry.is_regular_file() || entry.path().extension() != ".npz") {
+                    continue;
+                }
+                const File fixture = num::fixture::read_npz(entry.path().string());
+                num::fixture::verify(fixture);
+                std::vector<double> got;
+                std::string reason;
+                if (!compute(fixture, got, reason)) {
+                    ++skipped;
+                    skipped_semantics.insert(semantic_of(fixture));
+                    continue;
+                }
+                const auto want = numeric(fixture.arrays.at("expected"));
+                const double tolerance = fixture.arrays.at("meta_tolerance").scalar_f64();
+                if (got.size() != want.size()) {
+                    std::fprintf(stderr, "%s: 长度 %zu != %zu\n", entry.path().string().c_str(), got.size(),
+                                 want.size());
+                    return 1;
+                }
+                for (std::size_t i = 0; i < want.size(); ++i) {
+                    if (!close(got[i], want[i], tolerance)) {
+                        std::fprintf(stderr, "%s: 第 %zu 位 %g != %g\n",
+                                     entry.path().string().c_str(), i, got[i], want[i]);
+                        return 1;
+                    }
+                }
+                ++conformed;
+            }
+        }
+    } catch (const std::exception &error) {
+        std::fprintf(stderr, "fixture conform failed: %s\n", error.what());
+        return 1;
+    }
+
+    std::printf("conformed %d fixtures, skipped %d (%zu semantics)\n", conformed, skipped,
+                skipped_semantics.size());
+    for (const auto &name : skipped_semantics) {
+        std::printf("  skip %s\n", name.c_str());
+    }
+    return conformed > 0 ? 0 : 1;
+}

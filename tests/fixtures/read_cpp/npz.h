@@ -18,6 +18,13 @@ struct Array {
 
     std::size_t itemsize() const;
     std::size_t element_count() const;
+
+    // 数值解码：只支持小端 f8 / f4、i8..i1 / u8..u1 与 b1；其它 dtype 抛 std::runtime_error。
+    std::vector<double> floats() const;
+    std::vector<std::int64_t> ints() const;
+    std::vector<bool> bools() const;
+    double scalar_f64() const;
+    std::int64_t scalar_i64() const;
 };
 
 // File 是一份 npz 的全部条目。

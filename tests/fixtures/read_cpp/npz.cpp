@@ -1,6 +1,7 @@
 #include "npz.h"
 
 #include <algorithm>
+#include <bit>
 #include <cctype>
 #include <cstdint>
 #include <filesystem>
@@ -230,6 +231,84 @@ std::size_t Array::element_count() const {
         count *= static_cast<std::size_t>(dim);
     }
     return count;
+}
+
+
+std::vector<double> Array::floats() const {
+    const std::size_t count = element_count();
+    std::vector<double> out;
+    out.reserve(count);
+    if (descr == "<f8") {
+        for (std::size_t i = 0; i < count; ++i) {
+            out.push_back(std::bit_cast<double>(read_u64(data, i * 8, name)));
+        }
+        return out;
+    }
+    if (descr == "<f4") {
+        for (std::size_t i = 0; i < count; ++i) {
+            out.push_back(static_cast<double>(std::bit_cast<float>(read_u32(data, i * 4, name))));
+        }
+        return out;
+    }
+    throw std::runtime_error(name + ": 不是浮点数组（" + descr + "）");
+}
+
+std::vector<std::int64_t> Array::ints() const {
+    const std::size_t count = element_count();
+    std::vector<std::int64_t> out;
+    out.reserve(count);
+    for (std::size_t i = 0; i < count; ++i) {
+        std::int64_t value = 0;
+        if (descr == "<i8") {
+            value = static_cast<std::int64_t>(read_u64(data, i * 8, name));
+        } else if (descr == "<i4") {
+            value = static_cast<std::int32_t>(read_u32(data, i * 4, name));
+        } else if (descr == "<i2") {
+            value = static_cast<std::int16_t>(read_u16(data, i * 2, name));
+        } else if (descr == "<i1") {
+            value = static_cast<std::int8_t>(data[i]);
+        } else if (descr == "<u8") {
+            value = static_cast<std::int64_t>(read_u64(data, i * 8, name));
+        } else if (descr == "<u4") {
+            value = static_cast<std::int64_t>(read_u32(data, i * 4, name));
+        } else if (descr == "<u2") {
+            value = static_cast<std::int64_t>(read_u16(data, i * 2, name));
+        } else if (descr == "<u1") {
+            value = static_cast<std::int64_t>(data[i]);
+        } else {
+            throw std::runtime_error(name + ": 不是整数数组（" + descr + "）");
+        }
+        out.push_back(value);
+    }
+    return out;
+}
+
+std::vector<bool> Array::bools() const {
+    if (descr != "|b1") {
+        throw std::runtime_error(name + ": 不是 bool 数组（" + descr + "）");
+    }
+    std::vector<bool> out;
+    out.reserve(data.size());
+    for (const std::uint8_t byte : data) {
+        out.push_back(byte != 0);
+    }
+    return out;
+}
+
+double Array::scalar_f64() const {
+    const auto values = floats();
+    if (values.size() != 1) {
+        throw std::runtime_error(name + ": 应为标量");
+    }
+    return values[0];
+}
+
+std::int64_t Array::scalar_i64() const {
+    const auto values = ints();
+    if (values.size() != 1) {
+        throw std::runtime_error(name + ": 应为标量");
+    }
+    return values[0];
 }
 
 File read_npz(const std::string& path) {
