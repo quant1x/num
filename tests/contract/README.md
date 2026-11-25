@@ -19,7 +19,7 @@
 | `min_params` | 最小参数集：业务必需参数，增删改名即视为语义变更 |
 | `defaults` | 可省略参数的默认值；无默认值写 `—` |
 | `nan_convention` | `propagate` / `comparison_false` / `no_special` / `nan_to_zero` / `default` / `—` |
-| `return_shape` | `scalar` / `tuple` / `index` / `first_len` / `max_len` / `same_as(x)` / `bool[...]` / `[n]` / `[n][m]` 等 |
+| `return_shape` | `scalar` / `tuple` / `index`（未命中返回 `-1`）/ `first_len` / `max_len` / `same_as(x)` / `bool[...]` / `[n]` / `[n][m]` 等 |
 | `python` `cpp` `rust` `go` `zig` `java` | 各语言符号名；`go` 列带包限定符 `num:` / `x32:` / `x64:` |
 | `authority` | 权威实现语言；当前固定 `go`（临时基准，Python 落地后改为 `python`） |
 | `note` | 边界、失败约定与已知缺口 |

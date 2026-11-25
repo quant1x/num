@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import io
+import math
 import os
 import zipfile
 
@@ -183,6 +184,245 @@ def reduction(out_dir: str) -> None:
          {"x": unsorted, "expected": np.array(unsorted[len(unsorted) // 2])})
 
 
+def scalar_layer(out_dir: str) -> None:
+    group = "scalar"
+    save(out_dir, group, "type-default-f64", "type_default",
+         {"expected": np.array(np.nan, dtype=np.float64)})
+    save(out_dir, group, "type-default-f32", "type_default",
+         {"expected": np.array(np.nan, dtype=np.float32)})
+    save(out_dir, group, "type-default-i64", "type_default",
+         {"expected": np.array(0, dtype=np.int64)})
+    save(out_dir, group, "type-default-bool", "type_default",
+         {"expected": np.array(False)})
+
+    probe = f64([np.nan, np.inf, -np.inf, -0.0, 1.0])
+    save(out_dir, group, "nan-check-f64", "nan_check", {"x": probe, "expected": np.isnan(probe) | np.isinf(probe)})
+    probe32 = f32([np.nan, np.inf, -np.inf, -0.0, 1.0])
+    save(out_dir, group, "nan-check-f32", "nan_check",
+         {"x": probe32, "expected": np.isnan(probe32) | np.isinf(probe32)})
+
+    flags = np.array([True, False, True])
+    save(out_dir, group, "bool-to-float64", "bool_to_numeric",
+         {"x": flags, "expected": np.array([1.0, 0.0, 1.0], dtype=np.float64)})
+    save(out_dir, group, "bool-to-int64", "bool_to_numeric",
+         {"x": flags, "expected": np.array([1, 0, 1], dtype=np.int64)})
+
+    ints = np.array([1, -2, 3], dtype=np.int64)
+    save(out_dir, group, "slice-to-float64-int64", "slice_to_float64",
+         {"x": ints, "expected": ints.astype(np.float64)})
+    save(out_dir, group, "slice-to-float64-bool", "slice_to_float64",
+         {"x": flags, "expected": flags.astype(np.float64)})
+
+    trunc = f64([1.9, -2.9, 0.0, 7.0])
+    save(out_dir, group, "slice-float-to-int32", "slice_float_to_int",
+         {"x": trunc, "expected": np.trunc(trunc).astype(np.int32)})
+    save(out_dir, group, "slice-float-to-int64", "slice_float_to_int",
+         {"x": trunc, "expected": np.trunc(trunc).astype(np.int64)})
+
+
+def decimal_expected(value: float, digits: int = 2) -> float:
+    """按契约口径复算 Decimal：NaN 归零、半数远离零、负 digits 视为 0。"""
+    if math.isnan(value):
+        value = 0.0
+    digits = max(0, digits)
+    half = -5.0 if math.copysign(1.0, value) < 0 else 5.0
+    scale = 10.0 ** digits
+    next_scale = 10.0 ** (digits + 1)
+    return math.trunc((value * next_scale + half) / 10.0) / scale
+
+
+def elementwise_extras(out_dir: str) -> None:
+    group = "elementwise"
+    x32a, y32 = f32([1.5, -2.0, 0.25, 3.25]), f32([0.5, 4.0, -1.0, 2.0])
+    save(out_dir, group, "sub-f32", "sub", {"x": x32a, "y": y32, "expected": np.subtract(x32a, y32)})
+    save(out_dir, group, "mul-f32", "mul", {"x": x32a, "y": y32, "expected": np.multiply(x32a, y32)})
+    save(out_dir, group, "div-f32", "div", {"x": x32a, "y": y32, "expected": np.divide(x32a, y32)})
+    save(out_dir, group, "maximum-f32", "maximum",
+         {"x": x32a, "y": y32, "expected": np.maximum(x32a, y32)})
+    save(out_dir, group, "minimum-f32", "minimum",
+         {"x": x32a, "y": y32, "expected": np.minimum(x32a, y32)})
+    save(out_dir, group, "abs-f32", "abs",
+         {"x": f32([-2.5, -0.0, 0.0, 7.25]), "expected": np.abs(f32([-2.5, -0.0, 0.0, 7.25]))})
+    save(out_dir, group, "sqrt-f32", "sqrt",
+         {"x": f32([0.0, 1.0, 2.0, 4.0]), "expected": np.sqrt(f32([0.0, 1.0, 2.0, 4.0]))},
+         tolerance=1e-6)
+
+    values = f64([1.234, -1.235, 2.5, -2.5])
+    save(out_dir, group, "decimal-default-f64", "decimal",
+         {"x": values, "expected": f64([decimal_expected(v, 2) for v in values])})
+    save(out_dir, group, "decimal-digits0-f64", "decimal",
+         {"x": values, "digits": np.array(0, dtype=np.int64),
+          "expected": f64([decimal_expected(v, 0) for v in values])})
+
+    save(out_dir, group, "change-rate-f64", "change_rate",
+         {"base": np.array(2.0), "current": np.array(3.0), "expected": np.array(1.5)})
+    save(out_dir, group, "net-change-rate-f64", "net_change_rate",
+         {"base": np.array(2.0), "current": np.array(3.0), "expected": np.array(50.0)})
+
+    px, py = f64([2.0, 3.0, 4.0]), f64([0.5, 2.0, 3.0])
+    save(out_dir, group, "pow-float-f64", "pow_float",
+         {"x": px, "y": py, "expected": np.power(px, py)})
+
+    ex = f64([-0.5, 0.0, 0.5, 1.0])
+    save(out_dir, group, "expm1-f64", "expm1", {"x": ex, "expected": np.expm1(ex)}, tolerance=1e-12)
+    lg = f64([-0.5, 0.0, 0.5, 1.0])
+    save(out_dir, group, "log1p-f64", "log1p", {"x": lg, "expected": np.log1p(lg)}, tolerance=1e-12)
+
+    rounding = f64([1.4, 1.6, -1.4, -1.6, 2.25])
+    save(out_dir, group, "ceil-f64", "ceil", {"x": rounding, "expected": np.ceil(rounding)})
+    save(out_dir, group, "floor-f64", "floor", {"x": rounding, "expected": np.floor(rounding)})
+    save(out_dir, group, "round-f64", "round",
+         {"x": rounding, "expected": f64([math.floor(v + 0.5) if v >= 0 else math.ceil(v - 0.5) for v in rounding])})
+
+    save(out_dir, group, "neg-f64", "neg", {"x": x32a.astype(np.float64), "expected": -x32a.astype(np.float64)})
+    with np.errstate(divide="ignore"):
+        inv_x = f64([2.0, -4.0, 0.5, 8.0])
+        save(out_dir, group, "inv-f64", "inv", {"x": inv_x, "expected": np.divide(1.0, inv_x)})
+
+    trig = f32([0.0, 0.5, 1.0, -1.0])
+    save(out_dir, group, "sin-f32", "sin", {"x": trig, "expected": np.sin(trig)}, tolerance=1e-6)
+    save(out_dir, group, "cos-f32", "cos", {"x": trig, "expected": np.cos(trig)}, tolerance=1e-6)
+    pos = f32([0.5, 1.0, 2.0, 4.0])
+    save(out_dir, group, "exp-f32", "exp", {"x": pos, "expected": np.exp(pos)}, tolerance=1e-5)
+    save(out_dir, group, "log-f32", "log", {"x": pos, "expected": np.log(pos)}, tolerance=1e-6)
+    save(out_dir, group, "log2-f32", "log2", {"x": pos, "expected": np.log2(pos)}, tolerance=1e-6)
+    save(out_dir, group, "log10-f32", "log10", {"x": pos, "expected": np.log10(pos)}, tolerance=1e-6)
+
+    left, right = f64([1.0, 2.0, 3.0]), f64([2.0, 2.0, 2.0])
+    save(out_dir, group, "gte-f64", "greater_equal", {"x": left, "y": right, "expected": np.greater_equal(left, right)})
+    save(out_dir, group, "lt-f64", "less", {"x": left, "y": right, "expected": np.less(left, right)})
+    save(out_dir, group, "lte-f64", "less_equal", {"x": left, "y": right, "expected": np.less_equal(left, right)})
+
+    a, b = np.array([True, True, False, False]), np.array([True, False, True, False])
+    save(out_dir, group, "logic-xor", "logic_xor", {"x": a, "y": b, "expected": np.logical_xor(a, b)})
+
+    mask = np.array([True, False, True, False])
+    save(out_dir, group, "select-f64", "select",
+         {"x": f64([1.0, 2.0, 3.0, 4.0]), "mask": mask,
+          "expected": f64([1.0, 3.0])})
+
+    haystack = f64([10.0, 20.0, 30.0])
+    save(out_dir, group, "find-hit-f64", "find",
+         {"x": haystack, "value": np.array(20.0), "expected": np.array(1, dtype=np.int64)})
+    save(out_dir, group, "find-miss-f64", "find",
+         {"x": haystack, "value": np.array(99.0), "expected": np.array(-1, dtype=np.int64)})
+
+    source = f64([10.0, 20.0, 30.0, 40.0])
+    idx = np.array([2, 0, 3], dtype=np.int64)
+    save(out_dir, group, "gather-f64", "gather", {"x": source, "idx": idx, "expected": np.take(source, idx)})
+    scatter_expected = np.zeros(6, dtype=np.float64)
+    scatter_expected[[1, 3, 4]] = source[:3]
+    save(out_dir, group, "scatter-f64", "scatter",
+         {"x": f64([10.0, 20.0, 30.0]), "idx": np.array([1, 3, 4], dtype=np.int64),
+          "size": np.array(6, dtype=np.int64), "expected": scatter_expected})
+
+
+def reduction_extras(out_dir: str) -> None:
+    group = "reduction"
+    x32a = f32([1.0, 2.0, 3.0, 4.0])
+    save(out_dir, group, "mean-f32", "mean", {"x": x32a, "expected": np.array(np.mean(x32a, dtype=np.float32))},
+         tolerance=1e-6)
+    save(out_dir, group, "std-f32", "std", {"x": x32a, "expected": np.array(np.std(x32a, dtype=np.float32))},
+         tolerance=1e-5)
+    save(out_dir, group, "min-f32", "min", {"x": x32a, "expected": np.array(np.min(x32a))})
+    save(out_dir, group, "max-f32", "max", {"x": x32a, "expected": np.array(np.max(x32a))})
+    save(out_dir, group, "prod-f32", "prod", {"x": f32([1.5, 2.0, -3.0]),
+                                              "expected": np.array(np.prod(f32([1.5, 2.0, -3.0])))})
+
+    even = f64([4.0, 1.0, 3.0, 2.0])
+    save(out_dir, group, "median-even-f64", "median",
+         {"x": even, "expected": np.array((even[1] + even[2]) / 2)})
+
+    flags = np.array([True, True, False])
+    save(out_dir, group, "all-bool", "all", {"x": flags, "expected": np.array(np.all(flags))})
+    save(out_dir, group, "any-bool", "any", {"x": flags, "expected": np.array(np.any(flags))})
+    save(out_dir, group, "none-bool", "none", {"x": flags, "expected": np.array(not np.any(flags))})
+
+    save(out_dir, group, "norm-f64", "norm", {"x": f64([3.0, 4.0]), "expected": np.array(5.0)})
+    save(out_dir, group, "manhattan-norm-f64", "manhattan_norm",
+         {"x": f64([-3.0, 4.0, -5.0]), "expected": np.array(12.0)})
+    quant = f64([1.0, 2.0, 3.0, 4.0])
+    save(out_dir, group, "quantile-q025-f64", "quantile",
+         {"x": quant, "q": np.array(0.25), "expected": np.array(np.quantile(quant, 0.25))})
+
+    cx, cy = f64([1.0, 2.0, 3.0]), f64([2.0, 4.0, 7.0])
+    save(out_dir, group, "covariance-f64", "covariance",
+         {"x": cx, "y": cy, "expected": np.array(np.cov(cx, cy, ddof=0)[0, 1])}, tolerance=1e-12)
+
+    save(out_dir, group, "sum-inf-f64", "sum",
+         {"x": f64([1.0, np.inf, 2.0]), "expected": np.array(np.inf)})
+
+
+def container(out_dir: str) -> None:
+    group = "container"
+    zeros = np.zeros(4, dtype=np.float64)
+    save(out_dir, group, "zeros-f64", "zeros", {"n": np.array(4, dtype=np.int64), "expected": zeros})
+    ones = np.ones(5, dtype=np.float64)
+    save(out_dir, group, "ones-f64", "ones", {"n": np.array(5, dtype=np.int64), "expected": ones})
+
+    save(out_dir, group, "arange-int", "arange",
+         {"start": np.array(2, dtype=np.int64), "end": np.array(12, dtype=np.int64),
+          "step": np.array(3, dtype=np.int64), "expected": np.arange(2, 12, 3, dtype=np.int64)})
+    save(out_dir, group, "arange-step-f64", "arange",
+         {"start": np.array(0.0), "end": np.array(1.0), "step": np.array(0.25),
+          "expected": np.arange(0.0, 1.0, 0.25, dtype=np.float64)})
+
+    save(out_dir, group, "linspace-f64", "linspace",
+         {"start": np.array(0.0), "end": np.array(1.0), "n": np.array(5, dtype=np.int64),
+          "endpoint": np.array(True), "expected": np.linspace(0.0, 1.0, 5)})
+    save(out_dir, group, "linspace-endpoint-false", "linspace",
+         {"start": np.array(0.0), "end": np.array(1.0), "n": np.array(5, dtype=np.int64),
+          "endpoint": np.array(False), "expected": np.linspace(0.0, 1.0, 5, endpoint=False)})
+
+    save(out_dir, group, "range-int", "range",
+         {"n": np.array(5, dtype=np.int64), "expected": np.arange(5, dtype=np.int64)})
+    save(out_dir, group, "range-f64", "range",
+         {"n": np.array(4, dtype=np.int64), "expected": np.arange(4, dtype=np.float64)})
+    save(out_dir, group, "range-float-f32", "range_float",
+         {"a": np.array(1.0, dtype=np.float32), "b": np.array(4.0, dtype=np.float32),
+          "expected": np.arange(1.0, 4.0, dtype=np.float32)})
+
+    save(out_dir, group, "repeat-f64", "repeat",
+         {"value": np.array(2.5), "n": np.array(4, dtype=np.int64),
+          "expected": np.full(4, 2.5, dtype=np.float64)})
+    save(out_dir, group, "repeat-int", "repeat",
+         {"value": np.array(7, dtype=np.int64), "n": np.array(3, dtype=np.int64),
+          "expected": np.full(3, 7, dtype=np.int64)})
+
+    base = f64([1.0, 2.0, 3.0])
+    save(out_dir, group, "align-expand-f64", "align",
+         {"x": base, "value": np.array(-1.0), "n": np.array(5, dtype=np.int64),
+          "expected": np.concatenate([base, np.full(2, -1.0)])})
+    save(out_dir, group, "align-truncate-f64", "align",
+         {"x": base, "value": np.array(-1.0), "n": np.array(2, dtype=np.int64),
+          "expected": base[:2]})
+
+    save(out_dir, group, "shape-1d", "shape",
+         {"x": f64([1.0, 2.0, 3.0]), "expected": np.array([3, 0], dtype=np.int64)})
+    matrix = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], dtype=np.float64)
+    save(out_dir, group, "shape-2d", "shape",
+         {"x": matrix, "expected": np.array([2, 3], dtype=np.int64)})
+
+    a = np.array([1, 2], dtype=np.int64)
+    b = np.array([3, 4], dtype=np.int64)
+    c = np.array([5, 6], dtype=np.int64)
+    save(out_dir, group, "concat1d-int", "concat1d",
+         {"a": a, "b": b, "c": c, "expected": np.stack([a, b, c], axis=1)})
+
+    source = np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int64)
+    save(out_dir, group, "transpose2d-int", "transpose2d",
+         {"x": source, "expected": np.ascontiguousarray(np.transpose(source))})
+
+    with np.errstate(invalid="ignore"):
+        holes = f64([1.0, np.nan, 3.0, np.nan])
+    save(out_dir, group, "fill-f64", "fill",
+         {"x": holes, "value": np.array(0.0),
+          "expected": np.where(np.isnan(holes), 0.0, holes)})
+    save(out_dir, group, "fill-na-f64", "fill_na",
+         {"x": holes, "value": np.array(-9.0),
+          "expected": np.where(np.isnan(holes), -9.0, holes)})
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="生成跨语言 fixture")
     parser.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."),
@@ -190,8 +430,12 @@ def main() -> None:
     args = parser.parse_args()
 
     out_dir = os.path.abspath(args.out)
+    scalar_layer(out_dir)
     elementwise(out_dir)
+    elementwise_extras(out_dir)
     reduction(out_dir)
+    reduction_extras(out_dir)
+    container(out_dir)
     print(f"fixtures written to {out_dir}")
 
 

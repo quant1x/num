@@ -46,7 +46,7 @@ logic_not	x:array	—	—	bool[same_as(x)]	—	logic_not	—	num:Not, x32:Not, x
 logic_xor	x:array, y:array	—	—	bool[first_len]	—	—	—	x32:Xor, x64:Xor	—	—	go	门面无对应入口
 where	condition:bool[], x:array, y:array	—	—	max_len	—	where	—	num:Where	—	—	go	按最长对齐，条件为真取 x；Go 门面的 condition 与取值同类型（StatType），不接受 bool 条件
 select	x:array, mask:bool[]	—	—	same_as(x)	—	—	—	x32:Select, x64:Select	—	—	go	掩码为真保留 x 元素
-find	x:array, value:scalar	—	comparison_false	index	—	—	—	x32:Find, x64:Find	—	—	go	未命中返回 len(x)
+find	x:array, value:scalar	—	comparison_false	index	—	—	—	x32:Find, x64:Find	—	—	go	未命中返回 -1
 gather	x:array, idx:int[]	—	—	same_as(idx)	—	—	—	x32:Gather, x64:Gather	—	—	go	按下标取值
 scatter	x:array, idx:int[], size:int	—	—	[size]	—	—	—	x32:Scatter, x64:Scatter	—	—	go	按下标写入新序列
 # --- N3 归约 ---
@@ -59,7 +59,7 @@ min	x:array	—	no_special	scalar	—	min	—	num:Min, num:Min2, x32:Min, x64:Mi
 argmax	x:array	—	no_special	index	—	argmax	—	num:ArgMax, num:ArgMax2, x32:ArgMax, x64:ArgMax	—	—	go	空输入 panic
 argmin	x:array	—	no_special	index	—	argmin	—	num:ArgMin, num:ArgMin2, x32:ArgMin, x64:ArgMin	—	—	go	空输入 panic
 std	x:array	—	propagate	scalar	—	stddev	—	num:Std	—	—	go	总体标准差（ddof=0）；空输入返回类型默认值
-variance	x:array	—	propagate	scalar	—	variance	—	num:Variance	—	—	go	总体方差（ddof=0）
+variance	x:array	—	propagate	scalar	—	variance	—	num:Variance	—	—	go	总体方差（ddof=0）；仅 f64 入口
 covariance	x:array, y:array	—	propagate	scalar	—	covariance	—	num:Covariance	—	—	go	逐对协方差
 count	x:array	—	comparison_false	scalar	—	count	—	num:Count, x32:Count, x64:Count	—	—	go	数值统计非零元素，布尔统计 true
 all	x:bool[]	—	—	scalar	—	all	—	num:All, x32:All, x64:All	—	—	go	空输入为 true
@@ -78,7 +78,7 @@ rolling_window	values:array, capacity:scalar	—	—	tuple	—	Window, rolling_w
 periods	n:int|any	—	—	tuple	—	Periods	—	num:AnyToPeriod	—	—	go	周期序列；Min 字段未接线
 # --- N6 构造与整形 ---
 zeros	shape:int	—	—	[n]	—	zeros	—	num:Zeros, x32:Zeros, x64:Zeros	—	—	go	全零
-ones	shape:int	—	—	[n]	—	ones	—	num:Ones, x32:Ones, x64:Ones	—	—	go	全一
+ones	shape:int	—	—	[n]	—	ones	—	num:Ones, x32:Ones, x64:Ones	—	—	go	全一；Go 门面按入参切片长度生成，不接受形状整数
 arange	start:number, end:number, step:number?	step=1	—	[n]	—	arange	—	num:Arange	—	—	go	不含 end
 linspace	start:number, end:number, n:int, endpoint:bool?	endpoint=true	—	[n]	—	linspace	—	num:Linspace	—	—	go	含 end（endpoint=true）
 range	n:int	—	—	[n]	—	range	—	num:Range	—	—	go	0..n
@@ -86,7 +86,7 @@ range_float	a:f64, b:f64	—	—	[n]	—	—	—	x32:Range, x64:Range	—	—	go
 repeat	value:scalar, n:int	—	—	[n]	—	repeat, repeat_into	—	num:Repeat, num:RepeatInto, x32:Repeat, x64:Repeat	—	—	go	同值重复
 align	x:array, value:scalar, n:int	—	—	[n]	—	align	—	num:Align	—	—	go	补默认值到指定长度
 shape	x:any	—	—	tuple	—	shape	—	num:Shape	—	—	go	返回 (行, 列)
-concat1d	a:array, b:array, c:array	—	—	[3][n]	—	concat1d	—	num:Concat1D	—	—	go	三段拼接
+concat1d	a:array, b:array, c:array	—	—	[n][3]	—	concat1d	—	num:Concat1D	—	—	go	逐元素拼成 n×3（列式），不是 NumPy 的按行拼接
 transpose2d	x:matrix	—	—	[m][n]	—	transpose2d	—	num:Transpose2D	—	—	go	二维转置
 fill	v:array, d:scalar, inplace:bool?	inplace=false	—	same_as(v)	—	fill, fill_inplace	—	num:Fill	—	—	go	默认复制入参再填
 fill_na	x:array, v:any	inplace=false	—	same_as(x)	—	fill_na, fill_na_inplace	—	num:FillNa	—	—	go	按 NaN 判定填充
@@ -124,7 +124,7 @@ type_default	—	—	—	scalar	—	type_default	—	num:TypeDefault	—	—	go	
 nan_check	value:scalar	—	—	scalar	—	nan, is_nan	—	num:NaN, num:DTypeIsNaN, num:Float32NaN, num:Float32IsNaN, num:Float64NaN, num:Float64IsNaN, num:IsNaN	—	—	go	IsNaN 同时把 ±Inf 判为真
 any_to_scalar	v:any	—	—	scalar	—	to_bool, to_string	—	num:AnyToBool, num:AnyToFloat32, num:AnyToFloat64, num:AnyToInt32, num:AnyToInt64, num:AnyToString	—	—	go	any 到标量
 any2dtype	v:any	—	—	scalar	—	—	—	num:Any2DType	—	—	go	推断 DType
-bool_to_numeric	b:bool	—	—	scalar	—	bool_to_int, bool_to_int32, bool_to_int64, bool_to_float32, bool_to_float64, bool_to_string	—	num:BoolToInt, num:BoolToInt32, num:BoolToInt64, num:BoolToFloat32, num:BoolToFloat64, num:BoolToString	—	—	go	true=1 / false=0
+bool_to_numeric	b:bool	—	—	scalar	—	bool_to_int, bool_to_int32, bool_to_int64, bool_to_float32, bool_to_float64, bool_to_string	—	num:BoolToInt, num:BoolToInt32, num:BoolToInt64, num:BoolToFloat32, num:BoolToFloat64, num:BoolToString	—	—	go	标量入口；true=1 / false=0
 parse_scalar	text:string, dst:any	—	—	scalar	—	parse_bool, parse_int32, parse_int64, parse_float32, parse_float64	—	num:ParseBool, num:ParseInt32, num:ParseInt64, num:ParseFloat32, num:ParseFloat64	—	—	go	解析失败返回 dst 的当前值
 generic_parse	text:string	—	—	scalar	—	generic_parse	—	num:GenericParse	—	—	go	目标类型由泛型形参给出
 slice_to_bool	v:any	—	—	bool[n]	—	slice_to_bool	—	num:SliceToBool	—	—	go	切片转 bool

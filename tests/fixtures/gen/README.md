@@ -8,6 +8,15 @@
 - 按 `tests/fixtures/README.md` 的 npz 约定写元数据（`meta_semantic` / `meta_tolerance` / `meta_checksum`）。
 - 覆写同名文件，不追加；zip 时间戳固定，重复执行产物逐字节一致。
 
+## 分组
+
+| 分组 | 覆盖层 | 内容 |
+| --- | --- | --- |
+| `scalar/` | N1 | 类型默认值、NaN / ±Inf 判据、标量与切片转换 |
+| `elementwise/` | N2 | 算术、取大取小、舍入、三角与指数对数、比较、逻辑、选择 |
+| `reduction/` | N3 | 归约与协方差、分位、范数 |
+| `container/` | N6 | 构造、整形、填充、索引 |
+
 ## 用法
 
 ```bash

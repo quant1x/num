@@ -187,7 +187,7 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 
 ### 4.6 契约 / 一致性测试
 
-跨**架构**一致性由 `x32/` / `x64/` 与 `internal/functions/` 的用例承担，不在本包；跨**语言**一致性（C++ 与 Go 逐值对拍）尚无自动化手段，见 §5 TODO：
+跨**架构**一致性由 `x32/` / `x64/` 与 `internal/functions/` 的用例承担，不在本包；跨**语言**一致性由 `tests/fixtures/` 的 npz 样本承担 —— Go 侧已有 `tests/fixtures/conform` 对拍，C++ / Rust 的 conform 目标尚未接入（见 §5 TODO）：
 
 | 场景 | 测试位置 | 断言内容 | 运行命令 |
 | --- | --- | --- | --- |
@@ -205,7 +205,7 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 | `fit_line` 的失败返回 | 单点输入返回 `intercept = y[0]` 的水平线同时标记失败（`std::pair<Line,bool>`），C++ 照此保留 | 补 spec 时确认失败位与半成品是否都要保留 | §2 | 待建单 | 低 |
 | 补 Python spec | 整包无 `.py`，语义准绳缺失 | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
 | 补 Rust 对齐实现 | 整包无 `.rs` | 无技术阻塞，待排期 | §1 / §2 | 待建单 | 高 |
-| C++ 与 Go 逐值对拍 | 无跨语言对拍用例：C++ 侧断言按文档口径手写，未与 Go 输出自动比对 | 需要一套统一的输入/期望样本（JSON 或头文件表）与两侧共用的比对脚本 | §4.6 | #11 | 中 |
+| C++ 与 Go 逐值对拍 | C++ 侧尚未接 `tests/fixtures`：样本与 Go 对拍用例已就绪，C++ 的 conform 目标未建 | 需要与 Go 的 `tests/fixtures/conform` 同构的 C++ 目标，按 `meta_semantic` 分派；缺口见 `tests/fixtures/CPP-GAPS.md` | §4.6 | #18 | 中 |
 | C++ 打包与导出 | `conan create` 与 `cmake --install` 未落地，`num_core` 只能源码内使用 | 安装布局要与扁平目录一起设计（头文件按 `num/` 前缀导出） | §3 | #11 | 中 |
 | C++ 指令集分发 | 只按编译器基线下发，未做运行期多版本分发（Go 侧有 `UseAVX2` 开关与两套内核） | 需要 CMake 多目标编译 + 运行期 `__builtin_cpu_supports` / `IsProcessorFeaturePresent` 探测；会牺牲老 CPU 兼容，须先定策略 | §2 精度与平台 | #11 | 中 |
 | `diff` 方向文档化核对 | C++ 已按 Go 口径实现为 `s[i-n] - s[i]`（与 pandas 相反），但 Go 侧无文档说明 | 需确认是设计意图还是历史包袱 | §2 | #11 | 低 |

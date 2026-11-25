@@ -15,7 +15,7 @@
 | 路径 | 用途 |
 | --- | --- |
 | `contract/` | C1 符号与签名契约表 + 覆盖校验（`go test ./tests/contract/`） |
-| `fixtures/` | C2 生成器与 C3 读取器，按 `<模块>/<用例>.npz` 存放样本 |
+| `fixtures/` | C2 生成器、C3 三语言读取器、Go 对拍用例（`conform/`）与 `CPP-GAPS.md`，按 `<分组>/<用例>.npz` 存放样本 |
 
 ## 与上下层的关系
 

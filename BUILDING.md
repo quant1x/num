@@ -158,6 +158,7 @@ C++ 侧另有一条：新增算子必须在 `CMakeLists.txt` 里**逐文件显�
 | --- | --- | --- |
 | `tests/contract` | Go 包 `contract` | C1 契约表与覆盖校验（`go test ./tests/contract/`） |
 | `tests/fixtures/gen` | Python 脚本 | C2 生成器，需要 NumPy |
+| `tests/fixtures/conform` | Go 包 `conform` | M1 Go 对拍用例：读样本 → 调 Go 实现 → 逐值比较 |
 | `tests/fixtures/read_go` | Go 包 `read_go` | C3 Go 读取器与用例 |
 | `tests/fixtures/read_cpp` | C++ 源文件 | C3 C++ 读取器，目标是 `num_fixture_check` |
 | `tests/fixtures/read_rs` | 独立 crate | C3 Rust 读取器，不进生产 crate |
@@ -175,7 +176,7 @@ C++ 侧另有一条：新增算子必须在 `CMakeLists.txt` 里**逐文件显�
 go test ./internal/functions/ ./internal/partial/ ./x32/ ./x64/ ./vectors/ ./kind/ ./binary/ . 
 
 # 契约与 fixture（C1 / C3）
-go test ./tests/contract/ ./tests/fixtures/read_go/
+go test ./tests/contract/ ./tests/fixtures/conform/ ./tests/fixtures/read_go/
 
 # 单条用例
 go test ./internal/functions/ -run TestSumProd -v

@@ -8,14 +8,20 @@
 ```text
 tests/fixtures/
 ├── gen/gen_fixtures.py     # 生成器：NumPy 产出输入与期望输出
+├── scalar/                 # N1 标量与类型边界样本
 ├── elementwise/            # N2 逐元素样本
 ├── reduction/              # N3 归约样本
+├── container/              # N6 向量与容器样本
+├── conform/                # Go 实现对拍用例（M1 准入）
 ├── read_go/                # Go 读取器（package read_go，读取器用例在 npz_test.go）
 ├── read_cpp/               # C++ 读取器（num_fixture_check 目标）
-└── read_rs/                # Rust 读取器（独立 crate，无三方依赖）
+├── read_rs/                # Rust 读取器（独立 crate，无三方依赖）
+└── CPP-GAPS.md             # C++ 相对 Go 的缺口清单（M1 出口）
 ```
 
-样本路径为 `<分组>/<用例>.npz`，分组对应 N 层（`elementwise` = N2，`reduction` = N3）。
+样本路径为 `<分组>/<用例>.npz`，分组对应 N 层（`scalar` = N1、`elementwise` = N2、`reduction` = N3、
+`container` = N6）。当前共 116 个样本，覆盖 N1 ~ N3、N6 的数值语义；字符串解析、`any` 分派与反射类转换
+不在样本范围内（其口径见契约表，落地时另补）。
 
 ## npz 约定
 
@@ -42,15 +48,20 @@ python tests/fixtures/gen/gen_fixtures.py
 ## 校验
 
 ```bash
-go test ./tests/contract/ ./tests/fixtures/read_go/
+# C1 契约 + Go 对拍
+go test ./tests/contract/ ./tests/fixtures/conform/ ./tests/fixtures/read_go/
+# 三套读取器
 cargo run --quiet --release --manifest-path tests/fixtures/read_rs/Cargo.toml -- tests/fixtures
 ctest --preset release-static -R fixtures_npz_read_cpp
 ```
 
-三套读取器对同一批样本都通过，才算 C3 达标。新增样本时三处都要重跑，不只看自己那门语言。
+Go 对拍用例把每个样本交给 Go 实现算一遍并与 `expected` 比较；三套读取器保证同一批样本能被三门语言读出。
+新增样本时三处都要重跑，不只看自己那门语言。
+
+C++ 相对 Go 的缺口（缺哪些算子、哪些口径待核）见 [CPP-GAPS.md](CPP-GAPS.md)。
 
 ## 与上下层
 
 - 期望值只由 **Python（NumPy）** 生成；其它语言只读不写。Python spec 落地前，
   `NAME-MAP.tsv` 的 `note` 列与样本注释共同记录与 NumPy 的已知差异（如 `median` 不排序）。
-- 样本是 M1 内核对齐的输入；算子实现不得反向修改样本去迁就当前输出。
+- 样本是 M1 内核对齐的输入；Go 侧对拍在 `conform/`，C++ / Rust 的对拍待补。算子实现不得反向修改样本去迁就当前输出。
