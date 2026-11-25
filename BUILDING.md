@@ -202,8 +202,8 @@ python tests/io/pipeline.py    # 需先构建 num_csv_merge
 # 单条用例
 go test ./internal/functions/ -run TestSumProd -v
 
-# 静态检查（核心包）
-go vet ./internal/functions/ ./x32/ ./x64/ ./vectors/ ./kind/
+# 静态检查（支持面；asm/ 是实验目录，见 §4.2）
+go vet . ./binary/ ./math32/ ./internal/functions/ ./x32/ ./x64/ ./vectors/ ./kind/ ./io/ ./cmd/numctl/
 gofmt -l .
 ```
 
@@ -228,13 +228,10 @@ ctest --preset debug-static        # 同一批用例，Debug + /MTd
 | `asm/asm2plan9` | `TestLongInstruction` 等断言与当前反汇编输出不一致 |
 | `asm/floats_avx_test.go` | `undefined: ___mm256_mul_to`；`go vet` 报 `possible misuse of unsafe.Pointer` |
 
-`go vet ./...` 的存量告警（与上表同性质，只对自己新增的负责）：
-
-| 包 | 告警 |
-| --- | --- |
-| 根包 | `type.go` / `type_float64.go` / `type_integer.go` / `type_strings.go` 共 5 处 `unreachable code` |
-| `binary` | `bytes.go` 3 处 `possible misuse of github.com/quant1x/num/binary.SliceHeader` |
-| `math32` | `exp.go` `unreachable code`；**arm64 目标下** `exp_arm64.s` / `Exp2` 报 `wrong argument size` |
+`go vet` 在支持面（除 `asm/` 外的全部包）已无告警：根包 5 处 `unreachable code`、
+`binary` 3 处 `SliceHeader` 误用、`math32/exp.go` 的 `unreachable code` 已清理。
+仍存在的是跨架构汇编声明问题：**arm64 目标下** `math32/exp_arm64.s` / `Exp2` 报 `wrong argument size`，
+改动 `math32` 时一并核对。
 
 `gofmt -l .` 目前无输出 —— 出现输出就是新引入的问题，提交前修掉。
 
@@ -478,7 +475,7 @@ Go 侧另有**包内对拍**：`Xxx_Go` 作为期望值，`Xxx_AVX2_F32/F64` 作
 | 现象 | 原因与处置 |
 | --- | --- |
 | `go test ./...` 报 `asm/*` 失败 | 实验目录的既有问题，不是回归；用 §4.1 的包列表判定 |
-| `go vet ./...` 一堆 `unreachable code` / `SliceHeader` | 存量告警（§4.2）；只处理自己新增的 |
+| `go vet ./...` 报 `asm/*` 的 `unsafe.Pointer` | 实验目录的存量告警（§4.2）；支持面用 §4.1 的包列表 |
 | `go vet` 在 arm64 目标上报 `math32/exp_arm64.s` 参数大小 | 存量问题，汇编参数声明与实际不符；改动 `math32` 时一并核对 |
 | 交叉编译的 `.test` 在 Windows 上跑不了 | 需要 qemu（[§5.6](#56-跨架构验证)）；Windows 自身无法执行 ELF |
 | `go test -c` 产物进了源码目录、被 `git status` 看到 | `*.test` 已在 `.gitignore`，但仍应输出到 `temp/` 并清理 |

@@ -208,7 +208,6 @@ func valueToNumber[T Number](v any, nil2t T, bool2t func(b bool) T, string2t fun
 	default:
 		panic(TypeError(v))
 	}
-	return T(0)
 }
 
 // any转number, 推导参数v的类型
@@ -293,7 +292,6 @@ func __anyToNumber[T Number](v any) T {
 	default:
 		panic(TypeError(v))
 	}
-	return T(0)
 }
 
 // AnyToGeneric any转其它类型, 推导T的类型

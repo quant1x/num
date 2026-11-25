@@ -185,5 +185,4 @@ func SliceToString(v any) []string {
 	default:
 		panic(TypeError(v))
 	}
-	return []string{}
 }

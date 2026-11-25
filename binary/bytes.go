@@ -69,27 +69,16 @@ func v0ToBytes1[E kind.BaseType](x E) []byte {
 
 func v1ToBytes_copy[T kind.BaseType](x T) []byte {
 	size := int(unsafe.Sizeof(x))
-	var v SliceHeader
-	v.Len = size
-	v.Cap = size
-	v.Data = uintptr(unsafe.Pointer(&x))
-	d := *(*[]byte)(unsafe.Pointer(&v))
-	// TODO: 下面可能是delve的bug
-	// 在GoLand调试时, 如果不进行copy, 那么后续操作中内存一定会被覆盖
+	// TODO: 直接返回 x 上的切片在 GoLand 调试时会被覆盖，故复制一份
+	src := unsafe.Slice((*byte)(unsafe.Pointer(&x)), size)
 	data := make([]byte, size)
-	copy(data[:size], d[:size])
+	copy(data, src)
 	return data
 }
 
 func v1ToBytes_nocopy[T kind.BaseType](x T) []byte {
 	size := int(unsafe.Sizeof(x))
-	ptr := unsafe.Pointer(&x)
-	var v SliceHeader
-	v.Len = size
-	v.Cap = size
-	v.Data = uintptr(ptr)
-	d := *(*[]byte)(unsafe.Pointer(&v))
-	return d
+	return unsafe.Slice((*byte)(unsafe.Pointer(&x)), size)
 }
 
 func v2ToBytes[T kind.BaseType](x T) []byte {
@@ -125,9 +114,5 @@ func v0ToSlice[T kind.BaseType](data []byte, n int) []T {
 }
 
 func v1ToSlice[T kind.BaseType](data []byte, n int) []T {
-	var v SliceHeader
-	v.Len = n
-	v.Cap = n
-	v.Data = uintptr(unsafe.Pointer(&data[0]))
-	return *(*[]T)(unsafe.Pointer(&v))
+	return unsafe.Slice((*T)(unsafe.Pointer(&data[0])), n)
 }

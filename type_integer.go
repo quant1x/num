@@ -72,5 +72,4 @@ func SliceToInts(v any) []int {
 	default:
 		panic(TypeError(values))
 	}
-	return []int{}
 }

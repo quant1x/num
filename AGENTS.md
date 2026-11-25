@@ -74,7 +74,7 @@
 
 | 目的 | 命令 |
 | --- | --- |
-| Go 编译 / 用例 / 检查 | `go build ./...`、`go test ./...`、`go vet ./...`、`gofmt -l .` |
+| Go 编译 / 用例 / 检查 | `go build ./...`、`go test ./...`、`go vet . ./binary/ ./math32/ ./internal/functions/ ./x32/ ./x64/ ./vectors/ ./kind/ ./io/ ./cmd/numctl/`（`asm/` 除外）、`gofmt -l .` |
 | Go 跑核心包用例 | `go test ./internal/functions/ ./x32/ ./x64/ ./vectors/ ./kind/ .` |
 | Go 基准 | `go test -bench . -benchmem ./internal/functions` |
 | Go 覆盖率 | `bash go.test.sh`（Linux / WSL / Git Bash） |

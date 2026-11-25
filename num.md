@@ -171,11 +171,10 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 
 | 语言 | 工具 | 运行命令 | 备注 |
 | --- | --- | --- | --- |
-| Go | `gofmt -l` ＋ `go vet` | `gofmt -l .`、`go vet .` | `gofmt -l` 实测无输出；`go vet .` **未通过**，报 5 处 `unreachable code`，见 §5 TODO |
+| Go | `gofmt -l` ＋ `go vet` | `gofmt -l .`、`go vet .` | `gofmt -l` 实测无输出；`go vet` 支持面已无告警 |
 | C++ | MSVC `/W4`（构建期即检查） | `cmake --build --preset release-static` | 实测 0 警告；`/utf-8` 必开（无 BOM 的 UTF-8 源文件在中文 Windows 上会被按 GBK 误读）；59 个根头文件另各自单独成 TU 编译（`cl /Zs /W4`），实测 0 error / 0 warning —— 没有"靠别的头间接带入 include"的隐患 |
 | Rust | `cargo clippy` ＋ `cargo fmt --check` | `cargo clippy --all-targets -- -D warnings`、`cargo fmt --check` | 实测 0 告警 |
 
-`go vet .` 当前输出：`type.go:211`、`type.go:296`、`type_float64.go:134`、`type_integer.go:75`、`type_strings.go:188`。
 
 ### 4.5 基准测试
 
@@ -212,7 +211,6 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 | `diff` 方向文档化核对 | C++ 已按 Go 口径实现为 `s[i-n] - s[i]`（与 pandas 相反），但 Go 侧无文档说明 | 需确认是设计意图还是历史包袱 | §2 | #11 | 低 |
 | `Median` 是否内置排序 | Go 与 C++ 均按入参顺序取中间元素、**不排序**（空输入 `NaN`、单元素 `0`），排序责任在调用方 | 两侧已逐行一致（`median.h` 照抄 Go），待补 spec 时确认「不排序」是意图；定案后一起改 | §2 | 待建单 | 低 |
 | C++ 覆盖率与基准 | 无覆盖率工具接入、无 Google Benchmark 用例与基线 | 需要在 CMake 侧引入 `llvm-cov` / `benchmark` | §4.2 / §4.5 | #11 | 低 |
-| 清 `go vet` 报错 | 5 处 `unreachable code`：`type.go:211`、`type.go:296`、`type_float64.go:134`、`type_integer.go:75`、`type_strings.go:188` | 无技术阻塞；需逐个确认是死分支还是 `panic` 之后的正常不可达 | §4.4 | 待建单 | 中 |
 | 根包用例按 `accel` 两遍跑 | 84 个 `Test` 均未引用 `functions.Info().Acceleration`，`UseAVX2 = false` 分支在根包层无用例（`x32` / `x64` 的用例已按 §7 跑两遍） | 无技术阻塞，待排期 | §4.1 / §4.6 | 待建单 | 中 |
 | 提升覆盖率并设门槛 | 语句覆盖 42.1%，仓库未设门槛；`window_test.go` 只有基准、无 `Test` | 无技术阻塞，待排期 | §4.2 | 待建单 | 中 |
 | 登记基准基线 | 46 个 `Benchmark*` 均无基线值与环境说明 | 需固定一台基准机，并写明 CPU / OS / commit | §4.5 | 待建单 | 中 |

@@ -131,5 +131,4 @@ func SliceToFloat64(v any) []float64 {
 	default:
 		panic(TypeError(values))
 	}
-	return []float64{}
 }
