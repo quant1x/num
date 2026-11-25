@@ -81,7 +81,7 @@
 | B6 | 公式族 Zig 版（扩展） | `pandas/zig/` | Zig | 与 B1 最小参数集一致、结果一致；只作扩展，不进交付主线 | 部分（实现 35 个，全部进 `tests/formula/cases.csv` 四端对拍） |
 | G1 | Go 工程侧 | `num/labs/`、`pandas/` | Go | 服务、调度、指标计算管道、单二进制分发 | 已落地（`cmd/numctl` 单二进制；pandas 侧服务在另一仓库） |
 | G2 | Go 完整数值路径 | `num/` 根包 | Go | 独立可用的数值实现，供只会 Go 的使用者直接落地 | 已落地 |
-| M1 | 特征 fixture | `pandas/tests/features/` | Python（生成器）/ Go / C++ / Rust（对拍） | 训练与推理同源的特征样本，落盘比对 | 已落地（40 根 Bar、8 个特征列，三端对拍） |
+| M1 | 特征 fixture | `pandas/tests/features/` | Python（生成器）/ Go / C++ / Rust（对拍） | 训练与推理同源的特征样本，落盘比对 | 已落地（40 根 Bar、11 个特征列，三端对拍） |
 | M2 | 模型推理侧 | `pandas/cpp/infer/`、`pandas-rust/src/infer/`、Go 侧 ONNX 加载 | C++ / Rust / Go | 同一 ONNX 文件（格式交换，非绑定）加载，输出与 Python 研究侧对齐 | 未落地 |
 | M3 | 回测一致性验收 | `pandas/tests/backtest/` | 跨语言 | 同一策略在 Python 研究侧与生产实现下逐笔一致 | 未落地 |
 
