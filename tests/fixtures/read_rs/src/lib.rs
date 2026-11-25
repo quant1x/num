@@ -79,6 +79,31 @@ impl Array {
         Ok(out)
     }
 
+
+    pub fn strings(&self) -> Result<Vec<String>, String> {
+        if self.descr.len() < 2 {
+            return Err(format!("{}: 不是字符串数组（{}）", self.name, self.descr));
+        }
+        let bytes = self.descr.as_bytes();
+        if !matches!(bytes[0], b'|' | b'<' | b'=') || bytes[1] != b'S' {
+            return Err(format!("{}: 不是字符串数组（{}）", self.name, self.descr));
+        }
+        let width = self.descr[2..]
+            .parse::<usize>()
+            .map_err(|_| format!("{}: dtype 非法（{}）", self.name, self.descr))?;
+        let count = self.element_count()?;
+        let mut out = Vec::with_capacity(count);
+        for i in 0..count {
+            let start = i * width;
+            let mut end = start;
+            while end < start + width && self.data[end] != 0 {
+                end += 1;
+            }
+            out.push(String::from_utf8_lossy(&self.data[start..end]).to_string());
+        }
+        Ok(out)
+    }
+
     pub fn bools(&self) -> Result<Vec<bool>, String> {
         if self.descr != "|b1" {
             return Err(format!("{}: 不是 bool 数组（{}）", self.name, self.descr));

@@ -56,6 +56,21 @@ fn fixtures_match_rust_implementation() {
             count += 1;
             continue;
         }
+        if fixture.arrays.contains_key("expected_a") {
+            check_line(&label, &fixture);
+            count += 1;
+            continue;
+        }
+        if fixture.arrays.contains_key("expected_state") {
+            check_cross(&label, &fixture);
+            count += 1;
+            continue;
+        }
+        if semantic(&fixture) == "parse_freq" || semantic(&fixture) == "date_range" {
+            check_time(&label, &fixture);
+            count += 1;
+            continue;
+        }
         let got = compute(&fixture).unwrap_or_else(|error| panic!("{label}: {error}"));
         let want = numeric(&fixture.arrays["expected"]).expect("expected");
         let tolerance = fixture.arrays["meta_tolerance"]
@@ -66,6 +81,10 @@ fn fixtures_match_rust_implementation() {
     }
     assert!(count > 0, "没有执行任何 fixture");
     println!("checked {count} fixtures");
+}
+
+fn equal_float(a: f64, b: f64) -> bool {
+    a == b || (a.is_nan() && b.is_nan())
 }
 
 fn compare(label: &str, got: &[f64], want: &[f64], tolerance: f64) {
@@ -87,6 +106,108 @@ fn compare(label: &str, got: &[f64], want: &[f64], tolerance: f64) {
             continue;
         }
         panic!("{label}: 第 {index} 位 {actual} != {expected}（容差 {tolerance}）");
+    }
+}
+
+fn check_time(label: &str, fixture: &Fixture) {
+    let expected = fixture.arrays["expected"].ints().expect("expected");
+    match semantic(fixture).as_str() {
+        "parse_freq" => {
+            let freqs = fixture.arrays["freq"].strings().expect("freq");
+            assert_eq!(freqs.len(), expected.len(), "{label}: freq 数");
+            for (index, freq) in freqs.iter().enumerate() {
+                let value =
+                    parse_freq(freq).unwrap_or_else(|error| panic!("{label}: {freq}: {error}"));
+                assert_eq!(value, expected[index], "{label}: {freq}");
+            }
+        }
+        "date_range" => {
+            let start = scalar_i64(fixture, "start").expect("start");
+            let periods = scalar_i64(fixture, "periods").expect("periods");
+            let freq = fixture.arrays["freq"]
+                .strings()
+                .expect("freq")
+                .into_iter()
+                .next()
+                .expect("freq 标量");
+            let times = date_range(start, periods, &freq).expect("date_range");
+            assert_eq!(times.len(), expected.len(), "{label}: 时间点数");
+            for (index, value) in times.iter().enumerate() {
+                assert_eq!(*value, expected[index], "{label}: 第 {index} 个时间点");
+            }
+        }
+        other => panic!("{label}: 未知时间语义 {other}"),
+    }
+}
+
+fn check_cross(label: &str, fixture: &Fixture) {
+    let trends = cross(
+        &floats(fixture, "a").expect("a"),
+        &floats(fixture, "b").expect("b"),
+    );
+    let want_x = ints(fixture, "expected_x").expect("expected_x");
+    let want_state = ints(fixture, "expected_state").expect("expected_state");
+    assert_eq!(trends.len(), want_x.len(), "{label}: 穿越数");
+    assert_eq!(trends.len(), want_state.len(), "{label}: 状态数");
+    for (index, trend) in trends.iter().enumerate() {
+        assert_eq!(trend.x, want_x[index], "{label}: 第 {index} 个下标");
+        assert_eq!(trend.state, want_state[index], "{label}: 第 {index} 个状态");
+    }
+}
+
+fn check_line(label: &str, fixture: &Fixture) {
+    let name = semantic(fixture);
+    let (line, success) = match name.as_str() {
+        "calculate_line_equation" => (
+            calculate_line_equation(
+                (
+                    scalar_f64(fixture, "x1").expect("x1"),
+                    scalar_f64(fixture, "y1").expect("y1"),
+                ),
+                (
+                    scalar_f64(fixture, "x2").expect("x2"),
+                    scalar_f64(fixture, "y2").expect("y2"),
+                ),
+            ),
+            true,
+        ),
+        "fit_line" => fit_line(
+            &floats(fixture, "x").expect("x"),
+            &floats(fixture, "y").expect("y"),
+        ),
+        other => panic!("{label}: 未覆盖的 line 语义 {other}"),
+    };
+    let (a, b, c) = line.equation();
+    let tolerance = scalar_f64(fixture, "meta_tolerance").expect("tolerance");
+    let expected_a = scalar_f64(fixture, "expected_a").expect("a");
+    let expected_b = scalar_f64(fixture, "expected_b").expect("b");
+    let expected_c = scalar_f64(fixture, "expected_c").expect("c");
+    let expected_degrees = scalar_f64(fixture, "expected_degrees").expect("degrees");
+    for (name, got, want) in [
+        ("A", a, expected_a),
+        ("B", b, expected_b),
+        ("C", c, expected_c),
+        ("degrees", line.degrees(), expected_degrees),
+    ] {
+        if equal_float(got, want)
+            || (tolerance > 0.0 && (got - want).abs() <= tolerance * 1.0f64.max(want.abs()))
+        {
+            continue;
+        }
+        panic!("{label}: {name} {got} != {want}");
+    }
+    let expected_success = scalar_f64(fixture, "expected_success").expect("success") != 0.0;
+    assert_eq!(success, expected_success, "{label}: 成功位");
+    let probe = floats(fixture, "probe_x").expect("probe");
+    let expected_y = floats(fixture, "expected_y").expect("expected_y");
+    for (index, (x, want)) in probe.iter().zip(expected_y.iter()).enumerate() {
+        let got = line.y(*x);
+        if equal_float(got, *want)
+            || (tolerance > 0.0 && (got - want).abs() <= tolerance * 1.0f64.max(want.abs()))
+        {
+            continue;
+        }
+        panic!("{label}: Y 第 {index} 位 {got} != {want}");
     }
 }
 

@@ -7,8 +7,10 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/quant1x/num"
 	"github.com/quant1x/num/x32"
@@ -46,6 +48,18 @@ func checkFixture(t *testing.T, path string) {
 		checkRagged(t, fixture)
 		return
 	}
+	if _, ok := fixture.Arrays["expected_a"]; ok {
+		checkLine(t, fixture)
+		return
+	}
+	if _, ok := fixture.Arrays["expected_state"]; ok {
+		checkCross(t, fixture)
+		return
+	}
+	if semanticOf(fixture) == "parse_freq" || semanticOf(fixture) == "date_range" {
+		checkTime(t, fixture)
+		return
+	}
 	got, err := compute(fixture)
 	if err != nil {
 		t.Fatalf("计算: %v", err)
@@ -69,6 +83,208 @@ func checkFixture(t *testing.T, path string) {
 			continue
 		}
 		t.Fatalf("第 %d 位 %v，期望 %v（容差 %g）", i, got[i], want[i], tolerance)
+	}
+}
+
+func checkTime(t *testing.T, fixture *readgo.File) {
+	t.Helper()
+	expected, err := fixture.Arrays["expected"].Int64()
+	if err != nil {
+		t.Fatalf("读 expected: %v", err)
+	}
+	switch semanticOf(fixture) {
+	case "parse_freq":
+		freqs, err := stringValues(fixture, "freq")
+		if err != nil {
+			t.Fatalf("读 freq: %v", err)
+		}
+		if len(freqs) != len(expected) {
+			t.Fatalf("freq 数 %d，期望 %d", len(freqs), len(expected))
+		}
+		for i, freq := range freqs {
+			duration, err := num.ParseFreq(freq)
+			if err != nil {
+				t.Fatalf("ParseFreq(%q): %v", freq, err)
+			}
+			if int64(duration) != expected[i] {
+				t.Fatalf("ParseFreq(%q) = %d，期望 %d", freq, int64(duration), expected[i])
+			}
+		}
+	case "date_range":
+		start, err := scalarInt(fixture, "start")
+		if err != nil {
+			t.Fatalf("读 start: %v", err)
+		}
+		periods, err := scalarInt(fixture, "periods")
+		if err != nil {
+			t.Fatalf("读 periods: %v", err)
+		}
+		freq, err := stringValue(fixture, "freq")
+		if err != nil {
+			t.Fatalf("读 freq: %v", err)
+		}
+		times, err := num.DateRange(time.Unix(0, int64(start)).UTC(), periods, freq)
+		if err != nil {
+			t.Fatalf("DateRange: %v", err)
+		}
+		if len(times) != len(expected) {
+			t.Fatalf("时间点 %d，期望 %d", len(times), len(expected))
+		}
+		for i, point := range times {
+			if point.UnixNano() != expected[i] {
+				t.Fatalf("第 %d 个时间点 %d，期望 %d", i, point.UnixNano(), expected[i])
+			}
+		}
+	}
+}
+
+func stringValue(fixture *readgo.File, name string) (string, error) {
+	values, err := stringValues(fixture, name)
+	if err != nil {
+		return "", err
+	}
+	if len(values) != 1 {
+		return "", fmt.Errorf("%s 应为标量字符串", name)
+	}
+	return values[0], nil
+}
+
+func stringValues(fixture *readgo.File, name string) ([]string, error) {
+	array, ok := fixture.Arrays[name]
+	if !ok {
+		return nil, fmt.Errorf("缺少数组 %s", name)
+	}
+	if len(array.Data) == 0 {
+		return nil, fmt.Errorf("%s 不是字符串数组", name)
+	}
+	descr := array.Descr
+	if len(descr) < 3 || descr[0] != '|' || descr[1] != 'S' {
+		return nil, fmt.Errorf("%s 不是字符串数组（%s）", name, descr)
+	}
+	width, err := strconv.Atoi(descr[2:])
+	if err != nil {
+		return nil, fmt.Errorf("%s dtype 非法", name)
+	}
+	count := 1
+	if len(array.Shape) > 0 {
+		count = int(array.Shape[0])
+	}
+	values := make([]string, count)
+	for i := 0; i < count; i++ {
+		raw := array.Data[i*width : (i+1)*width]
+		values[i] = strings.TrimRight(string(raw), "\x00")
+	}
+	return values, nil
+}
+
+func checkCross(t *testing.T, fixture *readgo.File) {
+	t.Helper()
+	a, err := floats(fixture, "a")
+	if err != nil {
+		t.Fatalf("读 a: %v", err)
+	}
+	b, err := floats(fixture, "b")
+	if err != nil {
+		t.Fatalf("读 b: %v", err)
+	}
+	trends := num.Cross(a, b)
+	wantX, err := numeric(fixture, "expected_x")
+	if err != nil {
+		t.Fatalf("读 expected_x: %v", err)
+	}
+	wantState, err := numeric(fixture, "expected_state")
+	if err != nil {
+		t.Fatalf("读 expected_state: %v", err)
+	}
+	if len(trends) != len(wantX) || len(wantX) != len(wantState) {
+		t.Fatalf("穿越数 %d，期望 %d/%d", len(trends), len(wantX), len(wantState))
+	}
+	for i, trend := range trends {
+		if float64(trend.X) != wantX[i] {
+			t.Fatalf("第 %d 个穿越下标 %d，期望 %v", i, trend.X, wantX[i])
+		}
+		if float64(trend.State) != wantState[i] {
+			t.Fatalf("第 %d 个穿越状态 %d，期望 %v", i, trend.State, wantState[i])
+		}
+	}
+}
+
+func checkLine(t *testing.T, fixture *readgo.File) {
+	t.Helper()
+	var line num.Line
+	var success bool
+	switch semanticOf(fixture) {
+	case "calculate_line_equation":
+		x1, err := scalarFloat(fixture, "x1")
+		if err != nil {
+			t.Fatalf("读 x1: %v", err)
+		}
+		y1, err := scalarFloat(fixture, "y1")
+		if err != nil {
+			t.Fatalf("读 y1: %v", err)
+		}
+		x2, err := scalarFloat(fixture, "x2")
+		if err != nil {
+			t.Fatalf("读 x2: %v", err)
+		}
+		y2, err := scalarFloat(fixture, "y2")
+		if err != nil {
+			t.Fatalf("读 y2: %v", err)
+		}
+		line = num.CalculateLineEquation(num.NewPoint(x1, y1), num.NewPoint(x2, y2))
+		success = true
+	case "fit_line":
+		x, err := floats(fixture, "x")
+		if err != nil {
+			t.Fatalf("读 x: %v", err)
+		}
+		y, err := floats(fixture, "y")
+		if err != nil {
+			t.Fatalf("读 y: %v", err)
+		}
+		line, success = num.FitLine(x, y)
+	default:
+		t.Fatalf("未覆盖的 line 语义 %q", semanticOf(fixture))
+	}
+
+	a, b, c := line.Equation()
+	expectedA, _ := scalarFloat(fixture, "expected_a")
+	expectedB, _ := scalarFloat(fixture, "expected_b")
+	expectedC, _ := scalarFloat(fixture, "expected_c")
+	expectedDegrees, _ := scalarFloat(fixture, "expected_degrees")
+	expectedSuccess, _ := scalarFloat(fixture, "expected_success")
+	tolerance, _ := scalarFloat(fixture, "meta_tolerance")
+	checkValue := func(label string, got, want float64) {
+		if equalFloat(got, want) {
+			return
+		}
+		if tolerance > 0 && math.Abs(got-want) <= tolerance*math.Max(1, math.Abs(want)) {
+			return
+		}
+		t.Fatalf("%s: %v，期望 %v", label, got, want)
+	}
+	checkValue("A", a, expectedA)
+	checkValue("B", b, expectedB)
+	checkValue("C", c, expectedC)
+	checkValue("degrees", line.Degrees(), expectedDegrees)
+	wantSuccess := expectedSuccess != 0
+	if success != wantSuccess {
+		t.Fatalf("成功位 %v，期望 %v", success, wantSuccess)
+	}
+
+	probe, err := floats(fixture, "probe_x")
+	if err != nil {
+		t.Fatalf("读 probe_x: %v", err)
+	}
+	expectedY, err := floats(fixture, "expected_y")
+	if err != nil {
+		t.Fatalf("读 expected_y: %v", err)
+	}
+	if len(probe) != len(expectedY) {
+		t.Fatalf("探针长度 %d != %d", len(probe), len(expectedY))
+	}
+	for i := range probe {
+		checkValue(fmt.Sprintf("Y(%.3g)", probe[i]), line.Y(probe[i]), expectedY[i])
 	}
 }
 

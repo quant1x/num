@@ -283,6 +283,26 @@ std::vector<std::int64_t> Array::ints() const {
     return out;
 }
 
+
+std::vector<std::string> Array::strings() const {
+    if (descr.size() < 2 || (descr[0] != '|' && descr[0] != '<' && descr[0] != '=') || descr[1] != 'S') {
+        throw std::runtime_error(name + ": 不是字符串数组（" + descr + "）");
+    }
+    const std::size_t width = static_cast<std::size_t>(std::stoull(descr.substr(2)));
+    const std::size_t count = element_count();
+    std::vector<std::string> out;
+    out.reserve(count);
+    for (std::size_t i = 0; i < count; ++i) {
+        const std::size_t offset = i * width;
+        std::size_t length = 0;
+        while (length < width && data[offset + length] != 0) {
+            ++length;
+        }
+        out.emplace_back(reinterpret_cast<const char *>(data.data() + offset), length);
+    }
+    return out;
+}
+
 std::vector<bool> Array::bools() const {
     if (descr != "|b1") {
         throw std::runtime_error(name + ": 不是 bool 数组（" + descr + "）");

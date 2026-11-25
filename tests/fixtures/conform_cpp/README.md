@@ -1,6 +1,6 @@
 # tests/fixtures/conform_cpp —— C++ 对拍（C3 之后）
 
-读取 `tests/fixtures` 的 npz，把 `num_core` 已有算子的结果与 `expected` 逐值比较。当前 **151 个样本全部通过**；
+读取 `tests/fixtures` 的 npz，把 `num_core` 已有算子的结果与 `expected` 逐值比较。当前 **157 个样本全部通过**；
 C++ 尚未实现的语义会跳过并打印名字，跳过不算通过，缺口见 [../CPP-GAPS.md](../CPP-GAPS.md)。
 
 ## 构建与运行
@@ -15,7 +15,7 @@ ctest --preset release-static -R fixtures_conform_cpp
 输出示例：
 
 ```text
-conformed 151 fixtures, skipped 0 (0 semantics)
+conformed 157 fixtures, skipped 0 (0 semantics)
   skip ceil
   skip cos
   ...
@@ -36,6 +36,9 @@ conformed 151 fixtures, skipped 0 (0 semantics)
 - 线代：dot2d / dot2d1 / matmul / mat4mul / inverse
 - 几何与多项式：slope / slope_to_degrees / degrees_to_slope / triangle_bevel / poly_fit / poly_val
 - 转换族：from_bool / from_int32 / from_int64 / from_float / to_bool / to_int32 / to_int64 / to_float32 / to_float64 / dtype2int
+- 直线：calculate_line_equation / fit_line（A/B/C、角度、探针 Y、成功位）
+- 穿越：cross（下标 + 状态）
+- 时间：parse_freq / date_range（纳秒整数）
 
 ## 未覆盖（跳过）
 

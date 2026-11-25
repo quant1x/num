@@ -7,7 +7,7 @@
 
 ## 0. 对拍状态
 
-`tests/fixtures/conform_cpp` 已把 C++ 已有算子全部接入 fixture：**151 个样本逐值通过，0 跳过**。
+`tests/fixtures/conform_cpp` 已把 C++ 已有算子全部接入 fixture：**157 个样本逐值通过，0 跳过**。
 
 最近补齐：`rolling`（含 `min_periods`）/ `rolling_apply` / `cumprod` / `bool_to_numeric`，以及上一批的
 一元、舍入、三角与指数对数、逻辑异或、选择/索引、prod/norm/quantile/none、浮点幂与浮点区间。

@@ -16,6 +16,9 @@ tests/fixtures/
 ├── linalg/                 # N6 线代样本（dot2d / matmul / inverse）
 ├── geometry/               # 几何与多项式（slope / poly_val）
 ├── conversion/             # N1 转换族（from_* / to_* / dtype2int）
+├── line/                   # 直线与拟合（多字段返回）
+├── cross/                  # 上穿 / 下穿
+├── time/                   # 频率与时间序列（纳秒）
 ├── conform/                # Go 实现对拍用例（M1 准入）
 ├── conform_cpp/            # C++ 对拍（未实现语义跳过，缺口见 CPP-GAPS）
 ├── read_go/                # Go 读取器（package read_go，读取器用例在 npz_test.go）
@@ -25,7 +28,7 @@ tests/fixtures/
 ```
 
 样本路径为 `<分组>/<用例>.npz`，分组对应 N 层（`scalar` = N1、`elementwise` = N2、`reduction` = N3、
-`window` = N4、`container` = N6、`linalg` = N6 线代）。当前共 151 个样本，覆盖 N1 ~ N4、N6 的数值语义；字符串解析、`any` 分派与
+`window` = N4、`container` = N6、`linalg` = N6 线代）。当前共 157 个样本，覆盖 N1 ~ N4、N6 的数值语义；字符串解析、`any` 分派与
 反射类转换不在样本范围内（其口径见契约表，落地时另补）。
 
 ## npz 约定
@@ -62,7 +65,7 @@ ctest --preset release-static -R fixtures_npz_read_cpp
 ctest --preset release-static -R fixtures_conform_cpp
 ```
 
-Go / C++ 对拍用例把样本交给各自实现计算并与 `expected` 比较（C++ 已全量 151 个通过）；三套读取器保证同一批样本能被三门语言读出。
+Go / C++ 对拍用例把样本交给各自实现计算并与 `expected` 比较（C++ 已全量 157 个通过）；三套读取器保证同一批样本能被三门语言读出。
 新增样本时三处都要重跑，不只看自己那门语言。
 
 C++ 相对 Go 的缺口（缺哪些算子、哪些口径待核）见 [CPP-GAPS.md](CPP-GAPS.md)。

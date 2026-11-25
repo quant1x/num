@@ -588,6 +588,61 @@ def conversion_layer(out_dir: str) -> None:
     save(out_dir, group, "dtype2int-f64", "dtype2int",
          {"x": trunc, "expected": np.trunc(trunc).astype(np.int32)})
 
+
+def line_layer(out_dir: str) -> None:
+    group = "line"
+    slope = 3.0
+    intercept = -1.0
+    probe = f64([0.0, 2.0, 5.0])
+    degrees = math.degrees(math.atan(slope))
+    save(out_dir, group, "line-equation-f64", "calculate_line_equation",
+         {"x1": np.array(1.0), "y1": np.array(2.0), "x2": np.array(4.0), "y2": np.array(11.0),
+          "probe_x": probe, "expected_y": f64([slope * x + intercept for x in probe]),
+          "expected_a": np.array(slope), "expected_b": np.array(-1.0), "expected_c": np.array(intercept),
+          "expected_degrees": np.array(degrees), "expected_success": np.array(1.0)})
+
+    fit_x = f64([0.0, 1.0, 2.0, 3.0])
+    fit_y = f64([1.0, 3.0, 5.0, 7.0])
+    save(out_dir, group, "fit-line-f64", "fit_line",
+         {"x": fit_x, "y": fit_y, "probe_x": fit_x,
+          "expected_y": f64([2.0 * x + 1.0 for x in fit_x]),
+          "expected_a": np.array(2.0), "expected_b": np.array(-1.0), "expected_c": np.array(1.0),
+          "expected_degrees": np.array(math.degrees(math.atan(2.0))), "expected_success": np.array(1.0)})
+
+    single_x = f64([2.0])
+    single_probe = f64([0.0, 1.0, 2.0])
+    save(out_dir, group, "fit-line-single-f64", "fit_line",
+         {"x": single_x, "y": f64([5.0]), "probe_x": single_probe,
+          "expected_y": f64([5.0, 5.0, 5.0]),
+          "expected_a": np.array(0.0), "expected_b": np.array(-1.0), "expected_c": np.array(5.0),
+          "expected_degrees": np.array(0.0), "expected_success": np.array(0.0)})
+
+
+def cross_layer(out_dir: str) -> None:
+    group = "cross"
+    a = f64([1.0, 3.0, 1.0, 3.0])
+    b = f64([2.0, 2.0, 2.0, 2.0])
+    save(out_dir, group, "cross-f64", "cross",
+         {"a": a, "b": b,
+          "expected_x": np.array([1, 2, 3], dtype=np.int64),
+          "expected_state": np.array([1, -1, 1], dtype=np.int64)})
+
+
+def time_layer(out_dir: str) -> None:
+    group = "time"
+    freqs = np.array([b"D", b"2H", b"30min", b"500ms"], dtype="S8")
+    nanos = np.array([86400 * 10**9, 2 * 3600 * 10**9, 30 * 60 * 10**9, 500 * 10**6],
+                     dtype=np.int64)
+    save(out_dir, group, "parse-freq", "parse_freq", {"freq": freqs, "expected": nanos})
+
+    start = np.array(1767225600 * 10**9, dtype=np.int64)  # 2026-01-01T00:00:00Z
+    periods = np.array(4, dtype=np.int64)
+    step = 12 * 3600 * 10**9
+    expected = np.array([int(start) + i * step for i in range(4)], dtype=np.int64)
+    save(out_dir, group, "date-range", "date_range",
+         {"start": start, "periods": periods,
+          "freq": np.array(b"12H", dtype="S8"), "expected": expected})
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="生成跨语言 fixture")
     parser.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."),
@@ -605,6 +660,9 @@ def main() -> None:
     linalg_layer(out_dir)
     geometry_layer(out_dir)
     conversion_layer(out_dir)
+    line_layer(out_dir)
+    cross_layer(out_dir)
+    time_layer(out_dir)
     print(f"fixtures written to {out_dir}")
 
 

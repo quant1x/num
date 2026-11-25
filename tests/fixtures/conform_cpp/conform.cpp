@@ -17,6 +17,8 @@
 #include <num/dot.h>
 #include <num/fillna.h>
 #include <num/log.h>
+#include <num/freq.h>
+#include <num/cross.h>
 #include <num/conversions.h>
 #include <num/slope.h>
 #include <num/polynomial.h>
@@ -823,6 +825,124 @@ num::Matrix<double> matrix_double(const File &fixture, const std::string &name) 
     return matrix;
 }
 
+
+
+bool check_cross(const File &fixture, std::string &error) {
+    const auto trends = num::cross(make_vector<double>(floats(fixture, "a")),
+                                   make_vector<double>(floats(fixture, "b")));
+    const auto want_x = fixture.arrays.at("expected_x").ints();
+    const auto want_state = fixture.arrays.at("expected_state").ints();
+    if (trends.size() != want_x.size() || want_x.size() != want_state.size()) {
+        error = "穿越数不一致";
+        return false;
+    }
+    for (std::size_t i = 0; i < trends.size(); ++i) {
+        if (trends[i].x != want_x[i] || trends[i].state != want_state[i]) {
+            error = "穿越字段不一致";
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool check_time(const File &fixture, std::string &error) {
+    const auto expected = fixture.arrays.at("expected").ints();
+    const std::string name = semantic_of(fixture);
+    if (name == "parse_freq") {
+        const auto freqs = fixture.arrays.at("freq").strings();
+        if (freqs.size() != expected.size()) {
+            error = "freq 数不一致";
+            return false;
+        }
+        for (std::size_t i = 0; i < freqs.size(); ++i) {
+            const auto duration = num::parse_freq(freqs[i]);
+            if (duration.count() != expected[i]) {
+                error = "parse_freq 结果不一致";
+                return false;
+            }
+        }
+        return true;
+    }
+    if (name == "date_range") {
+        using std::chrono::nanoseconds;
+        using std::chrono::system_clock;
+        const auto start = system_clock::time_point(
+            std::chrono::duration_cast<system_clock::duration>(nanoseconds(scalar_i64(fixture, "start"))));
+        const auto periods = scalar_i64(fixture, "periods");
+        const auto freq = fixture.arrays.at("freq").strings().at(0);
+        const auto times = num::date_range(start, periods, freq);
+        if (times.size() != expected.size()) {
+            error = "时间点数不一致";
+            return false;
+        }
+        for (std::size_t i = 0; i < times.size(); ++i) {
+            const auto value = std::chrono::duration_cast<nanoseconds>(times[i].time_since_epoch()).count();
+            if (value != expected[i]) {
+                error = "date_range 结果不一致";
+                return false;
+            }
+        }
+        return true;
+    }
+    error = "未知时间语义";
+    return false;
+}
+
+bool close(double actual, double expected, double tolerance);
+
+bool check_line(const File &fixture, std::string &error) {
+    const std::string name = semantic_of(fixture);
+    num::Line line;
+    bool success = false;
+    if (name == "calculate_line_equation") {
+        line = num::calculate_line_equation(num::Point{scalar_f64(fixture, "x1"), scalar_f64(fixture, "y1")},
+                                            num::Point{scalar_f64(fixture, "x2"), scalar_f64(fixture, "y2")});
+        success = true;
+    } else if (name == "fit_line") {
+        const auto pair = num::fit_line(make_vector<double>(floats(fixture, "x")),
+                                        make_vector<double>(floats(fixture, "y")));
+        line = pair.first;
+        success = pair.second;
+    } else {
+        error = "未覆盖的 line 语义";
+        return false;
+    }
+
+    const auto [a, b, c] = line.equation();
+    const double tolerance = fixture.arrays.at("meta_tolerance").scalar_f64();
+    if (!close(a, scalar_f64(fixture, "expected_a"), tolerance) ||
+        !close(b, scalar_f64(fixture, "expected_b"), tolerance) ||
+        !close(c, scalar_f64(fixture, "expected_c"), tolerance) ||
+        !close(line.degrees(), scalar_f64(fixture, "expected_degrees"), tolerance)) {
+        error = "线方程字段不一致";
+        return false;
+    }
+    const bool want_success = scalar_f64(fixture, "expected_success") != 0;
+    if (success != want_success) {
+        error = "成功位不一致";
+        return false;
+    }
+
+    const auto probe = floats(fixture, "probe_x");
+    const auto expected_y = floats(fixture, "expected_y");
+    if (probe.size() != expected_y.size()) {
+        error = "探针长度不一致";
+        return false;
+    }
+    for (std::size_t i = 0; i < probe.size(); ++i) {
+        if (!close(line.y(probe[i]), expected_y[i], tolerance)) {
+            error = "探针 Y 不一致";
+            return false;
+        }
+    }
+    return true;
+}
+
+
+
+
+
 bool close(double actual, double expected, double tolerance);
 
 bool check_rolling(const File &fixture, std::string &error) {
@@ -933,6 +1053,33 @@ int main(int argc, char **argv) {
                 }
                 const File fixture = num::fixture::read_npz(entry.path().string());
                 num::fixture::verify(fixture);
+                if (semantic_of(fixture) == "parse_freq" || semantic_of(fixture) == "date_range") {
+                    std::string error;
+                    if (!check_time(fixture, error)) {
+                        std::fprintf(stderr, "%s: %s\n", entry.path().string().c_str(), error.c_str());
+                        return 1;
+                    }
+                    ++conformed;
+                    continue;
+                }
+                if (fixture.arrays.contains("expected_state")) {
+                    std::string error;
+                    if (!check_cross(fixture, error)) {
+                        std::fprintf(stderr, "%s: %s\n", entry.path().string().c_str(), error.c_str());
+                        return 1;
+                    }
+                    ++conformed;
+                    continue;
+                }
+                if (fixture.arrays.contains("expected_a")) {
+                    std::string error;
+                    if (!check_line(fixture, error)) {
+                        std::fprintf(stderr, "%s: %s\n", entry.path().string().c_str(), error.c_str());
+                        return 1;
+                    }
+                    ++conformed;
+                    continue;
+                }
                 if (fixture.arrays.contains("expected_lengths")) {
                     std::string error;
                     if (!check_rolling(fixture, error)) {

@@ -5,20 +5,26 @@
 
 mod container;
 mod conversion;
+mod cross;
 mod elementwise;
 mod float;
 mod geometry;
+mod line;
 mod matrix;
 mod reduction;
 mod scalar;
+mod time;
 mod window;
 
 pub use container::*;
 pub use conversion::*;
+pub use cross::*;
 pub use elementwise::*;
 pub use float::Float;
 pub use geometry::*;
+pub use line::*;
 pub use matrix::*;
 pub use reduction::*;
 pub use scalar::*;
+pub use time::*;
 pub use window::*;

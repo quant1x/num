@@ -23,6 +23,7 @@ struct Array {
     std::vector<double> floats() const;
     std::vector<std::int64_t> ints() const;
     std::vector<bool> bools() const;
+    std::vector<std::string> strings() const;
     double scalar_f64() const;
     std::int64_t scalar_i64() const;
 };
