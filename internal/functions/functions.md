@@ -24,12 +24,12 @@ NEON（`accel_neon_arm64.s`，1695 行 / 28 个 `TEXT` 符号），其余平台�
 补 Python spec 作为内核语义准绳（归约顺序、未命中返回值、NaN 传播），再按
 [§2.3](../../CONTRIBUTING.md#23-语言角色与演进顺序) 推广。
 
-**临时基准**：Python 未落地期间，本文件与 `Xxx_Go_*` 参考路径共同充当临时基准
-（[§9.3](../../CONTRIBUTING.md#93-spec--实现--验证)），Python 落地后以其为准。
+**基准**：`tests/contract/NAME-MAP.tsv` 的 `authority` 逐行标注现行基准 —— 标 `python` 的以根目录同名 `.py` 为准，
+其余仍以本文件 + NumPy 语义 + `Xxx_Go_*` 参考路径为准（[§9.3](../../CONTRIBUTING.md#93-spec--实现--验证)）。
 
 | 阶段 | 语言（角色） | 载体 / 文件 | 状态 | 说明 |
 | --- | --- | --- | --- | --- |
-| spec 定语义 | Python（spec） | `internal/functions/*.py` | 未落地 | 见 §5 TODO |
+| spec 定语义 | Python（spec） | 根目录同名 `.py` | 部分落地 | 对外语义在根包落实；内部内核（AVX2/NEON 分发）不在 Python 侧复制，见 §5 TODO |
 | 生产实现 | C++（生产） | —（不设本层） | — | 对应语义在仓库根门面层，见 [§3.8](../../CONTRIBUTING.md#38-c单层扁平无-include--src) |
 | 对齐实现 | Rust（对齐） | `internal/functions/*.rs` | 未落地 | 见 §5 TODO |
 | 对齐实现 | Go（对齐） | `internal/functions/*.go`（39 个）＋ 2 个 `.s` | 已落地 | amd64 AVX2 ＋ arm64 NEON ＋ 其余平台桩 |

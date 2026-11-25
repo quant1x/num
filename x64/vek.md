@@ -26,12 +26,12 @@
 [§6.4](../../CONTRIBUTING.md#64-落地状态与配套纪律) 判 **部分落地（缺 python / c++ / rust）**。下一个里程碑：
 按 [§2.3](../../CONTRIBUTING.md#23-语言角色与演进顺序) 补 Python spec，把三形式契约与失败约定写进 spec。
 
-**临时基准**：Python 未落地期间，本文件与 `vek_test.go` 共同充当临时基准
-（[§9.3](../../CONTRIBUTING.md#93-spec--实现--验证)），Python 落地后以其为准。
+**基准**：`tests/contract/NAME-MAP.tsv` 的 `authority` 逐行标注现行基准 —— 标 `python` 的以根目录同名 `.py` 为准，
+其余以本文件 + `vek_test.go` 为准（[§9.3](../../CONTRIBUTING.md#93-spec--实现--验证)）。
 
 | 阶段 | 语言（角色） | 载体 / 文件 | 状态 | 说明 |
 | --- | --- | --- | --- | --- |
-| spec 定语义 | Python（spec） | `x64/vek.py` | 未落地 | 见 §5 TODO |
+| spec 定语义 | Python（spec） | 不适用 | 不适用 | Python 只有一种浮点类型，x32 / x64 两个宽度合并到 `x32/vek.py`，不另建 `x64/` |
 | 生产实现 | C++（生产） | —（不设本层） | — | 对应语义在仓库根门面层，见 [§3.8](../../CONTRIBUTING.md#38-c单层扁平无-include--src) |
 | 对齐实现 | Rust（对齐） | `x64/vek.rs` | 未落地 | 见 §5 TODO |
 | 对齐实现 | Go（对齐） | `x64/vek.go` | 已落地 | 156 个导出函数，用例见 §4.1 |

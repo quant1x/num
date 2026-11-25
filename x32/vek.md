@@ -26,12 +26,12 @@
 优先补用例（当前语句覆盖 12.8%，175 个函数只有 2 个用例），再按
 [§2.3](../../CONTRIBUTING.md#23-语言角色与演进顺序) 推进 spec。
 
-**临时基准**：Python 未落地期间，本文件与 `vek_test.go` 共同充当临时基准
-（[§9.3](../../CONTRIBUTING.md#93-spec--实现--验证)），Python 落地后以其为准。
+**基准**：`tests/contract/NAME-MAP.tsv` 的 `authority` 逐行标注现行基准 —— 标 `python` 的以 `x32/vek.py` 为准，
+其余以本文件 + `vek_test.go` 为准（[§9.3](../../CONTRIBUTING.md#93-spec--实现--验证)）。
 
 | 阶段 | 语言（角色） | 载体 / 文件 | 状态 | 说明 |
 | --- | --- | --- | --- | --- |
-| spec 定语义 | Python（spec） | `x32/vek.py` | 未落地 | 见 §5 TODO |
+| spec 定语义 | Python（spec） | `x32/vek.py` | 部分落地 | 覆盖向量算子、距离族、逻辑与 dtype 转换；本文件其余条目待补 |
 | 生产实现 | C++（生产） | —（不设本层） | — | 对应语义在仓库根门面层，见 [§3.8](../../CONTRIBUTING.md#38-c单层扁平无-include--src) |
 | 对齐实现 | Rust（对齐） | `x32/vek.rs` | 未落地 | 见 §5 TODO |
 | 对齐实现 | Go（对齐） | `x32/vek.go` | 已落地 | 175 个导出函数，用例见 §4.1 |
