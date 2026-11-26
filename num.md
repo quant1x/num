@@ -176,6 +176,7 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 | Go | `gofmt -l` ＋ `go vet` | `gofmt -l .`、`go vet .` | `gofmt -l` 实测无输出；`go vet` 支持面已无告警 |
 | C++ | MSVC `/W4`（构建期即检查） | `cmake --build --preset release-static` | 实测 0 警告；`/utf-8` 必开（无 BOM 的 UTF-8 源文件在中文 Windows 上会被按 GBK 误读）；59 个根头文件另各自单独成 TU 编译（`cl /Zs /W4`），实测 0 error / 0 warning —— 没有"靠别的头间接带入 include"的隐患 |
 | Rust | `cargo clippy` ＋ `cargo fmt --check` | `cargo clippy --all-targets -- -D warnings`、`cargo fmt --check` | 实测 0 告警 |
+| Python | `ruff` | `python -m ruff check .` | 实测 0 告警；配置见根目录 `ruff.toml`（默认规则集 + `A001` / `E402`，`I001` / `RUF022` 按语义分组忽略） |
 
 
 ### 4.5 基准测试

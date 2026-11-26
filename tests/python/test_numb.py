@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT.parent) not in sys.path:
     sys.path.insert(0, str(ROOT.parent))
 
-import num.numb as numb  # noqa: E402
+from num import numb  # noqa: E402
 
 GOLDEN = ROOT / "tests" / "fixtures" / "numb"
 

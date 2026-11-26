@@ -27,7 +27,7 @@ EXPECTED = "10 2.5"
 
 def run(command: list[str], what: str) -> None:
     result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True,
-                            encoding="utf-8", errors="replace")
+                            encoding="utf-8", errors="replace", check=False)
     if result.returncode != 0:
         print(f"FAIL {what}\n{result.stdout}\n{result.stderr}")
         sys.exit(1)
@@ -64,7 +64,7 @@ def main() -> None:
     if not exe.exists():
         exe = CONSUMER_BUILD / "consumer"
     output = subprocess.run([str(exe)], capture_output=True, text=True,
-                            encoding="utf-8", errors="replace").stdout.strip()
+                            encoding="utf-8", errors="replace", check=False).stdout.strip()
     if output != EXPECTED:
         print(f"FAIL 消费方输出 {output!r}，期望 {EXPECTED!r}")
         sys.exit(1)

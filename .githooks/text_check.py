@@ -28,7 +28,7 @@ LF`。钩子重复那一层只是徒增啰嗦，故不管。
 """
 import subprocess
 import sys
-from typing import List, Literal, overload
+from typing import Literal, overload
 
 BOM = b"\xef\xbb\xbf"
 
@@ -37,14 +37,14 @@ EXEMPT_SUFFIXES = (".bat", ".cmd")
 
 
 @overload
-def _git(args: List[str], binary: Literal[True]) -> bytes: ...
+def _git(args: list[str], binary: Literal[True]) -> bytes: ...
 
 
 @overload
-def _git(args: List[str], binary: Literal[False] = False) -> str: ...
+def _git(args: list[str], binary: Literal[False] = False) -> str: ...
 
 
-def _git(args: List[str], binary: bool = False) -> bytes | str:
+def _git(args: list[str], binary: bool = False) -> bytes | str:
     """执行 git 子命令。失败即抛, 让钩子明确报错而不是静默放过。
 
     按 binary 分流的返回类型由上面两个 overload 钉住: 调用点不再面对
@@ -58,13 +58,13 @@ def _git(args: List[str], binary: bool = False) -> bytes | str:
     return proc.stdout if binary else proc.stdout.decode("utf-8", "replace")
 
 
-def staged_files() -> List[str]:
+def staged_files() -> list[str]:
     """本次待提交(新增/复制/修改)的文件列表; -z 分隔, 文件名带空格也拆不开。"""
     out = _git(["diff", "--cached", "--name-only", "-z", "--diff-filter=ACM"])
     return [f for f in out.split("\0") if f]
 
 
-def added_lines(path: str) -> List[bytes]:
+def added_lines(path: str) -> list[bytes]:
     """本次提交在该文件里新增的行(字节), 去掉 diff 的 `+` 号与 `+++` 文件头。"""
     raw = _git(["diff", "--cached", "-U0", "--", path], binary=True)
     return [

@@ -12,7 +12,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 
-def sum(x: Sequence[float]) -> float:
+def sum(x: Sequence[float]) -> float:  # noqa: A001 - 与合同名 SUM 保持一致
     """返回 x 的累加和。"""
     total = 0.0
     for value in x:

@@ -12,7 +12,7 @@ from collections.abc import Sequence
 
 def dtype2int(x: Sequence[float]) -> list[int]:
     """返回向零截断后的整数序列。"""
-    return [int(math.trunc(value)) for value in x]
+    return [math.trunc(value) for value in x]
 
 
 # dtype 码 → 默认值：浮点为 NaN，整型为 0，布尔为 False。

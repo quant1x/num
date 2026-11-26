@@ -14,6 +14,6 @@ def min(x: Sequence[float]) -> float:  # noqa: A001 - 与合同名 MIN 保持一
         return 0.0
     best = x[0]
     for value in x[1:]:
-        if value < best:
+        if value < best:  # noqa: PLR1730 - 调用内建 min 会递归到本函数
             best = value
     return best

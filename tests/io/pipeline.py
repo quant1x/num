@@ -98,7 +98,7 @@ def compare(label: str, got, want) -> None:
 
 
 def run(command, cwd: Path) -> None:
-    result = subprocess.run(command, cwd=cwd, text=True, capture_output=True)
+    result = subprocess.run(command, cwd=cwd, text=True, capture_output=True, check=False)
     if result.returncode != 0:
         raise RuntimeError(f"{command[0]} 失败: {result.stderr.strip() or result.stdout.strip()}")
 

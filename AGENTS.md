@@ -87,6 +87,7 @@
 | Rust 编译 / 用例 / 检查 | `cargo build`、`cargo test`、`cargo clippy --all-targets -- -D warnings`、`cargo fmt --check` |
 | 单二进制（命令行） | `CGO_ENABLED=0 go build -o numctl ./cmd/numctl`；`go test ./cmd/numctl/` |
 | Python 用例（spec） | `python -m unittest discover -s tests/python -v`（122 个语义：165 个 npz 样本 + ztable / 解析族 / 切片转换探针） |
+| Python 静态检查 | `python -m ruff check .`（规则配置见仓库根 `ruff.toml`） |
 | Zig | 已落地 134 / 134 行（165 个 fixture 全过）：`zig test num_test.zig`、`zig test num_fixture_test.zig`、`zig fmt --check *.zig tests/fixtures/read_zig.zig`（无 `build.zig`） |
 | Java | **尚未落地**：命令随落地时补进 [BUILDING.md](BUILDING.md) 对应章节，此处不写未验证的命令 |
 

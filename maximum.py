@@ -13,4 +13,4 @@ def maximum(x: Sequence[float], y: Sequence[float]) -> list[float]:
     """返回逐元素较大者。"""
     if len(x) != len(y):
         raise ValueError("maximum: 两条序列长度不一致")
-    return [right if right > left else left for left, right in zip(x, y)]
+    return [max(left, right) for left, right in zip(x, y)]

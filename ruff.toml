@@ -1,0 +1,17 @@
+# ruff 静态检查配置（CONTRIBUTING §4.4 / BUILDING「静态检查」）。
+#
+# 规则集沿用工具默认值，另补开两条：
+# - A001：Python spec 故意以内建名作公开函数名（`abs` / `sum` / `max` 等），
+#   各处已用 `# noqa: A001` 标注，补开规则后这些标注才真正生效；
+# - E402：测试先在 `sys.path` 注入仓库父目录再 `import num`，导入必然不在文件顶部。
+#
+# 运行：python -m ruff check .
+
+[lint]
+extend-select = ["A001", "E402"]
+ignore = [
+    # 导入与导出清单按语义分组（core → lib → linalg → ta → freq），不按字典序；
+    # 测试需先在 sys.path 注入仓库父目录，再导入 num，顺序不能重排。
+    "I001",
+    "RUF022",
+]

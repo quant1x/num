@@ -18,7 +18,7 @@ def median(x: Sequence[float]) -> float:
     if len(x) == 0:
         return math.nan
     for value in x:
-        if value != value:
+        if value != value:  # noqa: PLR0124 - NaN 自比较即 NaN 判定
             return math.nan
     ordered = sorted(x)
     if len(ordered) % 2 == 0:

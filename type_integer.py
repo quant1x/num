@@ -11,4 +11,4 @@ from collections.abc import Sequence
 
 def slice_to_int(x: Sequence[float | bool]) -> list[int]:
     """把数值切片转成整型切片（向零截断）。"""
-    return [int(math.trunc(float(value))) for value in x]
+    return [math.trunc(float(value)) for value in x]

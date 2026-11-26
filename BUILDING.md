@@ -209,6 +209,7 @@ go test ./internal/functions/ -run TestSumProd -v
 # 静态检查（支持面；asm/ 是实验目录，见 §4.2）
 go vet . ./binary/ ./math32/ ./internal/functions/ ./x32/ ./x64/ ./vectors/ ./kind/ ./io/ ./cmd/numctl/
 gofmt -l .
+python -m ruff check .       # Python spec；配置见仓库根 ruff.toml
 ```
 
 C++ 侧：

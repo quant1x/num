@@ -19,9 +19,9 @@ import math
 import struct as _struct
 from collections.abc import Sequence
 
-_math = math
-
 from ..arithmetics_div import _divide
+
+_math = math
 
 
 def neg(x: Sequence[float]) -> list[float]:

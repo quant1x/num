@@ -33,8 +33,7 @@ def net_change_rate(base: float, current: float) -> float:
 
 def decimal(value: float, digits: int = 2) -> float:
     """把 value 保留 digits 位小数（半程远离零）。"""
-    if digits < 0:
-        digits = 0
+    digits = max(digits, 0)
     if math.isnan(value):
         value = 0.0
     half = -5.0 if math.copysign(1.0, value) < 0 else 5.0
