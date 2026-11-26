@@ -1,6 +1,6 @@
 # tests/fixtures/conform_cpp —— C++ 对拍（C3 之后）
 
-读取 `tests/fixtures` 的 npz，把 `num_core` 已有算子的结果与 `expected` 逐值比较。当前 **163 个样本全部通过**；
+读取 `tests/fixtures` 的 npz，把 `num_core` 已有算子的结果与 `expected` 逐值比较。当前 **165 个样本全部通过**；
 C++ 尚未实现的语义会跳过并打印名字，跳过不算通过，缺口见 [../CPP-GAPS.md](../CPP-GAPS.md)。
 
 ## 构建与运行
@@ -15,7 +15,7 @@ ctest --preset release-static -R fixtures_conform_cpp
 输出示例：
 
 ```text
-conformed 163 fixtures, skipped 0 (0 semantics)
+conformed 165 fixtures, skipped 0 (0 semantics)
   skip ceil
   skip cos
   ...
@@ -42,7 +42,7 @@ conformed 163 fixtures, skipped 0 (0 semantics)
 
 ## 未覆盖（跳过）
 
-无：163 个样本全部覆盖。没有 fixture 的接口（mat4mul、转换族、`any` 入口）不在对拍范围，
+无：165 个样本全部覆盖。没有 fixture 的接口（mat4mul、转换族、`any` 入口）不在对拍范围，
 清单见 `CPP-GAPS.md` §1。
 
 ## 口径

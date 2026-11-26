@@ -15,7 +15,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | 汇编内核（amd64 / arm64） | 随 Go 包编译 | `.s` 编进库 | **已落地** |
 | Python | `pyproject.toml` | 包（`num/`） | **已落地（122 / 134 行）** |
 | C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | **已落地（132 / 134 行，2 行不移植）** |
-| Rust | `Cargo.toml` | 库 + 163 个 fixture 的对拍用例 | 部分落地（112 / 134 行） |
+| Rust | `Cargo.toml` | 库 + 165 个 fixture 的对拍用例 | 部分落地（112 / 134 行） |
 | Zig | 无清单文件（`num.zig` + 根目录 `*.zig`） | 库 | 已落地（134 / 134 行） |
 | Java | 无清单文件 | — | 未落地（扩展语言） |
 
@@ -298,7 +298,7 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
   `log` / `log2` / `log10` / `power` / `change_rate` / `net_change_rate`）、
   索引（`find` / `gather` / `select` / `scatter`）、构造补全（`ones` / `range_float`），
   正态分布表（`ztable` 四项）、字符串解析（`parse_scalar` / `string_check`）与切片转换
-  （`slice_to_bool` / `slice_to_int` / `slice_to_float32`）按 Go 探针值核对，无 npz 样本；其余 113 个语义对应 `tests/fixtures` 的 163 个样本；
+  （`slice_to_bool` / `slice_to_int` / `slice_to_float32`）按 Go 探针值核对，无 npz 样本；其余 113 个语义对应 `tests/fixtures` 的 165 个样本；
 - `NAME-MAP.tsv` 的 `authority` 逐行标注：117 行已切到 `python`，其余以 Go 为临时基准（理由写在 note）；
 - `.numb` 读写：`numb.py` 与 Go / C++ / Rust 同格式，读 `tests/fixtures/numb/` 的 6 个黄金样本并重编码逐字节一致。
 
@@ -467,7 +467,7 @@ cmake --preset ninja-compile-db
 
 ```bash
 cargo build
-cargo test                                   # 含 tests/conform.rs：163 个 fixture 对拍
+cargo test                                   # 含 tests/conform.rs：165 个 fixture 对拍
 cargo clippy --all-targets -- -D warnings
 cargo fmt --check
 ```
@@ -477,16 +477,16 @@ cargo fmt --check
 - 根 `Cargo.toml` 的 `version` 是 Cargo 必填的占位 `0.0.0`；正式版本由 tag / autochangelog 注入。
 - 源码按 Go 文件平铺：`abs.go` ↔ `abs.rs`；`vek.rs` 对应 `x32/vek.go` / `x64/vek.go`；`support.rs` 只放
   跨文件取值工具，`float.rs` 是数值类型 trait，`numb.rs` 是 `.numb` 读写。`lib.rs` 只做模块声明与重导出。
-- 语义以 Go 临时基准为准；与 Go 的已知差异（`median` 不排序、`fill` 连 Inf 填、`concat1d` n×3）
-  照搬，不按 NumPy 口径"修正"。
+- 语义以 `NAME-MAP.tsv` 的 `authority` 为准；其余已知差异（`fill` 连 Inf 填、`concat1d` n×3）
+  照搬 Go，不按 NumPy 口径"修正"。
 
 ### 6.4 Zig / Java
 
-扩展语言。Zig 已落地 N1 ~ N6（66 个模块，64 个与 Go 同名 + `vek.zig` / `value.zig`；134 / 134 行，163 个 fixture 全过；`num.zig` 只做重导出），无 `build.zig` 时直接：
+扩展语言。Zig 已落地 N1 ~ N6（66 个模块，64 个与 Go 同名 + `vek.zig` / `value.zig`；134 / 134 行，165 个 fixture 全过；`num.zig` 只做重导出），无 `build.zig` 时直接：
 
 ```bash
 zig test num_test.zig            # 10 个语义边界用例
-zig test num_fixture_test.zig    # 163 个 npz 全量逐值对拍
+zig test num_fixture_test.zig    # 165 个 npz 全量逐值对拍
 zig fmt --check *.zig tests/fixtures/read_zig.zig
 ```
 
@@ -503,7 +503,7 @@ Java 未落地，落地后改用 Maven wrapper。
 3. 浮点按 fixture 的 `meta_tolerance` 比较（f64 默认 1e-12、f32 1e-6），布尔 / 整型严格相等。
 
 Go 侧另有**包内对拍**：`Xxx_Go` 作为期望值，`Xxx_AVX2_F32/F64` 作为被测对象
-（`internal/functions/*_test.go`）。C++ 的计算侧对拍已接入 `tests/fixtures/conform_cpp`（163 个样本全量通过），
+（`internal/functions/*_test.go`）。C++ 的计算侧对拍已接入 `tests/fixtures/conform_cpp`（165 个样本全量通过），
 剩余差异见 `tests/fixtures/CPP-GAPS.md`。
 
 ---

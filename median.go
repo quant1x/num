@@ -7,25 +7,23 @@ import (
 	"github.com/quant1x/num/internal/partial"
 )
 
-// Median returns median value of series.
-// Linear interpolation is used for odd length.
-//
-//	中间值
-//	TODO:未加验证,
+// Median 返回排序后的中位数：偶数长度取中间两值均值，任一 NaN 传播。
 func Median[T Number](values []T) DType {
 	if len(values) == 0 {
 		return NaN()
 	}
-	if len(values) == 1 {
-		return DType(0)
+	for _, value := range values {
+		if DTypeIsNaN(Any2DType(value)) {
+			return NaN()
+		}
 	}
-
-	if len(values)%2 == 0 {
-		i := len(values) / 2
-		return DType(values[i-1]+values[i]) / 2
+	ordered := slices.Clone(values)
+	slices.Sort(ordered)
+	if len(ordered)%2 == 0 {
+		i := len(ordered) / 2
+		return DType(ordered[i-1]+ordered[i]) / 2
 	}
-
-	return DType(values[len(values)/2])
+	return DType(ordered[len(ordered)/2])
 }
 
 func __median_go[T Number](x []T) T {

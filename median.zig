@@ -1,15 +1,22 @@
-//! 与 median.go 同语义：按入参顺序取中间元素，不排序。
+//! 与 median.go 同语义：先排序再取中位数。
 
+const std = @import("std");
 const support = @import("support.zig");
 
-/// 空输入 NaN、单元素 0、偶数位取中间两值平均。
-pub fn median(comptime T: type, x: []const T) T {
+/// 空输入 NaN、单元素返回其本身、偶数位取中间两值平均；任一 NaN 传播。
+pub fn median(comptime T: type, allocator: std.mem.Allocator, x: []const T) !T {
     support.assert_float(T);
     if (x.len == 0) return support.nan(T);
-    if (x.len == 1) return 0;
-    const half = x.len / 2;
-    if (x.len % 2 == 0) {
-        return (x[half - 1] + x[half]) / @as(T, 2);
+    for (x) |value| {
+        if (std.math.isNan(value)) return support.nan(T);
     }
-    return x[half];
+    const ordered = try allocator.alloc(T, x.len);
+    defer allocator.free(ordered);
+    @memcpy(ordered, x);
+    std.mem.sort(T, ordered, {}, std.sort.asc(T));
+    const half = ordered.len / 2;
+    if (ordered.len % 2 == 0) {
+        return (ordered[half - 1] + ordered[half]) / @as(T, 2);
+    }
+    return ordered[half];
 }

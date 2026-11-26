@@ -8,7 +8,7 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 
 ## 1. 路线图
 
-**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件；契约表 134 行全覆盖），覆盖算术、归约、逻辑比较、数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。C++ 侧已落地 132 / 134 行，余下 `any2dtype` / `avx2_switch` 属 Go 反射与加速开关，不移植。Python spec 已落地 122 / 134 行（113 个语义对应 163 个 npz 样本，其余按 Go 探针核对；余 12 行不适用，理由逐行写在 `note`）。Rust 已落地 112 / 134 行（根 `Cargo.toml`；51 个模块按 Go 文件拆分，其中 50 个与根目录 `.go` 同名，`vek.rs` 对应 `x32/vek.go` / `x64/vek.go`），缺口在类型转换与解析族、字符串判定、`Periods` / `Point` 等。下一个里程碑：按 §5 TODO 的顺序扩 Rust 覆盖面，随后处理 C++ 打包与指令集分发。Zig 已落地 134 / 134 行（66 个模块，64 个与根目录 `.go` 同名 + `vek.zig` / `value.zig`；163 / 163 个 npz 样本逐值对拍通过）。
+**当前位置与下一步**：Go 侧门面 API 已落地（64 个实现文件 + 49 个测试文件；契约表 134 行全覆盖），覆盖算术、归约、逻辑比较、数组构造、滑动窗口、线代与几何、正态分布表、类型转换九类。C++ 侧已落地 132 / 134 行，余下 `any2dtype` / `avx2_switch` 属 Go 反射与加速开关，不移植。Python spec 已落地 122 / 134 行（113 个语义对应 165 个 npz 样本，其余按 Go 探针核对；余 12 行不适用，理由逐行写在 `note`）。Rust 已落地 112 / 134 行（根 `Cargo.toml`；51 个模块按 Go 文件拆分，其中 50 个与根目录 `.go` 同名，`vek.rs` 对应 `x32/vek.go` / `x64/vek.go`），缺口在类型转换与解析族、字符串判定、`Periods` / `Point` 等。下一个里程碑：按 §5 TODO 的顺序扩 Rust 覆盖面，随后处理 C++ 打包与指令集分发。Zig 已落地 134 / 134 行（66 个模块，64 个与根目录 `.go` 同名 + `vek.zig` / `value.zig`；165 / 165 个 npz 样本逐值对拍通过）。
 
 **临时基准**：本仓对标 NumPy，算法与数值口径以它为准。`NAME-MAP` 标 `authority=python` 的语义以 Python 实现为准；未标 python 的仍以本文件 + NumPy 语义 + Go 用例作临时基准（[§9.3](CONTRIBUTING.md#93-spec--实现--验证)）。Go 是最早落地的一份实现，可作可执行对照，但不是 spec。
 
@@ -146,9 +146,9 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 | --- | --- | --- | --- |
 | Python（spec） | `tests/python/`（6 个文件，按 num/ 模块组织） | 17 个 `TestCase` | `python -m unittest discover -s tests/python -v` |
 | C++ | 仓库根 `*_test.cpp`（23 个文件，与语义族同名） | 221 个 `TEST` | `ctest --preset release-static`（实测 `100% tests passed out of 221`，Debug 预设同数） |
-| Rust | `tests/conform.rs`（读 `tests/fixtures`） | 163 个 fixture | `cargo test` |
+| Rust | `tests/conform.rs`（读 `tests/fixtures`） | 165 个 fixture | `cargo test` |
 | Go | 仓库根 `*_test.go`（49 个文件，与实现同名） | 84 个 `Test` + 46 个 `Benchmark` | `go test .`（实测 `ok github.com/quant1x/num 0.491s`） |
-| Zig | 根 `num_test.zig` + `num_fixture_test.zig` | 10 个语义用例 + 163 个 npz 对拍 | `zig test num_test.zig` / `zig test num_fixture_test.zig` |
+| Zig | 根 `num_test.zig` + `num_fixture_test.zig` | 10 个语义用例 + 165 个 npz 对拍 | `zig test num_test.zig` / `zig test num_fixture_test.zig` |
 
 用例与实现同目录；`window_test.go` 只有基准、无用例，见 §5 TODO。本包 Go 用例**未**按 [§7](CONTRIBUTING.md#7-测试规范) 的 `accel` 两遍跑（`functions.Info().Acceleration` 在 84 个 `Test` 里无引用，只有 `align` / `repeat` / `diff` 的基准用 `SetAvx2Enabled` 切换），见 §4.6 与 §5 TODO。
 
@@ -189,13 +189,13 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 
 ### 4.6 契约 / 一致性测试
 
-跨**架构**一致性由 `x32/` / `x64/` 与 `internal/functions/` 的用例承担，不在本包；跨**语言**一致性由 `tests/fixtures/` 的 npz 样本承担 —— Go 有 `tests/fixtures/conform`、Rust 有根 crate 的 `tests/conform.rs`、C++ 有 `tests/fixtures/conform_cpp`、Python 有 `tests/python/test_conform.py`（163 个样本全量通过）；Zig 有 `tests/fixtures/read_zig.zig` + `num_fixture_test.zig`（163 个样本全量通过）：
+跨**架构**一致性由 `x32/` / `x64/` 与 `internal/functions/` 的用例承担，不在本包；跨**语言**一致性由 `tests/fixtures/` 的 npz 样本承担 —— Go 有 `tests/fixtures/conform`、Rust 有根 crate 的 `tests/conform.rs`、C++ 有 `tests/fixtures/conform_cpp`、Python 有 `tests/python/test_conform.py`（165 个样本全量通过）；Zig 有 `tests/fixtures/read_zig.zig` + `num_fixture_test.zig`（165 个样本全量通过）：
 
 | 场景 | 测试位置 | 断言内容 | 运行命令 |
 | --- | --- | --- | --- |
 | AVX2（amd64） / NEON（arm64） 与 Go 路径等价 | `x32/*_test.go`、`x64/*_test.go`、`internal/functions/*_test.go` | 逐元素相等；长度 1、块大小 ±1；`NaN` / `±Inf` / `±0` | `go test ./x32/ ./x64/ ./internal/functions/` |
 | 门面层两条路径 | 本包 Go 用例（**缺**） | `UseAVX2 = false` 与 `true` 下结果一致 | 见 §5 TODO |
-| C++ 与 Go 逐值一致 | `tests/fixtures/conform_cpp`（163 个样本） | 已覆盖语义逐值相等；未覆盖语义跳过并列在 `CPP-GAPS.md` | `ctest --preset release-static -R fixtures_conform_cpp` |
+| C++ 与 Go 逐值一致 | `tests/fixtures/conform_cpp`（165 个样本） | 已覆盖语义逐值相等；未覆盖语义跳过并列在 `CPP-GAPS.md` | `ctest --preset release-static -R fixtures_conform_cpp` |
 
 ## 5. TODO
 
@@ -206,13 +206,13 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 | `cross` 的相等口径 | 判据是**前一根与当前根都严格分居两侧**，任一格相等即不记；"先触碰再穿越"的常见写法会多记一根 | 需在复核 Python spec 时确认这是意图还是历史写法 | §2 | 待建单 | 低 |
 | `fit_line` 的失败返回 | 单点输入返回 `intercept = y[0]` 的水平线同时标记失败（`std::pair<Line,bool>`），C++ 照此保留 | 复核 Python spec 时确认失败位与半成品是否都要保留 | §2 | 待建单 | 低 |
 | Python spec 收口 | 122 / 134 行已落地，余 12 行不适用（理由逐行写在 `note`） | 若要继续收口，先给字符串解析 / 切片转换补 fixture；当前无技术阻塞 | §1 / §2 | 已解决（余 12 行不适用） |
-| 扩 Rust 覆盖面 | crate 已通过 163 个 fixture，覆盖 112 / 134 行；缺类型转换与解析族、字符串判定、`rolling_window` / `Periods` / `Point`、`sincos` 等 22 行 | 按 `NAME-MAP.tsv` 逐行补，B3 在 pandas 仓库 | §1 / §2 | #21 | 中 |
-| Zig 覆盖面 | 已落地 134 / 134 行（66 个模块，163 个 fixture 全过） | 无缺口 | §1 / §2 | 已解决 |
-| C++ 对拍覆盖 | `num_fixture_conform` 已全量接入 163 个样本；无 fixture 的转换族与 mat4mul 不在范围 | 新增 fixture 时同步扩展分派 | §4.6 | #27 | 低 |
+| 扩 Rust 覆盖面 | crate 已通过 165 个 fixture，覆盖 112 / 134 行；缺类型转换与解析族、字符串判定、`rolling_window` / `Periods` / `Point`、`sincos` 等 22 行 | 按 `NAME-MAP.tsv` 逐行补，B3 在 pandas 仓库 | §1 / §2 | #21 | 中 |
+| Zig 覆盖面 | 已落地 134 / 134 行（66 个模块，165 个 fixture 全过） | 无缺口 | §1 / §2 | 已解决 |
+| C++ 对拍覆盖 | `num_fixture_conform` 已全量接入 165 个样本；无 fixture 的转换族与 mat4mul 不在范围 | 新增 fixture 时同步扩展分派 | §4.6 | #27 | 低 |
 | C++ 打包与导出 | `conan create` 与 `cmake --install` 未落地，`num_core` 只能源码内使用 | 安装布局要与扁平目录一起设计（头文件按 `num/` 前缀导出） | §3 | #11 | 中 |
 | C++ 指令集分发 | 只按编译器基线下发，未做运行期多版本分发（Go 侧有 `UseAVX2` 开关与两套内核） | 需要 CMake 多目标编译 + 运行期 `__builtin_cpu_supports` / `IsProcessorFeaturePresent` 探测；会牺牲老 CPU 兼容，须先定策略 | §2 精度与平台 | #11 | 中 |
 | `diff` 方向文档化核对 | C++ 已按 Go 口径实现为 `s[i-n] - s[i]`（与 pandas 相反），但 Go 侧无文档说明 | [提案 0004](docs/proposals/0004-python-spec-semantics-alignment.md) §2.3 建议保留该口径并与 `np.diff` 划清，定案后补文档 | §2 | #11、0004 | 低 |
-| `Median` 是否内置排序 | Go 与 C++ 均按入参顺序取中间元素、**不排序**（空输入 `NaN`、单元素 `0`），排序责任在调用方 | [提案 0004](docs/proposals/0004-python-spec-semantics-alignment.md) §2.1 建议采纳 NumPy（Go 私有 `__median_go` 已是正确路径），待定案 | §2 | 0004 | 低 |
+| `Median` 是否内置排序 | 已改为排序后取中位数（空输入 `NaN`、单元素返回其本身、NaN 传播） | 四门实现与 fixture 已对齐 NumPy；x32/x64 空输入 panic 另案 | §2 | #66 | 已解决 |
 | C++ 覆盖率与基准 | 无覆盖率工具接入、无 Google Benchmark 用例与基线 | 需要在 CMake 侧引入 `llvm-cov` / `benchmark` | §4.2 / §4.5 | #11 | 低 |
 | 根包用例按 `accel` 两遍跑 | 84 个 `Test` 均未引用 `functions.Info().Acceleration`，`UseAVX2 = false` 分支在根包层无用例（`x32` / `x64` 的用例已按 §7 跑两遍） | 无技术阻塞，待排期 | §4.1 / §4.6 | 待建单 | 中 |
 | 提升覆盖率并设门槛 | 语句覆盖 42.1%，仓库未设门槛；`window_test.go` 只有基准、无 `Test` | 无技术阻塞，待排期 | §4.2 | 待建单 | 中 |

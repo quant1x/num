@@ -215,15 +215,17 @@ def argmax(x: Sequence[float]) -> int:
     return best
 
 def median(x: Sequence[float]) -> float:
-    """返回按入参位置取到的中位数。"""
+    """返回排序后的中位数；偶数长度取中间两值均值，任一 NaN 传播。"""
     if len(x) == 0:
         return math.nan
-    if len(x) == 1:
-        return 0.0
-    if len(x) % 2 == 0:
-        middle = len(x) // 2
-        return (x[middle - 1] + x[middle]) / 2
-    return x[len(x) // 2]
+    for value in x:
+        if value != value:
+            return math.nan
+    ordered = sorted(x)
+    if len(ordered) % 2 == 0:
+        middle = len(ordered) // 2
+        return (ordered[middle - 1] + ordered[middle]) / 2
+    return float(ordered[len(ordered) // 2])
 
 def count(x: Sequence[float] | Sequence[bool]) -> int:
     """返回 x 中非零元素的个数。"""

@@ -198,10 +198,16 @@ def reduction(out_dir: str) -> None:
     save(out_dir, group, "sum-long-f32", "sum",
          {"x": long_sum32, "expected": np.array(np.sum(long_sum32, dtype=np.float32))}, tolerance=1e-6)
 
-    # Median 按入参顺序取中间元素、不排序（NAME-MAP 的 median 行），期望值按同一口径手算。
-    unsorted = f64([5.0, 1.0, 3.0])
-    save(out_dir, group, "median-unsorted-f64", "median",
-         {"x": unsorted, "expected": np.array(unsorted[len(unsorted) // 2])})
+    # Median 排序后取中位数（与 np.median 一致）；单元素与 NaN 各一例。
+    mixed = f64([5.0, 1.0, 3.0])
+    save(out_dir, group, "median-basic-f64", "median",
+         {"x": mixed, "expected": np.array(np.median(mixed))})
+    single = f64([3.0])
+    save(out_dir, group, "median-single-f64", "median",
+         {"x": single, "expected": np.array(np.median(single))})
+    with_nan = f64([np.nan, 1.0, 2.0])
+    save(out_dir, group, "median-nan-f64", "median",
+         {"x": with_nan, "expected": np.array(np.median(with_nan))})
 
 
 def scalar_layer(out_dir: str) -> None:
@@ -351,7 +357,7 @@ def reduction_extras(out_dir: str) -> None:
 
     even = f64([4.0, 1.0, 3.0, 2.0])
     save(out_dir, group, "median-even-f64", "median",
-         {"x": even, "expected": np.array((even[1] + even[2]) / 2)})
+         {"x": even, "expected": np.array(np.median(even))})
 
     flags = np.array([True, True, False])
     save(out_dir, group, "all-bool", "all", {"x": flags, "expected": np.array(np.all(flags))})

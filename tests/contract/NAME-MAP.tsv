@@ -53,7 +53,7 @@ scatter	x:array, idx:int[], size:int	—	—	[size]	lib.index.scatter	scatter	sc
 sum	x:array	—	propagate	scalar	core.sum	sum	sum	num:Sum, x32:Sum, x64:Sum	sum	—	python	归约顺序见 CONTRIBUTING §5.6.3
 prod	x:array	—	propagate	scalar	core.prod	prod	prod	x32:Prod, x64:Prod	prod	—	python	门面无对应入口
 mean	x:array	—	propagate	scalar	core.mean	mean	mean	num:Mean, num:Mean2, x32:Mean, x64:Mean	mean	—	python	空输入为 NaN（浮点）/ 0（整型）
-median	x:array	—	propagate	scalar	core.median	median	median	num:Median, x32:Median, x64:Median	median	—	python	按入参顺序取中间元素，不排序；空输入 NaN、单元素 0
+median	x:array	—	propagate	scalar	core.median	median	median	num:Median, x32:Median, x64:Median	median	—	python	先排序再取中间值；空输入 NaN、单元素返回其本身、NaN 传播；x32/x64 走 TopK 且空输入 panic
 max	x:array	—	no_special	scalar	core.max	max	max	num:Max, num:Max2, x32:Max, x64:Max	max	—	python	空输入 panic；NaN 结果取决于比较顺序
 min	x:array	—	no_special	scalar	core.min	min	min	num:Min, num:Min2, x32:Min, x64:Min	min	—	python	口径同 max
 argmax	x:array	—	no_special	index	core.argmax	argmax	argmax	num:ArgMax, num:ArgMax2, x32:ArgMax, x64:ArgMax	argmax	—	python	空输入 panic

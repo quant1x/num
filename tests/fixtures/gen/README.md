@@ -28,7 +28,7 @@ python tests/fixtures/gen/gen_fixtures.py --out DIR  # 输出到别处（仅调�
 
 1. 在 `elementwise()` 或 `reduction()` 里加一次 `save(...)` 调用：语义名必须已在
    `tests/contract/NAME-MAP.tsv` 登记；
-2. 期望值用 NumPy 计算；与 Go 口径有差异的（`median` 不排序、`diff` 方向相反）在函数里注明并按 Go 口径手算；
+2. 期望值用 NumPy 计算；与 NumPy 口径不同的（如 `diff` 方向相反）在函数里注明并按契约口径手算；
 3. 重跑生成器与三套读取器，确认产物一致。
 
 ## 边界

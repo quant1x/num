@@ -205,11 +205,15 @@ test "N3: 归约" {
     try std.testing.expectApproxEqAbs(@as(f64, 3), num.max(f64, &mixed), 1e-12);
     try std.testing.expectEqual(@as(i64, 1), num.argmin(f64, &mixed));
     try std.testing.expectEqual(@as(i64, 0), num.argmax(f64, &mixed));
-    try std.testing.expectApproxEqAbs(@as(f64, 1), num.median(f64, &mixed), 1e-12);
+    try std.testing.expectApproxEqAbs(@as(f64, 2), try num.median(f64, std.testing.allocator, &mixed), 1e-12);
 
-    const even = [_]f64{ 1, 2, 3, 4 };
-    try std.testing.expectApproxEqAbs(@as(f64, 2.5), num.median(f64, &even), 1e-12);
-    try std.testing.expect(std.math.isNan(num.median(f64, &[_]f64{})));
+    const even = [_]f64{ 4, 1, 3, 2 };
+    try std.testing.expectApproxEqAbs(@as(f64, 2.5), try num.median(f64, std.testing.allocator, &even), 1e-12);
+    try std.testing.expect(std.math.isNan(try num.median(f64, std.testing.allocator, &[_]f64{})));
+    const single = [_]f64{42};
+    try std.testing.expectApproxEqAbs(@as(f64, 42), try num.median(f64, std.testing.allocator, &single), 1e-12);
+    const with_nan = [_]f64{ 1, std.math.nan(f64), 3 };
+    try std.testing.expect(std.math.isNan(try num.median(f64, std.testing.allocator, &with_nan)));
 
     const zeros = [_]f64{ 0, 1, 2 };
     try std.testing.expectEqual(@as(usize, 2), num.count(f64, &zeros));

@@ -4,18 +4,14 @@
 
 // spec: median.go
 //
-// 中位数：取入参序列的中点。口径与 Go 的 Median 逐行一致，不要在 C++ 侧"顺手修正"：
-//
-//   - 空序列返回 NaN()；
-//   - 只有一个元素返回 0（Go 侧是 DType(0)，不是该元素本身）；
-//   - 偶数长度取中间两个元素的算术平均（加法在 T 上做，窄整型可能溢出，与 Go 同），
-//     奇数长度直接取中间那个；
-//   - **不排序**：按入参给定的顺序取下标，"序列已排序"是调用方的责任。
-//
-// Go 侧的 __median_go / __quantile_go 是未接线的私有实现（依赖 internal/partial.TopK
-// 的快速选择），没有调用方，C++ 侧不移植。
+// 中位数：先排序再取中点。空序列 NaN；单元素返回其本身；偶长取中间两数的平均；
+// 奇长取中间那个；任一 NaN 传播。
 
+#include <algorithm>
+#include <cmath>
 #include <cstddef>
+#include <type_traits>
+#include <vector>
 
 #include "type.h"
 
@@ -27,14 +23,20 @@ namespace num {
         if (n == 0) {
             return nan();
         }
-        if (n == 1) {
-            return 0.0;
+        std::vector<T> ordered(values.cbegin(), values.cend());
+        if constexpr (std::is_floating_point_v<T>) {
+            for (const T value : ordered) {
+                if (std::isnan(value)) {
+                    return nan();
+                }
+            }
         }
+        std::sort(ordered.begin(), ordered.end());
         const std::size_t i = n / 2;
         if (n % 2 == 0) {
-            return static_cast<DType>(values[i - 1] + values[i]) / 2.0;
+            return static_cast<DType>(ordered[i - 1] + ordered[i]) / 2.0;
         }
-        return static_cast<DType>(values[i]);
+        return static_cast<DType>(ordered[i]);
     }
 
 }  // namespace num

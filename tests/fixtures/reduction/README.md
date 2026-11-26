@@ -14,7 +14,5 @@
 | `cumsum-basic-f64` | `cumsum` | 前缀和 |
 | `prod-basic-f64` | `prod` | 含负数 |
 | `dot1d-basic-f64` | `dot1d` | 一维点积 |
-| `median-unsorted-f64` | `median` | **不排序**口径：取入参中间位 |
-
-`median` 与 NumPy 的默认口径不同（NumPy 会排序），期望值按契约表的 `note` 手算；这条差异在 Python
-spec 落地时确认是否保留。
+| `median-basic-f64` / `median-even-f64` | `median` | 排序后取中间值：奇长取中点，偶长取中间两值平均 |
+| `median-single-f64` / `median-nan-f64` | `median` | 单元素返回其本身；NaN 传播 |

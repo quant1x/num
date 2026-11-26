@@ -621,7 +621,7 @@ fn dispatch(comptime T: type, allocator: std.mem.Allocator, fixture: *const read
         else if (std.mem.eql(u8, semantic, "argmax"))
             @floatFromInt(num.argmax(T, x))
         else
-            @floatCast(num.median(T, x));
+            @floatCast(try num.median(T, allocator, x));
         return out;
     }
     if (std.mem.eql(u8, semantic, "count")) {

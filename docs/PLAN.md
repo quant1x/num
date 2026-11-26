@@ -150,7 +150,7 @@ G1 ◄─ G2
 | **M6 数据管道** | B5 | M3 | 读 `D1` 格式、按主键覆盖、重复执行幂等；Arrow / Parquet 作为可选扩展单独验收 | 已完成（Arrow / Parquet 未做） |
 | **M7 Go 工程侧** | G1、G2 | M1 | Go 服务与管道可独立部署（单二进制、无 Python 运行时）；数值路径完整可用 | 已完成（`cmd/numctl`） |
 | **M8 机器学习侧** | M1、M2、M3 | M5、M6 | 训练与推理同一份特征 fixture 一致；同一 ONNX 模型三侧输出一致 | 已完成（特征 fixture + 冻结模型三端同值；`mlp.onnx` 经 onnxruntime 复核，Rust / C++ / Go 三侧推理均与 `pred_mlp` 逐值一致） |
-| **M9 Python 布局回归 NumPy** | Python 包、C1 python 列 | M4 | 122 个 python 符号可导入；163 个 npz 全过；wheel 安装冒烟通过 | 已完成（`num/` 包 + `num.linalg` / `num.polynomial` / `num.lib`） |
+| **M9 Python 布局回归 NumPy** | Python 包、C1 python 列 | M4 | 122 个 python 符号可导入；165 个 npz 全过；wheel 安装冒烟通过 | 已完成（`num/` 包 + `num.linalg` / `num.polynomial` / `num.lib`） |
 
 **关键路径**：`M0 → M1 → M2 → M5 → M8`。Rust 线（`M4`）、格式线（`M3`）、管道线（`M6`）、Go 线（`M7`）在依赖满足后并行插入，互不阻塞。
 
@@ -165,13 +165,13 @@ G1 ◄─ G2
 
 | 项 | 缺口 | 卡在哪 | 影响批次 | 优先级 |
 | --- | --- | --- | --- | --- |
-| Python spec 剩余 12 行 | 122 / 134 行已切 `authority=python`（113 个过 163 个 npz 样本；ztable、解析族与切片转换按 Go 探针核对）；余 12 行均不适用，理由逐行写在 `note` | 不适用项无需实现；若后续要进 fixture，需先给字符串解析 / 切片转换补多语言实现 | M5 | 已解决（余 12 行不适用） |
-| C++ 覆盖不全 | ~~25 个 `.cpp` / 59 个 `.h` 对 Go 全量算子仍有缺口~~ | 已补齐 `distance` / `manhattan_distance` / `cosine_similarity` / `sincos`，163 个样本全量对拍通过；余下差异见 CPP-GAPS §1 | M5 | 已解决 |
+| Python spec 剩余 12 行 | 122 / 134 行已切 `authority=python`（113 个过 165 个 npz 样本；ztable、解析族与切片转换按 Go 探针核对）；余 12 行均不适用，理由逐行写在 `note` | 不适用项无需实现；若后续要进 fixture，需先给字符串解析 / 切片转换补多语言实现 | M5 | 已解决（余 12 行不适用） |
+| C++ 覆盖不全 | ~~25 个 `.cpp` / 59 个 `.h` 对 Go 全量算子仍有缺口~~ | 已补齐 `distance` / `manhattan_distance` / `cosine_similarity` / `sincos`，165 个样本全量对拍通过；余下差异见 CPP-GAPS §1 | M5 | 已解决 |
 | 无 fixture 机制 | ~~跨语言一致性只能人工比对~~ | 已由 C2 生成器与 C3 三语言读取器解决；新增算子仍需补样本 | M1 | 已解决 |
 | 无交换格式规范 | ~~各语言输出各写各的~~ | 已由 `docs/DATA-FORMAT.md`（D1）定稿 | M3 | 已解决 |
 | `.numb` 规范自相矛盾 | ~~头部写「dtype 码 1 字节」，码表却是 `f4` / `i8` 这类两字符码~~ | 已按[提案 0001](proposals/0001-numb-dtype-field.md) 方案 A 定稿（版本 2、9 字节头、`b1`），三端实现与黄金样本已落地 | D2 扩展 | 已解决 |
 | 表头方言污染 | 引入自带 `列名:类型` 表头的三方 dataframe 库会使 CSV 无法被 Python / Go 通用读取器直接消费 | 靠 D1 红线约束；选库时逐项核对表头约定 | M6 | 高 |
-| C++ 缺 min_periods | ~~Go 已支持 partial window，C++ 仍只有完整窗口入口~~ | 已补齐并通过 163 个 fixture 对拍 | M5 | 已解决 |
+| C++ 缺 min_periods | ~~Go 已支持 partial window，C++ 仍只有完整窗口入口~~ | 已补齐并通过 165 个 fixture 对拍 | M5 | 已解决 |
 | D3 发布物未落地 | ~~版本号只能由 autochangelog / tag 注入~~ | 已由 `docs/RELEASE.md` 的安装导出与 tag 派生链路解决；实际发版仍由 autochangelog 执行 | 发布 | 已解决 |
 | Rust 覆盖不全 | 已落地 112 / 134 行；缺类型转换与解析族、字符串判定、`Window` / `Periods` / `Point`、`sincos` 等 22 行 | 按 `NAME-MAP.tsv` 逐行补；公式族在 pandas 仓的 `formula/*.rs`（41 个公式） | M5 | 中 |
 | Go 侧数值与 C++ 有差距 | 缺 AVX-512、迭代器开销、GC 峰值 | 属语言特性，不以牺牲 Go 交付面为代价硬追 | M7 | 低 |
