@@ -17,7 +17,7 @@
 
 **当前位置与下一步**：Go 侧两套架构都已落地 —— amd64 的 AVX2（`accel_avx2_amd64.s`，11579 行）与 arm64 的
 NEON（`accel_neon_arm64.s`，1695 行 / 28 个 `TEXT` 符号），其余平台由 `accel_noasm.go` 提供桩并在
-`UseAVX2 = false` 下不被调用。Python / Rust 均未落地；C++ 侧**不设本层**（模板 + xsimd 把参考实现与加速
+`UseAVX2 = false` 下不被调用。Python / Rust 未在本层设对位实现；C++ 侧**不设本层**（模板 + xsimd 把参考实现与加速
 内核合成一份代码，对应语义在仓库根门面层落地，见
 [§3.8](../../CONTRIBUTING.md#38-c单层扁平无-include--src)），故本表的 c++ 列一律留 `—`。按
 [§6.4](../../CONTRIBUTING.md#64-落地状态与配套纪律) 现判 **部分落地（缺 python / c++ / rust）**。下一个里程碑：

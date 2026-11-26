@@ -4,144 +4,144 @@
 # go 列带包限定符：num（门面）/ x32 / x64。
 # semantic	min_params	defaults	nan_convention	return_shape	python	cpp	rust	go	zig	java	authority	note
 # --- N2 逐元素：取绝对值与算术 ---
-abs	x:array	—	no_special	same_as(x)	abs.abs	abs	abs	num:Abs, x32:Abs, x64:Abs	—	—	python	无符号输入门面层原样返回
-abs_int	n:int	—	—	scalar	—	abs_int, abs_int8, abs_int16, abs_int32, abs_int64	—	num:AbsInt, num:AbsInt8, num:AbsInt16, num:AbsInt32, num:AbsInt64	—	—	go	有符号整型绝对值；有符号整型绝对值；Python 无定宽整型，语义并入 abs
-abs_float	n:f32/f64	—	propagate	scalar	—	abs_float32, abs_float64	—	num:AbsFloat32, num:AbsFloat64	—	—	go	浮点标量绝对值；浮点标量绝对值；Python 只有 f64，语义并入 abs
-neg	x:array	—	propagate	same_as(x)	x32.vek.neg	neg	neg	x32:Neg, x64:Neg	—	—	python	门面无对应入口
-inv	x:array	—	propagate	same_as(x)	x32.vek.inv	inv	inv	x32:Inv, x64:Inv	—	—	python	倒数，0 得 ±Inf
-sqrt	x:array	—	propagate	same_as(x)	sqrt.sqrt	sqrt	sqrt	num:Sqrt, x32:Sqrt, x64:Sqrt	—	—	python	负数得 NaN；非浮点编译期拒绝（C++）/ panic（Go）
-pow_integer	x:array, n:int	—	propagate	same_as(x)	x32.vek.pow_integer	pow	pow_integer	num:Pow	—	—	python	整数次幂
-pow_float	x:array, y:array	—	propagate	first_len	x32.vek.pow_float	pow	pow_float	x32:Pow, x64:Pow	—	—	python	逐元素幂；门面无对应入口
-expm1	x:array	—	propagate	same_as(x)	log.expm1	expm1	expm1	num:Expm1, num:Expm1Unrolled	—	—	python	结果为 f64 序列
-log1p	x:array	—	propagate	same_as(x)	log.log1p	log1p	log1p	num:Log1p, num:Log1pUnrolled	—	—	python	返回 (序列, error)
-add	x:array, y:array|scalar	—	propagate	first_len	arithmetics_add.add	add, add_inplace	add	num:Add, x32:Add, x64:Add	—	—	python	按第一个操作数长度对齐，短补默认值、长截断
-sub	x:array, y:array|scalar	—	propagate	first_len	arithmetics_sub.sub	sub, sub_inplace	sub	num:Sub, num:SubInplace, x32:Sub, x64:Sub	—	—	python	长度口径同 add
-mul	x:array, y:array|scalar	—	propagate	first_len	arithmetics_mul.mul	mul, mul_inplace	mul	num:Mul, x32:Mul, x64:Mul	—	—	python	长度口径同 add
-div	x:array, y:array|scalar	—	propagate	first_len	arithmetics_div.div	div, div_inplace	div	num:Div, x32:Div, x64:Div	—	—	python	除以 0 得 ±Inf；长度口径同 add
-maximum	x:array, y:array	—	no_special	max_len	maximum.maximum	maximum	maximum	num:Maximum, x32:Maximum, x64:Maximum	—	—	python	按最长对齐；第二操作数为 NaN 时保留第一操作数（与 NumPy 的传播不同）
-minimum	x:array, y:array	—	no_special	max_len	minimum.minimum	minimum	minimum	num:Minimum, x32:Minimum, x64:Minimum	—	—	python	口径同 maximum
-decimal	value:f64, digits:int?	digits=2	nan_to_zero	scalar	decimals.decimal	decimal	decimal	num:Decimal	—	—	python	半程远离零；负 digits 视为 0
-change_rate	base:number, current:number	—	propagate	scalar	decimals.change_rate	change_rate	change_rate	num:ChangeRate	—	—	python	current/base
-net_change_rate	base:number, current:number	—	propagate	scalar	decimals.net_change_rate	net_change_rate	net_change_rate	num:NetChangeRate	—	—	python	(change_rate-1)*100
-ceil	x:array	—	propagate	same_as(x)	x32.vek.ceil	ceil	ceil	x32:Ceil, x64:Ceil	—	—	python	门面无对应入口
-floor	x:array	—	propagate	same_as(x)	x32.vek.floor	floor	floor	x32:Floor, x64:Floor	—	—	python	门面无对应入口
-round	x:array	—	propagate	same_as(x)	x32.vek.round	round	round	x32:Round, x64:Round	—	—	python	门面无对应入口；半数远离零
-sin	x:array	—	propagate	same_as(x)	x32.vek.sin	sin	sin	x32:Sin	—	—	python	x64 缺同名实现
-cos	x:array	—	propagate	same_as(x)	x32.vek.cos	cos	cos	x32:Cos	—	—	python	x64 缺同名实现
-sincos	x:array	—	propagate	tuple	—	sincos	—	x32:SinCos_Into	—	—	go	仅原地双输出形态；仅原地双输出形态；Python 用 (sin, cos) 两次调用表达，不单设符号
-exp	x:array	—	propagate	same_as(x)	x32.vek.exp	exp	exp	x32:Exp	—	—	python	x64 缺同名实现
-log	x:array	—	propagate	same_as(x)	x32.vek.log	log	log	x32:Log	—	—	python	x64 缺同名实现
-log2	x:array	—	propagate	same_as(x)	x32.vek.log2	log2	log2	x32:Log2	—	—	python	x64 缺同名实现
-log10	x:array	—	propagate	same_as(x)	x32.vek.log10	log10	log10	x32:Log10	—	—	python	x64 缺同名实现
+abs	x:array	—	no_special	same_as(x)	abs.abs	abs	abs	num:Abs, x32:Abs, x64:Abs	abs	—	python	无符号输入门面层原样返回
+abs_int	n:int	—	—	scalar	—	abs_int, abs_int8, abs_int16, abs_int32, abs_int64	—	num:AbsInt, num:AbsInt8, num:AbsInt16, num:AbsInt32, num:AbsInt64	abs_int	—	go	有符号整型绝对值；有符号整型绝对值；Python 无定宽整型，语义并入 abs
+abs_float	n:f32/f64	—	propagate	scalar	—	abs_float32, abs_float64	—	num:AbsFloat32, num:AbsFloat64	abs_float32, abs_float64	—	go	浮点标量绝对值；浮点标量绝对值；Python 只有 f64，语义并入 abs
+neg	x:array	—	propagate	same_as(x)	x32.vek.neg	neg	neg	x32:Neg, x64:Neg	neg	—	python	门面无对应入口
+inv	x:array	—	propagate	same_as(x)	x32.vek.inv	inv	inv	x32:Inv, x64:Inv	inv	—	python	倒数，0 得 ±Inf
+sqrt	x:array	—	propagate	same_as(x)	sqrt.sqrt	sqrt	sqrt	num:Sqrt, x32:Sqrt, x64:Sqrt	sqrt	—	python	负数得 NaN；非浮点编译期拒绝（C++）/ panic（Go）
+pow_integer	x:array, n:int	—	propagate	same_as(x)	x32.vek.pow_integer	pow	pow_integer	num:Pow	pow_integer	—	python	整数次幂
+pow_float	x:array, y:array	—	propagate	first_len	x32.vek.pow_float	pow	pow_float	x32:Pow, x64:Pow	pow_float	—	python	逐元素幂；门面无对应入口
+expm1	x:array	—	propagate	same_as(x)	log.expm1	expm1	expm1	num:Expm1, num:Expm1Unrolled	expm1	—	python	结果为 f64 序列
+log1p	x:array	—	propagate	same_as(x)	log.log1p	log1p	log1p	num:Log1p, num:Log1pUnrolled	log1p	—	python	返回 (序列, error)
+add	x:array, y:array|scalar	—	propagate	first_len	arithmetics_add.add	add, add_inplace	add	num:Add, x32:Add, x64:Add	add	—	python	按第一个操作数长度对齐，短补默认值、长截断
+sub	x:array, y:array|scalar	—	propagate	first_len	arithmetics_sub.sub	sub, sub_inplace	sub	num:Sub, num:SubInplace, x32:Sub, x64:Sub	sub	—	python	长度口径同 add
+mul	x:array, y:array|scalar	—	propagate	first_len	arithmetics_mul.mul	mul, mul_inplace	mul	num:Mul, x32:Mul, x64:Mul	mul	—	python	长度口径同 add
+div	x:array, y:array|scalar	—	propagate	first_len	arithmetics_div.div	div, div_inplace	div	num:Div, x32:Div, x64:Div	div	—	python	除以 0 得 ±Inf；长度口径同 add
+maximum	x:array, y:array	—	no_special	max_len	maximum.maximum	maximum	maximum	num:Maximum, x32:Maximum, x64:Maximum	maximum	—	python	按最长对齐；第二操作数为 NaN 时保留第一操作数（与 NumPy 的传播不同）
+minimum	x:array, y:array	—	no_special	max_len	minimum.minimum	minimum	minimum	num:Minimum, x32:Minimum, x64:Minimum	minimum	—	python	口径同 maximum
+decimal	value:f64, digits:int?	digits=2	nan_to_zero	scalar	decimals.decimal	decimal	decimal	num:Decimal	decimal	—	python	半程远离零；负 digits 视为 0
+change_rate	base:number, current:number	—	propagate	scalar	decimals.change_rate	change_rate	change_rate	num:ChangeRate	change_rate	—	python	current/base
+net_change_rate	base:number, current:number	—	propagate	scalar	decimals.net_change_rate	net_change_rate	net_change_rate	num:NetChangeRate	net_change_rate	—	python	(change_rate-1)*100
+ceil	x:array	—	propagate	same_as(x)	x32.vek.ceil	ceil	ceil	x32:Ceil, x64:Ceil	ceil	—	python	门面无对应入口
+floor	x:array	—	propagate	same_as(x)	x32.vek.floor	floor	floor	x32:Floor, x64:Floor	floor	—	python	门面无对应入口
+round	x:array	—	propagate	same_as(x)	x32.vek.round	round	round	x32:Round, x64:Round	round	—	python	门面无对应入口；半数远离零
+sin	x:array	—	propagate	same_as(x)	x32.vek.sin	sin	sin	x32:Sin	sin	—	python	x64 缺同名实现
+cos	x:array	—	propagate	same_as(x)	x32.vek.cos	cos	cos	x32:Cos	cos	—	python	x64 缺同名实现
+sincos	x:array	—	propagate	tuple	—	sincos	—	x32:SinCos_Into	sincos	—	go	仅原地双输出形态；仅原地双输出形态；Python 用 (sin, cos) 两次调用表达，不单设符号
+exp	x:array	—	propagate	same_as(x)	x32.vek.exp	exp	exp	x32:Exp	exp	—	python	x64 缺同名实现
+log	x:array	—	propagate	same_as(x)	x32.vek.log	log	log	x32:Log	log	—	python	x64 缺同名实现
+log2	x:array	—	propagate	same_as(x)	x32.vek.log2	log2	log2	x32:Log2	log2	—	python	x64 缺同名实现
+log10	x:array	—	propagate	same_as(x)	x32.vek.log10	log10	log10	x32:Log10	log10	—	python	x64 缺同名实现
 # --- N2 逐元素：比较与逻辑 ---
-equal	x:array, y:array	—	comparison_false	bool[first_len]	logic_equal.equal	equal	equal	num:Equal, x32:Eq, x64:Eq	—	—	python	按第一个操作数长度对齐
-not_equal	x:array, y:array	—	comparison_false	bool[first_len]	logic_equal.not_equal	not_equal	not_equal	num:NotEqual, x32:Neq, x64:Neq	—	—	python	NaN != NaN 为 true
-greater	x:array, y:array	—	comparison_false	bool[max_len]	logic.gt	gt	greater	num:Gt, x32:Gt, x64:Gt	—	—	python	按最长对齐
-greater_equal	x:array, y:array	—	comparison_false	bool[max_len]	logic.gte	gte	greater_equal	num:Gte, x32:Gte, x64:Gte	—	—	python	按最长对齐
-less	x:array, y:array	—	comparison_false	bool[max_len]	logic.lt	lt	less	num:Lt, x32:Lt, x64:Lt	—	—	python	按最长对齐
-less_equal	x:array, y:array	—	comparison_false	bool[max_len]	logic.lte	lte	less_equal	num:Lte, x32:Lte, x64:Lte	—	—	python	按最长对齐
-logic_and	x:array, y:array	—	—	bool[max_len]	logic.logic_and	logic_and	logic_and	num:And, x32:And, x64:And	—	—	python	按最长对齐
-logic_or	x:array, y:array	—	—	bool[max_len]	logic.logic_or	logic_or	logic_or	num:Or, x32:Or, x64:Or	—	—	python	按最长对齐
-logic_not	x:array	—	—	bool[same_as(x)]	logic.logic_not	logic_not	logic_not	num:Not, x32:Not, x64:Not	—	—	python	逐元素取反
-logic_xor	x:array, y:array	—	—	bool[first_len]	x32.vek.logic_xor	logic_xor	logic_xor	x32:Xor, x64:Xor	—	—	python	门面无对应入口
-where	condition:bool[], x:array, y:array	—	—	max_len	where.where	where	where_select	num:Where	—	—	python	按最长对齐，条件为真取 x；Go 门面的 condition 与取值同类型（StatType），不接受 bool 条件
-select	x:array, mask:bool[]	—	—	same_as(x)	x32.vek.select	select	select	x32:Select, x64:Select	—	—	python	掩码为真保留 x 元素
-find	x:array, value:scalar	—	comparison_false	index	x32.vek.find	find	find	x32:Find, x64:Find	—	—	python	未命中返回 -1
-gather	x:array, idx:int[]	—	—	same_as(idx)	x32.vek.gather	gather	gather	x32:Gather, x64:Gather	—	—	python	按下标取值
-scatter	x:array, idx:int[], size:int	—	—	[size]	x32.vek.scatter	scatter	scatter	x32:Scatter, x64:Scatter	—	—	python	按下标写入新序列
+equal	x:array, y:array	—	comparison_false	bool[first_len]	logic_equal.equal	equal	equal	num:Equal, x32:Eq, x64:Eq	equal	—	python	按第一个操作数长度对齐
+not_equal	x:array, y:array	—	comparison_false	bool[first_len]	logic_equal.not_equal	not_equal	not_equal	num:NotEqual, x32:Neq, x64:Neq	not_equal	—	python	NaN != NaN 为 true
+greater	x:array, y:array	—	comparison_false	bool[max_len]	logic.gt	gt	greater	num:Gt, x32:Gt, x64:Gt	gt	—	python	按最长对齐
+greater_equal	x:array, y:array	—	comparison_false	bool[max_len]	logic.gte	gte	greater_equal	num:Gte, x32:Gte, x64:Gte	gte	—	python	按最长对齐
+less	x:array, y:array	—	comparison_false	bool[max_len]	logic.lt	lt	less	num:Lt, x32:Lt, x64:Lt	lt	—	python	按最长对齐
+less_equal	x:array, y:array	—	comparison_false	bool[max_len]	logic.lte	lte	less_equal	num:Lte, x32:Lte, x64:Lte	lte	—	python	按最长对齐
+logic_and	x:array, y:array	—	—	bool[max_len]	logic.logic_and	logic_and	logic_and	num:And, x32:And, x64:And	logic_and	—	python	按最长对齐
+logic_or	x:array, y:array	—	—	bool[max_len]	logic.logic_or	logic_or	logic_or	num:Or, x32:Or, x64:Or	logic_or	—	python	按最长对齐
+logic_not	x:array	—	—	bool[same_as(x)]	logic.logic_not	logic_not	logic_not	num:Not, x32:Not, x64:Not	logic_not	—	python	逐元素取反
+logic_xor	x:array, y:array	—	—	bool[first_len]	x32.vek.logic_xor	logic_xor	logic_xor	x32:Xor, x64:Xor	logic_xor	—	python	门面无对应入口
+where	condition:bool[], x:array, y:array	—	—	max_len	where.where	where	where_select	num:Where	where_select	—	python	按最长对齐，条件为真取 x；Go 门面的 condition 与取值同类型（StatType），不接受 bool 条件
+select	x:array, mask:bool[]	—	—	same_as(x)	x32.vek.select	select	select	x32:Select, x64:Select	select	—	python	掩码为真保留 x 元素
+find	x:array, value:scalar	—	comparison_false	index	x32.vek.find	find	find	x32:Find, x64:Find	find	—	python	未命中返回 -1
+gather	x:array, idx:int[]	—	—	same_as(idx)	x32.vek.gather	gather	gather	x32:Gather, x64:Gather	gather	—	python	按下标取值
+scatter	x:array, idx:int[], size:int	—	—	[size]	x32.vek.scatter	scatter	scatter	x32:Scatter, x64:Scatter	scatter	—	python	按下标写入新序列
 # --- N3 归约 ---
-sum	x:array	—	propagate	scalar	sum.sum	sum	sum	num:Sum, x32:Sum, x64:Sum	—	—	python	归约顺序见 CONTRIBUTING §5.6.3
-prod	x:array	—	propagate	scalar	x32.vek.prod	prod	prod	x32:Prod, x64:Prod	—	—	python	门面无对应入口
-mean	x:array	—	propagate	scalar	mean.mean	mean	mean	num:Mean, num:Mean2, x32:Mean, x64:Mean	—	—	python	空输入为 NaN（浮点）/ 0（整型）
-median	x:array	—	propagate	scalar	median.median	median	median	num:Median, x32:Median, x64:Median	—	—	python	按入参顺序取中间元素，不排序；空输入 NaN、单元素 0
-max	x:array	—	no_special	scalar	max.max	max	max	num:Max, num:Max2, x32:Max, x64:Max	—	—	python	空输入 panic；NaN 结果取决于比较顺序
-min	x:array	—	no_special	scalar	min.min	min	min	num:Min, num:Min2, x32:Min, x64:Min	—	—	python	口径同 max
-argmax	x:array	—	no_special	index	argmax.argmax	argmax	argmax	num:ArgMax, num:ArgMax2, x32:ArgMax, x64:ArgMax	—	—	python	空输入 panic
-argmin	x:array	—	no_special	index	argmin.argmin	argmin	argmin	num:ArgMin, num:ArgMin2, x32:ArgMin, x64:ArgMin	—	—	python	空输入 panic
-std	x:array	—	propagate	scalar	stddev.std	stddev	std	num:Std	—	—	python	总体标准差（ddof=0）；空输入返回类型默认值
-variance	x:array	—	propagate	scalar	covariance.variance	variance	variance	num:Variance	—	—	python	总体方差（ddof=0）；仅 f64 入口
-covariance	x:array, y:array	—	propagate	scalar	covariance.covariance	covariance	covariance	num:Covariance	—	—	python	逐对协方差
-count	x:array	—	comparison_false	scalar	count.count	count	count, count_true	num:Count, x32:Count, x64:Count	—	—	python	数值统计非零元素，布尔统计 true
-all	x:bool[]	—	—	scalar	logic_all.all	all	all	num:All, x32:All, x64:All	—	—	python	空输入为 true
-any	x:bool[]	—	—	scalar	logic_any.any	any	any	num:Any, x32:Any, x64:Any	—	—	python	空输入为 false
-none	x:bool[]	—	—	scalar	x32.vek.none	none	none	x32:None, x64:None	—	—	python	全部为 false 时返回 true
-norm	x:array	—	propagate	scalar	x32.vek.norm	norm	norm	x32:Norm, x64:Norm	—	—	python	欧氏范数
-quantile	x:array, q:f64	—	no_special	scalar	x32.vek.quantile	quantile	quantile	x32:Quantile, x64:Quantile	—	—	python	q=0 取最小、q=1 取最大
+sum	x:array	—	propagate	scalar	sum.sum	sum	sum	num:Sum, x32:Sum, x64:Sum	sum	—	python	归约顺序见 CONTRIBUTING §5.6.3
+prod	x:array	—	propagate	scalar	x32.vek.prod	prod	prod	x32:Prod, x64:Prod	prod	—	python	门面无对应入口
+mean	x:array	—	propagate	scalar	mean.mean	mean	mean	num:Mean, num:Mean2, x32:Mean, x64:Mean	mean	—	python	空输入为 NaN（浮点）/ 0（整型）
+median	x:array	—	propagate	scalar	median.median	median	median	num:Median, x32:Median, x64:Median	median	—	python	按入参顺序取中间元素，不排序；空输入 NaN、单元素 0
+max	x:array	—	no_special	scalar	max.max	max	max	num:Max, num:Max2, x32:Max, x64:Max	max	—	python	空输入 panic；NaN 结果取决于比较顺序
+min	x:array	—	no_special	scalar	min.min	min	min	num:Min, num:Min2, x32:Min, x64:Min	min	—	python	口径同 max
+argmax	x:array	—	no_special	index	argmax.argmax	argmax	argmax	num:ArgMax, num:ArgMax2, x32:ArgMax, x64:ArgMax	argmax	—	python	空输入 panic
+argmin	x:array	—	no_special	index	argmin.argmin	argmin	argmin	num:ArgMin, num:ArgMin2, x32:ArgMin, x64:ArgMin	argmin	—	python	空输入 panic
+std	x:array	—	propagate	scalar	stddev.std	stddev	std	num:Std	std	—	python	总体标准差（ddof=0）；空输入返回类型默认值
+variance	x:array	—	propagate	scalar	covariance.variance	variance	variance	num:Variance	variance	—	python	总体方差（ddof=0）；仅 f64 入口
+covariance	x:array, y:array	—	propagate	scalar	covariance.covariance	covariance	covariance	num:Covariance	covariance	—	python	逐对协方差
+count	x:array	—	comparison_false	scalar	count.count	count	count, count_true	num:Count, x32:Count, x64:Count	count, count_true	—	python	数值统计非零元素，布尔统计 true
+all	x:bool[]	—	—	scalar	logic_all.all	all	all	num:All, x32:All, x64:All	all	—	python	空输入为 true
+any	x:bool[]	—	—	scalar	logic_any.any	any	any	num:Any, x32:Any, x64:Any	any	—	python	空输入为 false
+none	x:bool[]	—	—	scalar	x32.vek.none	none	none	x32:None, x64:None	none	—	python	全部为 false 时返回 true
+norm	x:array	—	propagate	scalar	x32.vek.norm	norm	norm	x32:Norm, x64:Norm	norm	—	python	欧氏范数
+quantile	x:array, q:f64	—	no_special	scalar	x32.vek.quantile	quantile	quantile	x32:Quantile, x64:Quantile	quantile	—	python	q=0 取最小、q=1 取最大
 # --- N4 窗口与滚动 ---
-cumsum	x:array	—	propagate	same_as(x)	cumsum.cumsum	cumsum, cumsum_inplace	cumsum	num:CumSum, x32:CumSum, x64:CumSum	—	—	python	前缀和
-cumprod	x:array	—	propagate	same_as(x)	x32.vek.cumprod	cumprod	cumprod	x32:CumProd, x64:CumProd	—	—	python	门面无对应入口
-diff	series:array, n:int	—	propagate	same_as(series)	diff.diff	diff	diff	num:Diff, num:V2Diff	—	—	python	方向为 s[i-n]-s[i]（与 pandas 相反）；n=0 返回全 0
-shift	series:array, n:int|int[]	—	—	same_as(series)	shift.shift	shift	shift	num:Shift	—	—	python	越界位填类型默认值；n=0 返回原序列
-rolling	series:array, window:int|int[], min_periods:int?	—	—	[n][window]	rolling.rolling	rolling	rolling	num:Rolling	—	—	python	不传 min_periods 时窗口不足返回空切片；传入后按 partial window 计算，min_periods > window 不产生窗口
-rolling_apply	series:array, window:int|int[], apply:func	—	—	same_as(series)	rolling.rolling_apply	rolling_apply	rolling_apply	num:RollingApply	—	—	python	逐窗口求值
-rolling_window	values:array, capacity:scalar	—	—	tuple	—	Window, rolling_window	—	num:RollingWindow, num:Any2Window	—	—	go	返回 Window；At / IsConst 为方法，不在函数粒度契约内；窗口对象构造，Python 用 rolling 的参数表达
-periods	n:int|any	—	—	tuple	—	Periods	—	num:AnyToPeriod	—	—	go	周期序列；Min 字段由 Rolling 的 min_periods 参数写入；窗口周期序列；Python 侧由 rolling 的 window / min_periods 参数承担
+cumsum	x:array	—	propagate	same_as(x)	cumsum.cumsum	cumsum, cumsum_inplace	cumsum	num:CumSum, x32:CumSum, x64:CumSum	cumsum	—	python	前缀和
+cumprod	x:array	—	propagate	same_as(x)	x32.vek.cumprod	cumprod	cumprod	x32:CumProd, x64:CumProd	cumprod	—	python	门面无对应入口
+diff	series:array, n:int	—	propagate	same_as(series)	diff.diff	diff	diff	num:Diff, num:V2Diff	diff	—	python	方向为 s[i-n]-s[i]（与 pandas 相反）；n=0 返回全 0
+shift	series:array, n:int|int[]	—	—	same_as(series)	shift.shift	shift	shift	num:Shift	shift	—	python	越界位填类型默认值；n=0 返回原序列
+rolling	series:array, window:int|int[], min_periods:int?	—	—	[n][window]	rolling.rolling	rolling	rolling	num:Rolling	rolling	—	python	不传 min_periods 时窗口不足返回空切片；传入后按 partial window 计算，min_periods > window 不产生窗口
+rolling_apply	series:array, window:int|int[], apply:func	—	—	same_as(series)	rolling.rolling_apply	rolling_apply	rolling_apply	num:RollingApply	rolling_apply	—	python	逐窗口求值
+rolling_window	values:array, capacity:scalar	—	—	tuple	—	Window, rolling_window	—	num:RollingWindow, num:Any2Window	rolling_window	—	go	返回 Window；At / IsConst 为方法，不在函数粒度契约内；窗口对象构造，Python 用 rolling 的参数表达
+periods	n:int|any	—	—	tuple	—	Periods	—	num:AnyToPeriod	periods	—	go	周期序列；Min 字段由 Rolling 的 min_periods 参数写入；窗口周期序列；Python 侧由 rolling 的 window / min_periods 参数承担
 # --- N6 构造与整形 ---
-zeros	shape:int	—	—	[n]	zeros.zeros	zeros	zeros	num:Zeros, x32:Zeros, x64:Zeros	—	—	python	全零
-ones	shape:int	—	—	[n]	zeros.ones	ones	ones	num:Ones, x32:Ones, x64:Ones	—	—	python	全一；Go 门面按入参切片长度生成，不接受形状整数
-arange	start:number, end:number, step:number?	step=1	—	[n]	range.arange	arange	arange_f64, arange_i64	num:Arange	—	—	python	不含 end
-linspace	start:number, end:number, n:int, endpoint:bool?	endpoint=true	—	[n]	range.linspace	linspace	linspace	num:Linspace	—	—	python	含 end（endpoint=true）
-range	n:int	—	—	[n]	range.range	range	range_i64	num:Range	—	—	python	0..n
-range_float	a:f64, b:f64	—	—	[n]	range.range_float	range	range_float	x32:Range, x64:Range	—	—	python	浮点区间；门面无对应入口
-repeat	value:scalar, n:int	—	—	[n]	repeat.repeat	repeat, repeat_into	repeat	num:Repeat, num:RepeatInto, x32:Repeat, x64:Repeat	—	—	python	同值重复
-align	x:array, value:scalar, n:int	—	—	[n]	align.align	align	align	num:Align	—	—	python	补默认值到指定长度
-shape	x:any	—	—	tuple	shape.shape	shape	shape, shape_2d	num:Shape	—	—	python	返回 (行, 列)
-concat1d	a:array, b:array, c:array	—	—	[n][3]	matrix.concat1d	concat1d	concat1d	num:Concat1D	—	—	python	逐元素拼成 n×3（列式），不是 NumPy 的按行拼接
-transpose2d	x:matrix	—	—	[m][n]	matrix.transpose2d	transpose2d	transpose2d	num:Transpose2D	—	—	python	二维转置
-fill	v:array, d:scalar, inplace:bool?	inplace=false	—	same_as(v)	fillna.fill	fill, fill_inplace	fill	num:Fill	—	—	python	默认复制入参再填
-fill_na	x:array, v:any	inplace=false	—	same_as(x)	fillna.fill_na	fill_na, fill_na_inplace	fill_na	num:FillNa	—	—	python	按 NaN 判定填充
+zeros	shape:int	—	—	[n]	zeros.zeros	zeros	zeros	num:Zeros, x32:Zeros, x64:Zeros	zeros	—	python	全零
+ones	shape:int	—	—	[n]	zeros.ones	ones	ones	num:Ones, x32:Ones, x64:Ones	ones	—	python	全一；Go 门面按入参切片长度生成，不接受形状整数
+arange	start:number, end:number, step:number?	step=1	—	[n]	range.arange	arange	arange_f64, arange_i64	num:Arange	arange_f64, arange_i64	—	python	不含 end
+linspace	start:number, end:number, n:int, endpoint:bool?	endpoint=true	—	[n]	range.linspace	linspace	linspace	num:Linspace	linspace	—	python	含 end（endpoint=true）
+range	n:int	—	—	[n]	range.range	range	range_i64	num:Range	range_i64	—	python	0..n
+range_float	a:f64, b:f64	—	—	[n]	range.range_float	range	range_float	x32:Range, x64:Range	range_float	—	python	浮点区间；门面无对应入口
+repeat	value:scalar, n:int	—	—	[n]	repeat.repeat	repeat, repeat_into	repeat	num:Repeat, num:RepeatInto, x32:Repeat, x64:Repeat	repeat	—	python	同值重复
+align	x:array, value:scalar, n:int	—	—	[n]	align.align	align	align	num:Align	align	—	python	补默认值到指定长度
+shape	x:any	—	—	tuple	shape.shape	shape	shape, shape_2d	num:Shape	shape, shape_2d	—	python	返回 (行, 列)
+concat1d	a:array, b:array, c:array	—	—	[n][3]	matrix.concat1d	concat1d	concat1d	num:Concat1D	concat1d	—	python	逐元素拼成 n×3（列式），不是 NumPy 的按行拼接
+transpose2d	x:matrix	—	—	[m][n]	matrix.transpose2d	transpose2d	transpose2d	num:Transpose2D	transpose2d	—	python	二维转置
+fill	v:array, d:scalar, inplace:bool?	inplace=false	—	same_as(v)	fillna.fill	fill, fill_inplace	fill	num:Fill	fill	—	python	默认复制入参再填
+fill_na	x:array, v:any	inplace=false	—	same_as(x)	fillna.fill_na	fill_na, fill_na_inplace	fill_na	num:FillNa	fill_na	—	python	按 NaN 判定填充
 # --- 线代与几何 ---
-dot1d	a:array, b:array	—	propagate	scalar	dot.dot1d	dot1d	dot1d	num:Dot1D, x32:Dot, x64:Dot	—	—	python	一维点积
-dot2d	a:matrix, b:matrix	—	propagate	[n][m]	matrix.dot2d	dot2d, dot2d_v1, dot2d1	dot2d	num:Dot, num:Dot2D, num:Dot2D_V1, num:Dot_v1	—	—	python	二维矩阵乘
-dot2d1	a:matrix, b:array	—	propagate	[n]	matrix.dot2d1	dot2d1	dot2d1	num:Dot2D1, num:Dot2D1_v2	—	—	python	矩阵乘向量
-matmul	x:array, y:array, n:int	—	propagate	[n][n]	matrix.matmul	matmul	matmul	x32:MatMul, x64:MatMul	—	—	python	定长方阵乘；门面无对应入口
-mat4mul	x:array, y:array	—	propagate	[4][4]	matrix.mat4mul	mat4mul	mat4mul	x32:Mat4Mul, x64:Mat4Mul	—	—	python	4x4 矩阵乘
-inverse	a:matrix	—	propagate	[n][n]	matrix.inverse	inverse	inverse	num:Inverse	—	—	python	矩阵求逆
-poly_fit	x:array, y:array, deg:int	—	propagate	[deg+1]	polynomial.poly_fit	poly_fit	poly_fit	num:PolyFit	—	—	python	多项式拟合系数
-poly_val	p:array, x:array	—	propagate	same_as(x)	polynomial.poly_val	poly_val	poly_val	num:PolyVal	—	—	python	多项式求值
-distance	x:array, y:array	—	propagate	scalar	x32.vek.distance	distance	distance	x32:Distance, x64:Distance	—	—	python	欧氏距离
-manhattan_distance	x:array, y:array	—	propagate	scalar	x32.vek.manhattan_distance	manhattan_distance	manhattan_distance	x32:ManhattanDistance, x64:ManhattanDistance	—	—	python	曼哈顿距离
-manhattan_norm	x:array	—	propagate	scalar	x32.vek.manhattan_norm	manhattan_norm	manhattan_norm	x32:ManhattanNorm, x64:ManhattanNorm	—	—	python	曼哈顿范数
-cosine_similarity	x:array, y:array	—	propagate	scalar	x32.vek.cosine_similarity	cosine_similarity	cosine_similarity	x32:CosineSimilarity, x64:CosineSimilarity	—	—	python	余弦相似度
-slope	x1:int, y1:f64, x2:int, y2:f64	—	propagate	scalar	slope.slope	slope	slope	num:Slope	—	—	python	两点斜率
-slope_to_degrees	m:f64	—	propagate	scalar	slope.slope_to_degrees	slope_to_degrees	slope_to_degrees	num:SlopeToDegrees	—	—	python	斜率转角
-degrees_to_slope	x:f64	—	propagate	scalar	slope.degrees_to_slope	degrees_to_slope	degrees_to_slope	num:DegreesToSlope	—	—	python	角转斜率
-triangle_bevel	slope:f64, x1:int, y1:f64, xn:int	—	propagate	scalar	slope.triangle_bevel	triangle_bevel	triangle_bevel	num:TriangleBevel	—	—	python	三角斜边
-calculate_line_equation	point1:Point, point2:Point	—	propagate	tuple	line.calculate_line_equation	calculate_line_equation	calculate_line_equation	num:CalculateLineEquation	—	—	python	两点直线方程
-fit_line	x:array, y:array	—	no_special	tuple	line.fit_line	fit_line	fit_line	num:FitLine	—	—	python	返回 (Line, 成功位)；单点返回水平线且标记失败
-point	x:number, y:number	—	—	tuple	—	new_point, Point, DataPoint	—	num:NewPoint	—	—	go	点构造；点构造；Python 用元组 / Line 的参数表达，不单设符号
-cross	a:array, b:array	—	comparison_false	[n]	cross.cross	cross, LinerTrend, TrendState	cross	num:Cross	—	—	python	判据为前后两根都严格分居两侧
+dot1d	a:array, b:array	—	propagate	scalar	dot.dot1d	dot1d	dot1d	num:Dot1D, x32:Dot, x64:Dot	dot1d	—	python	一维点积
+dot2d	a:matrix, b:matrix	—	propagate	[n][m]	matrix.dot2d	dot2d, dot2d_v1, dot2d1	dot2d	num:Dot, num:Dot2D, num:Dot2D_V1, num:Dot_v1	dot2d	—	python	二维矩阵乘
+dot2d1	a:matrix, b:array	—	propagate	[n]	matrix.dot2d1	dot2d1	dot2d1	num:Dot2D1, num:Dot2D1_v2	dot2d1	—	python	矩阵乘向量
+matmul	x:array, y:array, n:int	—	propagate	[n][n]	matrix.matmul	matmul	matmul	x32:MatMul, x64:MatMul	matmul	—	python	定长方阵乘；门面无对应入口
+mat4mul	x:array, y:array	—	propagate	[4][4]	matrix.mat4mul	mat4mul	mat4mul	x32:Mat4Mul, x64:Mat4Mul	mat4mul	—	python	4x4 矩阵乘
+inverse	a:matrix	—	propagate	[n][n]	matrix.inverse	inverse	inverse	num:Inverse	inverse	—	python	矩阵求逆
+poly_fit	x:array, y:array, deg:int	—	propagate	[deg+1]	polynomial.poly_fit	poly_fit	poly_fit	num:PolyFit	poly_fit	—	python	多项式拟合系数
+poly_val	p:array, x:array	—	propagate	same_as(x)	polynomial.poly_val	poly_val	poly_val	num:PolyVal	poly_val	—	python	多项式求值
+distance	x:array, y:array	—	propagate	scalar	x32.vek.distance	distance	distance	x32:Distance, x64:Distance	distance	—	python	欧氏距离
+manhattan_distance	x:array, y:array	—	propagate	scalar	x32.vek.manhattan_distance	manhattan_distance	manhattan_distance	x32:ManhattanDistance, x64:ManhattanDistance	manhattan_distance	—	python	曼哈顿距离
+manhattan_norm	x:array	—	propagate	scalar	x32.vek.manhattan_norm	manhattan_norm	manhattan_norm	x32:ManhattanNorm, x64:ManhattanNorm	manhattan_norm	—	python	曼哈顿范数
+cosine_similarity	x:array, y:array	—	propagate	scalar	x32.vek.cosine_similarity	cosine_similarity	cosine_similarity	x32:CosineSimilarity, x64:CosineSimilarity	cosine_similarity	—	python	余弦相似度
+slope	x1:int, y1:f64, x2:int, y2:f64	—	propagate	scalar	slope.slope	slope	slope	num:Slope	slope	—	python	两点斜率
+slope_to_degrees	m:f64	—	propagate	scalar	slope.slope_to_degrees	slope_to_degrees	slope_to_degrees	num:SlopeToDegrees	slope_to_degrees	—	python	斜率转角
+degrees_to_slope	x:f64	—	propagate	scalar	slope.degrees_to_slope	degrees_to_slope	degrees_to_slope	num:DegreesToSlope	degrees_to_slope	—	python	角转斜率
+triangle_bevel	slope:f64, x1:int, y1:f64, xn:int	—	propagate	scalar	slope.triangle_bevel	triangle_bevel	triangle_bevel	num:TriangleBevel	triangle_bevel	—	python	三角斜边
+calculate_line_equation	point1:Point, point2:Point	—	propagate	tuple	line.calculate_line_equation	calculate_line_equation	calculate_line_equation	num:CalculateLineEquation	calculate_line_equation	—	python	两点直线方程
+fit_line	x:array, y:array	—	no_special	tuple	line.fit_line	fit_line	fit_line	num:FitLine	fit_line	—	python	返回 (Line, 成功位)；单点返回水平线且标记失败
+point	x:number, y:number	—	—	tuple	—	new_point, Point, DataPoint	—	num:NewPoint	new_point, Point, DataPoint	—	go	点构造；点构造；Python 用元组 / Line 的参数表达，不单设符号
+cross	a:array, b:array	—	comparison_false	[n]	cross.cross	cross, LinerTrend, TrendState	cross	num:Cross	cross	—	python	判据为前后两根都严格分居两侧
 # --- 统计与时间 ---
-find_percent	zscore:f64	—	propagate	scalar	ztable.find_percent	find_percent	—	num:FindPercent	—	—	python	正态分布分位
-find_zscore	percent:f64	—	propagate	scalar	ztable.find_zscore	find_zscore	—	num:FindZScore	—	—	python	分位转 z 值
-confidence_interval_to_zscore	interval:f64	—	propagate	scalar	ztable.confidence_interval_to_zscore	confidence_interval_to_zscore	—	num:ConfidenceIntervalToZscore	—	—	python	置信区间转 z 值
-zscore_to_confidence_interval	zscore:f64	—	propagate	scalar	ztable.zscore_to_confidence_interval	zscore_to_confidence_interval	—	num:ZscoreToConfidenceInterval	—	—	python	z 值转置信区间
-parse_freq	freq:string	—	—	scalar	freq.parse_freq	parse_freq	parse_freq	num:ParseFreq	—	—	python	返回 time.Duration 与 error
-date_range	start:time, periods:int, freq:string	—	—	[n]	freq.date_range	date_range	date_range	num:DateRange	—	—	python	返回时间序列与 error
-peeks_and_valleys	x:array	—	—	tuple	—	arg_rel_extrema	—	num:PeeksAndValleys, num:ArgRelExtrema	—	—	go	PeeksAndValleys 目前为空实现返回 nil；Go 侧就是空实现（返回 nil），无语义可对齐
+find_percent	zscore:f64	—	propagate	scalar	ztable.find_percent	find_percent	—	num:FindPercent	find_percent	—	python	正态分布分位
+find_zscore	percent:f64	—	propagate	scalar	ztable.find_zscore	find_zscore	—	num:FindZScore	find_zscore	—	python	分位转 z 值
+confidence_interval_to_zscore	interval:f64	—	propagate	scalar	ztable.confidence_interval_to_zscore	confidence_interval_to_zscore	—	num:ConfidenceIntervalToZscore	confidence_interval_to_zscore	—	python	置信区间转 z 值
+zscore_to_confidence_interval	zscore:f64	—	propagate	scalar	ztable.zscore_to_confidence_interval	zscore_to_confidence_interval	—	num:ZscoreToConfidenceInterval	zscore_to_confidence_interval	—	python	z 值转置信区间
+parse_freq	freq:string	—	—	scalar	freq.parse_freq	parse_freq	parse_freq	num:ParseFreq	parse_freq	—	python	返回 time.Duration 与 error
+date_range	start:time, periods:int, freq:string	—	—	[n]	freq.date_range	date_range	date_range	num:DateRange	date_range	—	python	返回时间序列与 error
+peeks_and_valleys	x:array	—	—	tuple	—	arg_rel_extrema	—	num:PeeksAndValleys, num:ArgRelExtrema	peeks_and_valleys	—	go	PeeksAndValleys 目前为空实现返回 nil；Go 侧就是空实现（返回 nil），无语义可对齐
 # --- 类型、转换与开关 ---
-type_default	—	—	—	scalar	type_dtype.type_default	type_default	type_default	num:TypeDefault	—	—	python	浮点 NaN、整型 0、bool false、string "NaN"
-nan_check	value:scalar	—	—	scalar	decimals.is_nan	nan, is_nan	is_nan	num:NaN, num:DTypeIsNaN, num:Float32NaN, num:Float32IsNaN, num:Float64NaN, num:Float64IsNaN, num:IsNaN	—	—	python	IsNaN 同时把 ±Inf 判为真
-any_to_scalar	v:any	—	—	scalar	—	to_bool, to_string	—	num:AnyToBool, num:AnyToFloat32, num:AnyToFloat64, num:AnyToInt32, num:AnyToInt64, num:AnyToString	—	—	go	any 到标量；Go 的 any 运行期转换；C++ / Rust 无型别擦除，不构成跨语言语义
-any2dtype	v:any	—	—	scalar	—	—	—	num:Any2DType	—	—	go	推断 DType；同上，Go 的 any 分派专用
-bool_to_numeric	b:bool	—	—	scalar	type_bool.bool_to_int64, type_bool.bool_to_float64	bool_to_int, bool_to_int32, bool_to_int64, bool_to_float32, bool_to_float64, bool_to_string	bool_to_i64, bool_to_f64, bools_to_f64	num:BoolToInt, num:BoolToInt32, num:BoolToInt64, num:BoolToFloat32, num:BoolToFloat64, num:BoolToString	—	—	python	标量入口；true=1 / false=0
-parse_scalar	text:string, dst:any	—	—	scalar	type_generic.parse_bool, type_generic.parse_int32, type_generic.parse_int64, type_generic.parse_float32, type_generic.parse_float64	parse_bool, parse_int32, parse_int64, parse_float32, parse_float64	—	num:ParseBool, num:ParseInt32, num:ParseInt64, num:ParseFloat32, num:ParseFloat64	—	—	python	Python 已落 spec（失败回落：整型 0、浮点 NaN、bool False）；C++ / Rust 未实现，暂不进 fixture
-generic_parse	text:string	—	—	scalar	—	generic_parse	—	num:GenericParse	—	—	go	目标类型由泛型形参给出；同上，Go 的泛型解析入口
-slice_to_bool	v:any	—	—	bool[n]	type_bool.slice_to_bool	slice_to_bool	—	num:SliceToBool	—	—	python	Python 已落 spec；C++ / Rust 对应逐元素 to_*，未接 fixture
-slice_to_string	v:any	—	—	[n]	—	slice_to_string	—	num:SliceToString	—	—	go	切片转字符串；同上
-slice_to_int	v:any	—	—	[n]	type_integer.slice_to_int	slice_to_ints	—	num:SliceToInts	—	—	python	Python 已落 spec；C++ / Rust 对应逐元素 to_*，未接 fixture
-slice_to_float32	v:any	—	—	f32[n]	type_float32.slice_to_float32	slice_to_float32	—	num:SliceToFloat32	—	—	python	Python 已落 spec；C++ / Rust 对应逐元素 to_*，未接 fixture
-slice_to_float64	v:any	—	—	f64[n]	x32.vek.slice_to_float64	slice_to_float64	—	num:SliceToFloat64, num:Slice2DType	—	—	python	Slice2DType 为同义包装
-slice_float_to_int	v:array	—	—	tuple	x32.vek.slice_float_to_int	slice_float_to_int32, slice_float_to_int64	floats_to_int32, floats_to_int64	num:SliceFloatToInt32, num:SliceFloatToInt64	—	—	python	浮点切片转整型
-dtype2int	d:array	—	—	i32[n]	type_dtype.dtype2int	dtype2int	dtype2int	num:DType2Int	—	—	python	等同于 slice_float_to_int32
-from_bool	x:bool[]	—	—	numeric[n]	x32.vek.from_bool	from_bool	from_bool	x32:FromBool, x64:FromBool	—	—	python	bool 序列转数值序列
-from_int32	x:i32[]	—	—	numeric[n]	x32.vek.from_int32	from_int32	from_int32	x32:FromInt32, x64:FromInt32	—	—	python	整型序列转浮点序列
-from_int64	x:i64[]	—	—	numeric[n]	x32.vek.from_int64	from_int64	from_int64	x32:FromInt64, x64:FromInt64	—	—	python	整型序列转浮点序列
-from_float	x:f64[]/f32[]	—	—	numeric[n]	x32.vek.from_float	from_float32, from_float64	from_float32, from_float64	x32:FromFloat64, x64:FromFloat32	—	—	python	浮点宽度互转
-to_bool	x:array	—	—	bool[n]	x32.vek.to_bool	to_bool	to_bool	x32:ToBool, x64:ToBool	—	—	python	数值序列转 bool
-to_int32	x:array	—	—	i32[n]	x32.vek.to_int32	to_int32	to_int32	x32:ToInt32, x64:ToInt32	—	—	python	按截断转换
-to_int64	x:array	—	—	i64[n]	x32.vek.to_int64	to_int64	to_int64	x32:ToInt64, x64:ToInt64	—	—	python	按截断转换
-to_float32	x:array	—	—	f32[n]	x32.vek.to_float32	to_float32	to_float32	x64:ToFloat32	—	—	python	浮点宽度互转
-to_float64	x:array	—	—	f64[n]	x32.vek.to_float64	to_float64	to_float64	x32:ToFloat64	—	—	python	浮点宽度互转
-string_check	s:string	—	—	scalar	type_strings.is_empty, type_strings.string_is_true, type_strings.string_is_false, type_strings.string_is_nan	is_empty, string_is_true, string_is_false, string_is_nan	—	num:IsEmpty, num:StringIsTrue, num:StringIsFalse, num:StringIsNaN	—	—	python	Python 已落 spec（失败回落：整型 0、浮点 NaN、bool False）；C++ / Rust 未实现，暂不进 fixture
-avx2_switch	enabled:bool	—	—	—	—	—	—	num:GetAvx2Enabled, num:SetAvx2Enabled	—	—	go	非线程安全，仅限用例与基准；Go 的运行期 SIMD 开关；Python 无此概念，不适用
+type_default	—	—	—	scalar	type_dtype.type_default	type_default	type_default	num:TypeDefault	type_default	—	python	浮点 NaN、整型 0、bool false、string "NaN"
+nan_check	value:scalar	—	—	scalar	decimals.is_nan	nan, is_nan	is_nan	num:NaN, num:DTypeIsNaN, num:Float32NaN, num:Float32IsNaN, num:Float64NaN, num:Float64IsNaN, num:IsNaN	is_nan	—	python	IsNaN 同时把 ±Inf 判为真
+any_to_scalar	v:any	—	—	scalar	—	to_bool, to_string	—	num:AnyToBool, num:AnyToFloat32, num:AnyToFloat64, num:AnyToInt32, num:AnyToInt64, num:AnyToString	any_to_bool, any_to_int32, any_to_int64, any_to_float32, any_to_float64, any_to_string	—	go	any 到标量；Go 的 any 运行期转换；C++ / Rust 无型别擦除，不构成跨语言语义
+any2dtype	v:any	—	—	scalar	—	—	—	num:Any2DType	any2dtype	—	go	推断 DType；同上，Go 的 any 分派专用
+bool_to_numeric	b:bool	—	—	scalar	type_bool.bool_to_int64, type_bool.bool_to_float64	bool_to_int, bool_to_int32, bool_to_int64, bool_to_float32, bool_to_float64, bool_to_string	bool_to_i64, bool_to_f64, bools_to_f64	num:BoolToInt, num:BoolToInt32, num:BoolToInt64, num:BoolToFloat32, num:BoolToFloat64, num:BoolToString	bool_to_i64, bool_to_f64, bools_to_f64	—	python	标量入口；true=1 / false=0
+parse_scalar	text:string, dst:any	—	—	scalar	type_generic.parse_bool, type_generic.parse_int32, type_generic.parse_int64, type_generic.parse_float32, type_generic.parse_float64	parse_bool, parse_int32, parse_int64, parse_float32, parse_float64	—	num:ParseBool, num:ParseInt32, num:ParseInt64, num:ParseFloat32, num:ParseFloat64	parse_bool, parse_int32, parse_int64, parse_float32, parse_float64	—	python	Python 已落 spec（失败回落：整型 0、浮点 NaN、bool False）；C++ / Rust 未实现，暂不进 fixture
+generic_parse	text:string	—	—	scalar	—	generic_parse	—	num:GenericParse	generic_parse	—	go	目标类型由泛型形参给出；同上，Go 的泛型解析入口
+slice_to_bool	v:any	—	—	bool[n]	type_bool.slice_to_bool	slice_to_bool	—	num:SliceToBool	slice_to_bool	—	python	Python 已落 spec；C++ / Rust 对应逐元素 to_*，未接 fixture
+slice_to_string	v:any	—	—	[n]	—	slice_to_string	—	num:SliceToString	slice_to_string	—	go	切片转字符串；同上
+slice_to_int	v:any	—	—	[n]	type_integer.slice_to_int	slice_to_ints	—	num:SliceToInts	slice_to_int	—	python	Python 已落 spec；C++ / Rust 对应逐元素 to_*，未接 fixture
+slice_to_float32	v:any	—	—	f32[n]	type_float32.slice_to_float32	slice_to_float32	—	num:SliceToFloat32	slice_to_float32	—	python	Python 已落 spec；C++ / Rust 对应逐元素 to_*，未接 fixture
+slice_to_float64	v:any	—	—	f64[n]	x32.vek.slice_to_float64	slice_to_float64	—	num:SliceToFloat64, num:Slice2DType	bools_to_f64, ints_to_f64	—	python	Slice2DType 为同义包装
+slice_float_to_int	v:array	—	—	tuple	x32.vek.slice_float_to_int	slice_float_to_int32, slice_float_to_int64	floats_to_int32, floats_to_int64	num:SliceFloatToInt32, num:SliceFloatToInt64	floats_to_int32, floats_to_int64	—	python	浮点切片转整型
+dtype2int	d:array	—	—	i32[n]	type_dtype.dtype2int	dtype2int	dtype2int	num:DType2Int	dtype2int	—	python	等同于 slice_float_to_int32
+from_bool	x:bool[]	—	—	numeric[n]	x32.vek.from_bool	from_bool	from_bool	x32:FromBool, x64:FromBool	from_bool	—	python	bool 序列转数值序列
+from_int32	x:i32[]	—	—	numeric[n]	x32.vek.from_int32	from_int32	from_int32	x32:FromInt32, x64:FromInt32	from_int32	—	python	整型序列转浮点序列
+from_int64	x:i64[]	—	—	numeric[n]	x32.vek.from_int64	from_int64	from_int64	x32:FromInt64, x64:FromInt64	from_int64	—	python	整型序列转浮点序列
+from_float	x:f64[]/f32[]	—	—	numeric[n]	x32.vek.from_float	from_float32, from_float64	from_float32, from_float64	x32:FromFloat64, x64:FromFloat32	from_float32, from_float64	—	python	浮点宽度互转
+to_bool	x:array	—	—	bool[n]	x32.vek.to_bool	to_bool	to_bool	x32:ToBool, x64:ToBool	to_bool	—	python	数值序列转 bool
+to_int32	x:array	—	—	i32[n]	x32.vek.to_int32	to_int32	to_int32	x32:ToInt32, x64:ToInt32	to_int32	—	python	按截断转换
+to_int64	x:array	—	—	i64[n]	x32.vek.to_int64	to_int64	to_int64	x32:ToInt64, x64:ToInt64	to_int64	—	python	按截断转换
+to_float32	x:array	—	—	f32[n]	x32.vek.to_float32	to_float32	to_float32	x64:ToFloat32	to_float32	—	python	浮点宽度互转
+to_float64	x:array	—	—	f64[n]	x32.vek.to_float64	to_float64	to_float64	x32:ToFloat64	to_float64	—	python	浮点宽度互转
+string_check	s:string	—	—	scalar	type_strings.is_empty, type_strings.string_is_true, type_strings.string_is_false, type_strings.string_is_nan	is_empty, string_is_true, string_is_false, string_is_nan	—	num:IsEmpty, num:StringIsTrue, num:StringIsFalse, num:StringIsNaN	is_empty, string_is_true, string_is_false, string_is_nan	—	python	Python 已落 spec（失败回落：整型 0、浮点 NaN、bool False）；C++ / Rust 未实现，暂不进 fixture
+avx2_switch	enabled:bool	—	—	—	—	—	—	num:GetAvx2Enabled, num:SetAvx2Enabled	get_avx2_enabled, set_avx2_enabled	—	go	非线程安全，仅限用例与基准；Go 的运行期 SIMD 开关；Python 无此概念，不适用

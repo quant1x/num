@@ -20,7 +20,7 @@
 ## 1. 路线图
 
 **当前位置与下一步**：Go 侧已落地 —— 单文件 `vek.go`（1527 行）导出 156 个函数，全部经 `functions.UseAVX2`
-分支到 AVX2（amd64）/ NEON（arm64）内核或 Go 参考路径。Python / Rust 未落地；C++ 侧**不设本层**
+分支到 AVX2（amd64）/ NEON（arm64）内核或 Go 参考路径。Python / Rust 未在本层设对位实现；C++ 侧**不设本层**
 （强类型层与内核层的分工由模板与 xtensor 表达式吸收，见
 [§3.8](../../CONTRIBUTING.md#38-c单层扁平无-include--src)），故本表 c++ 列留 `—`。按
 [§6.4](../../CONTRIBUTING.md#64-落地状态与配套纪律) 判 **部分落地（缺 python / c++ / rust）**。下一个里程碑：

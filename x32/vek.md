@@ -19,12 +19,12 @@
 ## 1. 路线图
 
 **当前位置与下一步**：Go 侧已落地 —— 单文件 `vek.go`（1677 行）导出 175 个函数，全部经 `functions.UseAVX2`
-分支到 AVX2（amd64）/ NEON（arm64）内核或 Go 参考路径。Python / Rust 未落地；C++ 侧**不设本层**
+分支到 AVX2（amd64）/ NEON（arm64）内核或 Go 参考路径。Python / Rust 未在本层设对位实现；C++ 侧**不设本层**
 （强类型层与内核层的分工由模板与 xtensor 表达式吸收，见
 [§3.8](../../CONTRIBUTING.md#38-c单层扁平无-include--src)），故本表 c++ 列留 `—`。按
 [§6.4](../../CONTRIBUTING.md#64-落地状态与配套纪律) 判 **部分落地（缺 python / c++ / rust）**。下一个里程碑：
 优先补用例（当前语句覆盖 12.8%，175 个函数只有 2 个用例），再按
-[§2.3](../../CONTRIBUTING.md#23-语言角色与演进顺序) 推进 spec。
+[§2.3](../../CONTRIBUTING.md#23-语言角色与演进顺序) 推进 Python / Rust 对位。
 
 **基准**：`tests/contract/NAME-MAP.tsv` 的 `authority` 逐行标注现行基准 —— 标 `python` 的以 `x32/vek.py` 为准，
 其余以本文件 + `vek_test.go` 为准（[§9.3](../../CONTRIBUTING.md#93-spec--实现--验证)）。

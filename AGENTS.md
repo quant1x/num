@@ -12,14 +12,14 @@
 | --- | --- | --- |
 | 1 | [CONTRIBUTING.md](CONTRIBUTING.md) | 规范全集：语言角色、目录布局、命名、注释、文档、测试、提交、工作准则 |
 | 2 | 目标目录的 `README.md` 与同名模块 `.md` | 该模块的口径、数据契约、跨语言对照、已知缺口（§5 TODO） |
-| 3 | **NumPy 的对应语义 + Python spec 与用例** | 本仓对标 NumPy，算法与数值口径以它为准。**现阶段 Python 侧尚未落地**，此时以 NumPy 语义 + Go 参考实现 `Xxx_Go` 与同包用例作可执行对照（Go 是最早的一份实现，不是 spec） |
+| 3 | **NumPy 的对应语义 + Python spec 与用例** | 本仓对标 NumPy，算法与数值口径以它为准。Python spec 已落地 122 / 134 行（余 12 行不适用），先从 `*.py` 与 `tests/python/` 读语义；spec 未覆盖处再参照 NumPy 语义与 Go 参考实现 `Xxx_Go`（Go 是最早的一份实现，不是 spec） |
 | 4 | 受影响的清单（`go.mod` / [BUILDING.md](BUILDING.md) 的包清单） | 新增包必须在本文件与 BUILDING.md 登记，见 BUILDING.md §3.4 |
 
 ## 2. 硬约束
 
 | # | 约束 | 细则 |
 | --- | --- | --- |
-| 1 | **Python 是 spec**，语义、API、默认行为、失败约定一律以它为准；生产实现为 **C++**，Rust / Go 是对齐实现，Zig 为扩展，Java 为可选对照。**现阶段 Go 全落地、C++ 与 Rust 部分落地**，落地期间任何一侧都不得为自己加 Python 里没有的语义 | [§2.3](CONTRIBUTING.md#23-语言角色与演进顺序) |
+| 1 | **Python 是 spec**，语义、API、默认行为、失败约定一律以它为准；生产实现为 **C++**，Rust / Go 是对齐实现，Zig 为扩展，Java 为可选对照。**现阶段 Go / Python / C++ / Zig 已落地，Rust 部分落地**，落地期间任何一侧都不得为自己加 Python 里没有的语义 | [§2.3](CONTRIBUTING.md#23-语言角色与演进顺序) |
 | 2 | **不自己造东西**：不造 spec 里没有的结构 / 函数名 / 逻辑；需要新能力先补 spec，再推广 | [§4.1](CONTRIBUTING.md#41-总纲snake_case-优先) |
 | 3 | **读 spec 代码，不读注释猜**；怀疑 spec 有错时先跑验证，再与用户商定是否改 spec | [§2.3](CONTRIBUTING.md#23-语言角色与演进顺序) |
 | 4 | **类型名查词表**：数值与容器类型用 NumPy / BLAS / LAPACK 等国际通用术语，不自造别名、不用拼音 | [§4.3](CONTRIBUTING.md#43-领域类型词表type-vocabulary) |
@@ -87,7 +87,8 @@
 | Rust 编译 / 用例 / 检查 | `cargo build`、`cargo test`、`cargo clippy --all-targets -- -D warnings`、`cargo fmt --check` |
 | 单二进制（命令行） | `CGO_ENABLED=0 go build -o numctl ./cmd/numctl`；`go test ./cmd/numctl/` |
 | Python 用例（spec） | `python -m unittest discover -s tests/python -v`（122 个语义：163 个 npz 样本 + ztable / 解析族 / 切片转换探针） |
-| Zig / Java | **尚未落地**：命令随各语言落地时补进 [BUILDING.md](BUILDING.md) 对应章节，此处不写未验证的命令 |
+| Zig | 已落地 134 / 134 行（163 个 fixture 全过）：`zig test num_test.zig`、`zig test num_fixture_test.zig`、`zig fmt --check *.zig tests/fixtures/read_zig.zig`（无 `build.zig`） |
+| Java | **尚未落地**：命令随落地时补进 [BUILDING.md](BUILDING.md) 对应章节，此处不写未验证的命令 |
 
 ## 5. 交付前自检
 

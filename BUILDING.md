@@ -6,17 +6,18 @@ num 是**多语言平行实现**的数值计算库：Python / C++ / Rust / Go �
 FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构建链路，互不依赖；跨语言之间只通过同名接口、
 统一的数据契约和同一组黄金测试向量保持一致。
 
-**现阶段 Go 全落地、C++ 与 Rust 部分落地**：本文 §2 ~ §5 是可执行的 Go 部分，§6.2 是可执行的 C++ 部分，
-§6.3 是 Rust 部分；其余语言章节保留骨架，命令随落地补齐。
+**现阶段 Go / Python / C++ / Zig 已落地，Rust 部分落地**：本文 §2 ~ §5 是 Go 与 Python 部分，§6.2 是 C++ 部分，
+§6.3 是 Rust 部分，§6.4 是 Zig / Java 部分；Java 章节保留骨架，命令随落地补齐。
 
 | 构建单元 | 构建入口 | 产物 | 当前状态 |
 | --- | --- | --- | --- |
 | Go | `go.mod` | 库（无命令行入口） | **已落地** |
 | 汇编内核（amd64 / arm64） | 随 Go 包编译 | `.s` 编进库 | **已落地** |
-| Python | `pyproject.toml`（未建） | 包 | 未落地 |
-| C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | 部分落地（59 个功能行） |
-| Rust | `Cargo.toml` | 库 + 163 个 fixture 的对拍用例 | **已落地（fixture 覆盖子集）** |
-| Zig / Java | 无清单文件 | — | 未落地（扩展语言） |
+| Python | `pyproject.toml` | 包（仓库根） | **已落地（122 / 134 行）** |
+| C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | **已落地（132 / 134 行，2 行不移植）** |
+| Rust | `Cargo.toml` | 库 + 163 个 fixture 的对拍用例 | 部分落地（112 / 134 行） |
+| Zig | 无清单文件（`num.zig` + 根目录 `*.zig`） | 库 | 已落地（134 / 134 行） |
+| Java | 无清单文件 | — | 未落地（扩展语言） |
 
 ---
 
@@ -474,12 +475,22 @@ cargo fmt --check
 - `tests/fixtures/read_rs` 与 `tests/io/rs` 是同仓的**工具 crate**，各自有 `Cargo.toml`，用
   `--manifest-path` 单独构建，不参与根 crate 的发布。
 - 根 `Cargo.toml` 的 `version` 是 Cargo 必填的占位 `0.0.0`；正式版本由 tag / autochangelog 注入。
+- 源码按 Go 文件平铺：`abs.go` ↔ `abs.rs`；`vek.rs` 对应 `x32/vek.go` / `x64/vek.go`；`support.rs` 只放
+  跨文件取值工具，`float.rs` 是数值类型 trait，`numb.rs` 是 `.numb` 读写。`lib.rs` 只做模块声明与重导出。
 - 语义以 Go 临时基准为准；与 Go 的已知差异（`median` 不排序、`fill` 连 Inf 填、`concat1d` n×3）
   照搬，不按 NumPy 口径"修正"。
 
 ### 6.4 Zig / Java
 
-扩展语言，只承载小功能与对照实现；Zig 无 `build.zig` 时直接 `zig test <文件>`，Java 用 Maven wrapper。
+扩展语言。Zig 已落地 N1 ~ N6（66 个模块，64 个与 Go 同名 + `vek.zig` / `value.zig`；134 / 134 行，163 个 fixture 全过；`num.zig` 只做重导出），无 `build.zig` 时直接：
+
+```bash
+zig test num_test.zig            # 10 个语义边界用例
+zig test num_fixture_test.zig    # 163 个 npz 全量逐值对拍
+zig fmt --check *.zig tests/fixtures/read_zig.zig
+```
+
+Java 未落地，落地后改用 Maven wrapper。
 
 ---
 
