@@ -1,4 +1,4 @@
-//! 直线：两点方程与最小二乘拟合。
+//! 与 slope.go 同语义的 Rust 实现。
 
 /// Line 是斜截式 `y = slope*x + intercept`，`offset` 是起始点的 x。
 #[derive(Clone, Copy, Debug, Default)]
@@ -23,6 +23,26 @@ impl Line {
     pub fn equation(&self) -> (f64, f64, f64) {
         (self.slope, -1.0, self.intercept)
     }
+}
+
+/// slope 两点斜率：`(y2 - y1) / (x2 - x1)`。
+pub fn slope(x1: i64, y1: f64, x2: i64, y2: f64) -> f64 {
+    (y2 - y1) / (x2 - x1) as f64
+}
+
+/// triangle_bevel 三角斜边：`slope * (xn - x1) + y1`。
+pub fn triangle_bevel(slope: f64, x1: i64, y1: f64, xn: i64) -> f64 {
+    slope * (xn - x1) as f64 + y1
+}
+
+/// degrees_to_slope 角度转斜率。
+pub fn degrees_to_slope(degrees: f64) -> f64 {
+    degrees.to_radians().tan()
+}
+
+/// slope_to_degrees 斜率转角度。
+pub fn slope_to_degrees(m: f64) -> f64 {
+    m.atan().to_degrees()
 }
 
 /// calculate_line_equation 已知两点求直线。

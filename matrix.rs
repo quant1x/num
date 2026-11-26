@@ -1,54 +1,24 @@
-//! N6 线代：矩阵乘、矩阵乘向量、4×4 乘与求逆。
+//! 与 matrix.go 同语义的 Rust 实现。
 
-/// dot2d 矩阵乘：`a` 的列数必须等于 `b` 的行数。
-pub fn dot2d(a: &[Vec<f64>], b: &[Vec<f64>]) -> Vec<Vec<f64>> {
-    assert!(!a.is_empty() && !b.is_empty(), "空矩阵");
-    assert_eq!(a[0].len(), b.len(), "矩阵维度不匹配");
-    let rows = a.len();
-    let inner = b.len();
-    let cols = b[0].len();
-    let mut out = vec![vec![0.0; cols]; rows];
-    for i in 0..rows {
-        for k in 0..inner {
-            let value = a[i][k];
-            for j in 0..cols {
-                out[i][j] += value * b[k][j];
-            }
+/// concat1d 把三条等长序列逐元素拼成 n×3 矩阵（列式，不是按行）。
+pub fn concat1d<T: Copy>(a: &[T], b: &[T], c: &[T]) -> Vec<Vec<T>> {
+    (0..a.len()).map(|i| vec![a[i], b[i], c[i]]).collect()
+}
+
+/// transpose2d 二维转置。
+pub fn transpose2d<T: Copy>(x: &[Vec<T>]) -> Vec<Vec<T>> {
+    let rows = x.len();
+    if rows == 0 {
+        return Vec::new();
+    }
+    let cols = x[0].len();
+    let mut out = vec![Vec::with_capacity(rows); cols];
+    for row in x {
+        for (j, value) in row.iter().take(cols).enumerate() {
+            out[j].push(*value);
         }
     }
     out
-}
-
-/// dot2d1 矩阵乘向量。
-pub fn dot2d1(a: &[Vec<f64>], v: &[f64]) -> Vec<f64> {
-    assert!(!a.is_empty(), "空矩阵");
-    assert_eq!(a[0].len(), v.len(), "矩阵与向量维度不匹配");
-    a.iter()
-        .map(|row| row.iter().zip(v.iter()).map(|(x, y)| x * y).sum())
-        .collect()
-}
-
-/// matmul 行主序 n×n 矩阵乘。
-pub fn matmul(x: &[f64], y: &[f64], n: usize) -> Vec<f64> {
-    assert_eq!(x.len(), n * n, "x 不是 n×n");
-    assert_eq!(y.len(), n * n, "y 不是 n×n");
-    let mut out = vec![0.0; n * n];
-    for i in 0..n {
-        for k in 0..n {
-            let value = x[i * n + k];
-            for j in 0..n {
-                out[i * n + j] += value * y[k * n + j];
-            }
-        }
-    }
-    out
-}
-
-/// mat4mul 两个 4×4 行主序矩阵乘。
-pub fn mat4mul(x: &[f64], y: &[f64]) -> Vec<f64> {
-    assert_eq!(x.len(), 16, "x 不是 4×4");
-    assert_eq!(y.len(), 16, "y 不是 4×4");
-    matmul(x, y, 4)
 }
 
 /// inverse 2×2 及以上方阵求逆；与 Go 一致，不做主元搜索。

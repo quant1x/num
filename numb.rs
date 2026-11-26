@@ -151,8 +151,10 @@ impl Numb {
         }
         Ok(self
             .payload
-            .chunks_exact(8)
-            .map(|chunk| f64::from_bits(u64::from_le_bytes(chunk.try_into().expect("8 字节"))))
+            .as_chunks::<8>()
+            .0
+            .iter()
+            .map(|chunk| f64::from_bits(u64::from_le_bytes(*chunk)))
             .collect())
     }
 
@@ -163,8 +165,10 @@ impl Numb {
         }
         Ok(self
             .payload
-            .chunks_exact(4)
-            .map(|chunk| f32::from_bits(u32::from_le_bytes(chunk.try_into().expect("4 字节"))))
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .map(|chunk| f32::from_bits(u32::from_le_bytes(*chunk)))
             .collect())
     }
 
@@ -175,8 +179,10 @@ impl Numb {
         }
         Ok(self
             .payload
-            .chunks_exact(8)
-            .map(|chunk| i64::from_le_bytes(chunk.try_into().expect("8 字节")))
+            .as_chunks::<8>()
+            .0
+            .iter()
+            .map(|chunk| i64::from_le_bytes(*chunk))
             .collect())
     }
 

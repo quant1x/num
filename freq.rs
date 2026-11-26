@@ -1,4 +1,4 @@
-//! 频率解析与时间序列：以纳秒为单位，与 Go 的 `time.Duration` 同刻度。
+//! 与 freq.go 同语义的 Rust 实现。
 
 /// parse_freq 解析 Pandas 风格频率串，返回纳秒。
 pub fn parse_freq(freq: &str) -> Result<i64, String> {

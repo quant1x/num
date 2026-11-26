@@ -1,4 +1,4 @@
-//! 穿越：a 相对 b 的上穿 / 下穿。
+//! 与 cross.go 同语义的 Rust 实现。
 
 /// LinerTrend 是一次穿越：发生位置与状态（上穿 1、下穿 -1）。
 #[derive(Clone, Copy, Debug, PartialEq)]
