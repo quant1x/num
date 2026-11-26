@@ -1,8 +1,8 @@
 # 提案 0004：Python spec 与 NumPy 的语义对齐（第一批）
 
 - 状态：**部分定案**——§2.1 `median` 已采纳 NumPy 并落地（#66）；§2.2 ~ §2.5 待定
-- 前置：[0003](0003-python-numpy-package-layout.md) 只搬家与改名、不改数值；本提案处理它 §2.5 留下列出的语义债
-- 影响面：`num/core.py`、`num/linalg.py`、`tests/fixtures/gen/gen_fixtures.py` 与重生成的 npz、`NAME-MAP.tsv` 的 `note`；对齐实现侧 `median.go` / `x32/vek.go` / `x64/vek.go` / `median.h` / `rounding.h` / `median.rs` / `vek.rs` / `median.zig` / `vek.zig`
+- 前置：[0003](0003-python-numpy-package-layout.md) 只搬家与改名、不改数值（该布局已撤销，语义条目继续有效）；本提案处理它 §2.5 留下列出的语义债
+- 影响面：根目录 `median.py`、`matrix.py` 等算子文件、`tests/fixtures/gen/gen_fixtures.py` 与重生成的 npz、`NAME-MAP.tsv` 的 `note`；对齐实现侧 `median.go` / `x32/vek.go` / `x64/vek.go` / `median.h` / `rounding.h` / `median.rs` / `vek.rs` / `median.zig` / `vek.zig`
 
 ## 1. 审计口径
 

@@ -150,7 +150,6 @@ G1 ◄─ G2
 | **M6 数据管道** | B5 | M3 | 读 `D1` 格式、按主键覆盖、重复执行幂等；Arrow / Parquet 作为可选扩展单独验收 | 已完成（Arrow / Parquet 未做） |
 | **M7 Go 工程侧** | G1、G2 | M1 | Go 服务与管道可独立部署（单二进制、无 Python 运行时）；数值路径完整可用 | 已完成（`cmd/numctl`） |
 | **M8 机器学习侧** | M1、M2、M3 | M5、M6 | 训练与推理同一份特征 fixture 一致；同一 ONNX 模型三侧输出一致 | 已完成（特征 fixture + 冻结模型三端同值；`mlp.onnx` 经 onnxruntime 复核，Rust / C++ / Go 三侧推理均与 `pred_mlp` 逐值一致） |
-| **M9 Python 布局回归 NumPy** | Python 包、C1 python 列 | M4 | 122 个 python 符号可导入；165 个 npz 全过；wheel 安装冒烟通过 | 已完成（`num/` 包 + `num.linalg` / `num.polynomial` / `num.lib`） |
 
 **关键路径**：`M0 → M1 → M2 → M5 → M8`。Rust 线（`M4`）、格式线（`M3`）、管道线（`M6`）、Go 线（`M7`）在依赖满足后并行插入，互不阻塞。
 

@@ -7,8 +7,8 @@
 | 编号 | 主题 | 状态 |
 | --- | --- | --- |
 | [0001](0001-numb-dtype-field.md) | `.numb` 头部的 dtype 字段宽度与码值 | 已定案（方案 A，已落地） |
-| [0002](0002-python-package-layout.md) | Python spec 的包布局与模块可导入方式 | 布局部分被 0003 取代（`requires-python` / 不依赖 NumPy 仍有效） |
-| [0003](0003-python-numpy-package-layout.md) | Python spec 按 NumPy 模块归集 | 已定案（方案 C，已落地） |
+| [0002](0002-python-package-layout.md) | Python spec 的包布局与模块可导入方式 | 已定案（方案 A，已落地） |
+| [0003](0003-python-numpy-package-layout.md) | Python spec 按 NumPy 模块归集 | 已撤销（方案 C 违反同目录规则，回到 0002 方案 A） |
 | [0004](0004-python-spec-semantics-alignment.md) | Python spec 与 NumPy 的语义对齐（第一批） | 部分定案（§2.1 `median` 已落地） |
 
 裁决方式：在对应 Issue 上给出结论（或在 PR 里批注），然后把结论写回上表指向的正式文档，并在本表把状态改为「已定案」。

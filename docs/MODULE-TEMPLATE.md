@@ -20,7 +20,7 @@
 
 | 阶段 | 语言（角色） | 载体 / 文件 | 状态 | 说明 |
 | --- | --- | --- | --- | --- |
-| spec 定语义 | Python（spec） | `num/<module>.py` | 未落地 | 语义源头，落地后由它确定 API 与失败口径 |
+| spec 定语义 | Python（spec） | `xxx/yyy.py` | 未落地 | 语义源头，落地后由它确定 API 与失败口径 |
 | 生产实现 | C++（生产） | `xxx/yyy.h` / `xxx/yyy.cpp` | 未落地 | 见 §5 TODO |
 | 对齐实现 | Rust（对齐） | `xxx/yyy.rs` | 未落地 | 见 §5 TODO |
 | 对齐实现 | Go（对齐） | `xxx/yyy.go` | 已落地 | 现阶段唯一落地语言，用例见 §4.1 |

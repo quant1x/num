@@ -13,7 +13,7 @@ FFI / Cgo / SWIG 等跨语言调用**。因此每种语言有自己的一条构�
 | --- | --- | --- | --- |
 | Go | `go.mod` | 库（无命令行入口） | **已落地** |
 | 汇编内核（amd64 / arm64） | 随 Go 包编译 | `.s` 编进库 | **已落地** |
-| Python | `pyproject.toml` | 包（`num/`） | **已落地（122 / 134 行）** |
+| Python | `pyproject.toml` | 包（仓库根） | **已落地（122 / 134 行）** |
 | C/C++ | `conanfile.py` + `CMakeLists.txt` + `CMakePresets.json` | 静态库 `num_core` + ctest 用例 | **已落地（132 / 134 行，2 行不移植）** |
 | Rust | `Cargo.toml` | 库 + 165 个 fixture 的对拍用例 | 部分落地（112 / 134 行） |
 | Zig | 无清单文件（`num.zig` + 根目录 `*.zig`） | 库 | 已落地（134 / 134 行） |
@@ -271,8 +271,8 @@ go test -bench BenchmarkSumProd -benchmem ./internal/functions
 
 ### 4.5 Python（spec）
 
-Python 包在 `num/`（[提案 0003](docs/proposals/0003-python-numpy-package-layout.md)），仓库根直接 `import num`；
-子命名空间为 `num.linalg` / `num.polynomial` / `num.lib` / `num.ta` / `num.ztable` / `num.freq`。
+Python 包就是仓库根（[提案 0002](docs/proposals/0002-python-package-layout.md)），因此从源码运行要先把仓库的
+**父目录**放进 `sys.path`；`tests/python/` 的用例已内置这一步。
 
 ```bash
 pip install --no-deps .                     # 安装（包名 num，版本 0.0.0，发布时由 tag 注入）
@@ -280,22 +280,22 @@ python -m unittest discover -s tests/python -v   # 读 tests/fixtures 的 npz �
 ```
 
 - 依赖：`requires-python >= 3.11`；实现本身不依赖 NumPy，NumPy 只用于生成器与对拍用例；
-- 覆盖：122 个语义 —— 归约（`sum` / `mean` / `std` / `var` / `covariance` / `max` / `min` /
+- 覆盖：122 个语义 —— 归约（`sum` / `mean` / `std` / `variance` / `covariance` / `max` / `min` /
   `argmax` / `argmin` / `count` / `median`）、逐元素（`abs` / `sqrt` / `maximum` / `minimum` /
-  `add` / `subtract` / `multiply` / `divide` / `expm1` / `log1p` / `decimal`）、比较与逻辑（`equal` / `not_equal` /
-  `greater` / `greater_equal` / `less` / `less_equal` / `logical_and` / `logical_or` / `logical_not` / `all` / `any`）、
-  序列变换（`cumsum` / `diff` / `shift` / `dot`）、容器与标量（`where` / `align` / `repeat` /
-  `zeros` / `dtype2int` / `bool_to_int64` / `bool_to_float64` / `isnan`）、
-  向量算子（`num`：`negative` / `reciprocal` / `prod` / `cumprod` / `quantile` / `norm` / `manhattan_norm` /
+  `add` / `sub` / `mul` / `div` / `expm1` / `log1p` / `decimal`）、比较与逻辑（`equal` / `not_equal` /
+  `gt` / `gte` / `lt` / `lte` / `logic_and` / `logic_or` / `logic_not` / `all` / `any`）、
+  序列变换（`cumsum` / `diff` / `shift` / `dot1d`）、容器与标量（`where` / `align` / `repeat` /
+  `zeros` / `dtype2int` / `bool_to_int64` / `bool_to_float64` / `is_nan`）、
+  向量算子（`num.x32.vek`：`neg` / `inv` / `prod` / `cumprod` / `quantile` / `norm` / `manhattan_norm` /
   `distance` / `manhattan_distance` / `cosine_similarity` / `logic_xor` / `none`）、
-  矩阵与序列（`shape` / `concat1d` / `transpose` / `dot2d` / `dot2d1` / `matmul` / `num.linalg.inv` /
+  矩阵与序列（`shape` / `concat1d` / `transpose2d` / `dot2d` / `dot2d1` / `matmul` / `inverse` /
   `mat4mul` / `arange` / `linspace` / `range`）、滚动（`rolling` / `rolling_apply`），
   转换（`from_bool` / `from_int32` / `from_int64` / `from_float` / `to_bool` / `to_int32` / `to_int64` /
   `to_float32` / `to_float64` / `slice_float_to_int` / `slice_to_float64` / `type_default`），
   几何与多项式（`slope` / `slope_to_degrees` / `degrees_to_slope` / `triangle_bevel` / `cross` /
-  `polyfit` / `polyval` / `fit_line` / `calculate_line_equation`）、填充（`fill` / `fill_na`），
+  `poly_fit` / `poly_val` / `fit_line` / `calculate_line_equation`）、填充（`fill` / `fill_na`），
   日期（`parse_freq` / `date_range`）、其余逐元素（`ceil` / `floor` / `round` / `sin` / `cos` / `exp` /
-  `log` / `log2` / `log10` / `power` / `change_rate` / `net_change_rate`）、
+  `log` / `log2` / `log10` / `pow_float` / `pow_integer` / `change_rate` / `net_change_rate`）、
   索引（`find` / `gather` / `select` / `scatter`）、构造补全（`ones` / `range_float`），
   正态分布表（`ztable` 四项）、字符串解析（`parse_scalar` / `string_check`）与切片转换
   （`slice_to_bool` / `slice_to_int` / `slice_to_float32`）按 Go 探针值核对，无 npz 样本；其余 113 个语义对应 `tests/fixtures` 的 165 个样本；
@@ -413,7 +413,7 @@ wsl -d Debian bash -lc "cd /mnt/d/projects/quant1x/num && chmod +x temp/internal
 
 ### 6.1 Python
 
-Python spec 在 `num/`：`python -m venv .venv` → `pip install -e .` → `python -m unittest discover -s tests/python -v`。
+落地后：`python -m venv .venv` → `pip install -e .` → `python -m pytest tests -q`。
 Python 是 spec 锚点，**新语义先在这里定案**。
 
 ### 6.2 C/C++

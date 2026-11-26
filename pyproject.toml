@@ -5,9 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "quant1x-num"
 version = "0.0.0"
-description = "Python spec of the quant1x num library (num/ package, see docs/proposals/0003)"
+description = "Python spec of the quant1x num library (root directory is the package, see CONTRIBUTING §3.1)"
 requires-python = ">=3.11"
 
-# Python spec 按 NumPy 命名空间组织在 num/（提案 0003）。
-[tool.setuptools.packages.find]
-include = ["num*"]
+# 根目录即包：Python 文件与同名 .go / .h / .rs 平铺在同一目录（CONTRIBUTING §3.2）。
+[tool.setuptools]
+packages = ["num"]
+package-dir = { num = "." }

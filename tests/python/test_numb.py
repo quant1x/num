@@ -7,10 +7,10 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+if str(ROOT.parent) not in sys.path:
+    sys.path.insert(0, str(ROOT.parent))
 
-from num.lib import format as numb  # noqa: E402
+import num.numb as numb  # noqa: E402
 
 GOLDEN = ROOT / "tests" / "fixtures" / "numb"
 

@@ -1,18 +1,16 @@
-"""NumPy linalg：点积、矩阵乘、求逆与范数。"""
+"""矩阵算子（spec，对应 Go 的 `matrix.go` 与 `dot.go`）。
+
+- `concat1d(a, b, c)`：按列拼成 n×3，返回行列表；
+- `transpose2d`：二维转置；
+- `dot2d` / `matmul` / `mat4mul`：标准矩阵乘（`mat4mul` 只接受 4×4）；
+- `dot2d1`：矩阵乘向量；
+- `inverse`：Gauss-Jordan 求逆，奇异矩阵抛 `ValueError`。
+
+矩阵一律用「行列表」表示（`[[1,2],[3,4]]`），需要扁平形态时由调用方展平。
+"""
 
 from __future__ import annotations
 
-import math
-from collections.abc import Sequence
-
-def dot(a: Sequence[float], b: Sequence[float]) -> float:
-    """返回 a 与 b 的内积。"""
-    if len(a) != len(b):
-        raise ValueError("dot1d: 两条序列长度不一致")
-    total = 0.0
-    for left, right in zip(a, b):
-        total += left * right
-    return total
 
 def concat1d(a, b, c) -> list[list[float]]:
     """按列拼成 n×3。"""
@@ -20,22 +18,26 @@ def concat1d(a, b, c) -> list[list[float]]:
         raise ValueError("concat1d: 三条序列长度不一致")
     return [[left, middle, right] for left, middle, right in zip(a, b, c)]
 
-def transpose(x) -> list[list[float]]:
+
+def transpose2d(x) -> list[list[float]]:
     """二维转置。"""
     if not x:
         return []
     width = len(x[0])
     return [[row[column] for row in x] for column in range(width)]
 
+
 def dot2d(a, b) -> list[list[float]]:
     """矩阵乘 a·b。"""
     return matmul(a, b)
+
 
 def dot2d1(a, v) -> list[float]:
     """矩阵乘向量。"""
     if a and len(a[0]) != len(v):
         raise ValueError("dot2d1: 列数与向量长度不一致")
     return [sum(left * right for left, right in zip(row, v)) for row in a]
+
 
 def matmul(a, b) -> list[list[float]]:
     """矩阵乘 a·b。"""
@@ -47,13 +49,15 @@ def matmul(a, b) -> list[list[float]]:
     return [[sum(left * right for left, right in zip(row, column)) for column in columns]
             for row in a]
 
+
 def mat4mul(a, b) -> list[list[float]]:
     """4×4 矩阵乘。"""
     if len(a) != 4 or len(b) != 4:
         raise ValueError("mat4mul: 只接受 4×4")
     return matmul(a, b)
 
-def inv(a) -> list[list[float]]:
+
+def inverse(a) -> list[list[float]]:
     """Gauss-Jordan 求逆。"""
     size = len(a)
     if size == 0 or any(len(row) != size for row in a):
@@ -75,49 +79,3 @@ def inv(a) -> list[list[float]]:
                 augmented[row] = [current - factor * base
                                   for current, base in zip(augmented[row], augmented[column])]
     return [row[size:] for row in augmented]
-
-def norm(x: Sequence[float]) -> float:
-    """欧氏范数。"""
-    total = 0.0
-    for value in x:
-        total += value * value
-    return math.sqrt(total)
-
-def manhattan_norm(x: Sequence[float]) -> float:
-    """曼哈顿范数。"""
-    total = 0.0
-    for value in x:
-        total += abs(value)
-    return total
-
-def distance(x: Sequence[float], y: Sequence[float]) -> float:
-    """欧氏距离。"""
-    if len(x) != len(y):
-        raise ValueError("distance: 两条序列长度不一致")
-    total = 0.0
-    for left, right in zip(x, y):
-        delta = left - right
-        total += delta * delta
-    return math.sqrt(total)
-
-def manhattan_distance(x: Sequence[float], y: Sequence[float]) -> float:
-    """曼哈顿距离。"""
-    if len(x) != len(y):
-        raise ValueError("manhattan_distance: 两条序列长度不一致")
-    total = 0.0
-    for left, right in zip(x, y):
-        total += abs(left - right)
-    return total
-
-def cosine_similarity(x: Sequence[float], y: Sequence[float]) -> float:
-    """余弦相似度。"""
-    if len(x) != len(y):
-        raise ValueError("cosine_similarity: 两条序列长度不一致")
-    dot = 0.0
-    norm_x = 0.0
-    norm_y = 0.0
-    for left, right in zip(x, y):
-        dot += left * right
-        norm_x += left * left
-        norm_y += right * right
-    return dot / math.sqrt(norm_x * norm_y)

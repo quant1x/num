@@ -1,8 +1,15 @@
-"""NumPy polynomial：polyfit 与 polyval。"""
+"""多项式拟合与求值（spec，对应 Go 的 `polynomial.go`）。
+
+- `poly_fit(x, y, degree)`：最小二乘，系数**按次数降序**（`c[0]` 是最高次项）；
+- `poly_val(p, x)`：按降序系数用 Horner 法求值。
+
+degree 超过 `len(x)-1` 或方程奇异时抛 `ValueError`。
+"""
 
 from __future__ import annotations
 
 from collections.abc import Sequence
+
 
 def _solve(matrix: list[list[float]], rhs: list[float]) -> list[float]:
     size = len(matrix)
@@ -23,7 +30,8 @@ def _solve(matrix: list[list[float]], rhs: list[float]) -> list[float]:
                                   for current, base in zip(augmented[row], augmented[column])]
     return [row[-1] for row in augmented]
 
-def polyfit(x: Sequence[float], y: Sequence[float], degree: int) -> list[float]:
+
+def poly_fit(x: Sequence[float], y: Sequence[float], degree: int) -> list[float]:
     """最小二乘拟合，返回按次数降序的系数。"""
     if len(x) != len(y):
         raise ValueError("poly_fit: x 与 y 长度不一致")
@@ -36,7 +44,8 @@ def polyfit(x: Sequence[float], y: Sequence[float], degree: int) -> list[float]:
     ascending = _solve(matrix, rhs)
     return list(reversed(ascending))
 
-def polyval(p: Sequence[float], x: Sequence[float]) -> list[float]:
+
+def poly_val(p: Sequence[float], x: Sequence[float]) -> list[float]:
     """按降序系数求值。"""
     out: list[float] = []
     for value in x:

@@ -1,7 +1,9 @@
 # 提案 0003：Python spec 按 NumPy 模块归集
 
-- 状态：**已定案（方案 C：独立 `num/` 包）**，2026-11-26 落地
-- 取代：[0002](0002-python-package-layout.md) 的布局部分（「仓库根即包」）；0002 的 `requires-python` 与「不依赖 NumPy」结论继续有效
+- 状态：**已撤销**（2026-11-26，落地后即回退）。方案 C 在仓库根下另建 `num/` 子目录，违反
+  [CONTRIBUTING §3.2](../CONTRIBUTING.md#32-同一功能平铺同名不同后缀)「所有语言源码同目录、不按语言拆目录」的硬约束：
+  Go 的导入路径会变成 `github.com/quant1x/num/num`，Python 包名也不再对应仓库目录名。布局回到
+  [0002](0002-python-package-layout.md) 方案 A（仓库根即包）；本文保留作决策记录，不再作为落地依据。
 - 影响面：`num/` 包、`pyproject.toml`、`tests/python`、`NAME-MAP.tsv` 的 python 列、`CONTRIBUTING.md` §3.1 / §3.2、`BUILDING.md` §4.5、`docs/PLAN.md`
 
 ## 1. 背景

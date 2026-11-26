@@ -12,7 +12,7 @@
 | --- | --- | --- |
 | 1 | [CONTRIBUTING.md](CONTRIBUTING.md) | 规范全集：语言角色、目录布局、命名、注释、文档、测试、提交、工作准则 |
 | 2 | 目标目录的 `README.md` 与同名模块 `.md` | 该模块的口径、数据契约、跨语言对照、已知缺口（§5 TODO） |
-| 3 | **NumPy 的对应语义 + Python spec 与用例** | 本仓对标 NumPy，算法与数值口径以它为准。Python spec 已落地 122 / 134 行（余 12 行不适用），先从 `num/**/*.py` 与 `tests/python/` 读语义；spec 未覆盖处再参照 NumPy 语义与 Go 参考实现 `Xxx_Go`（Go 是最早的一份实现，不是 spec） |
+| 3 | **NumPy 的对应语义 + Python spec 与用例** | 本仓对标 NumPy，算法与数值口径以它为准。Python spec 已落地 122 / 134 行（余 12 行不适用），先从 `*.py` 与 `tests/python/` 读语义；spec 未覆盖处再参照 NumPy 语义与 Go 参考实现 `Xxx_Go`（Go 是最早的一份实现，不是 spec） |
 | 4 | 受影响的清单（`go.mod` / [BUILDING.md](BUILDING.md) 的包清单） | 新增包必须在本文件与 BUILDING.md 登记，见 BUILDING.md §3.4 |
 
 ## 2. 硬约束
