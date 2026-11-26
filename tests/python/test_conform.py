@@ -4,8 +4,7 @@
 
     python -m unittest discover -s tests/python -v
 
-包布局见 `docs/proposals/0002-python-package-layout.md`：仓库根就是包，因此这里把仓库的
-**父目录**放进 `sys.path` 之后再 `import num`。
+包布局见 `docs/proposals/0003-python-numpy-package-layout.md`：仓库根直接 `import num`。
 """
 
 from __future__ import annotations
@@ -19,12 +18,12 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
-if str(ROOT.parent) not in sys.path:
-    sys.path.insert(0, str(ROOT.parent))
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import num  # noqa: E402  (路径注入后再导入)
-from num import matrix, range as sequence, shape as shape_module  # noqa: E402
-from num.x32 import vek  # noqa: E402
+from num import core, linalg  # noqa: E402
+from num.lib import convert, index  # noqa: E402
 
 
 def semantic_of(data: np.lib.npyio.NpzFile) -> str:
@@ -90,8 +89,8 @@ DISPATCH = {
     "abs": lambda data: num.abs(values_of(data, "x")),
     "cumsum": lambda data: num.cumsum(values_of(data, "x")),
     "std": lambda data: num.std(values_of(data, "x")),
-    "variance": lambda data: num.variance(values_of(data, "x")),
-    "dot1d": lambda data: num.dot1d(values_of(data, "x"), values_of(data, "y")),
+    "variance": lambda data: num.var(values_of(data, "x")),
+    "dot1d": lambda data: num.dot(values_of(data, "x"), values_of(data, "y")),
     "covariance": lambda data: num.covariance(values_of(data, "x"), values_of(data, "y")),
     "sqrt": lambda data: num.sqrt(values_of(data, "x")),
     "maximum": lambda data: num.maximum(values_of(data, "x"), values_of(data, "y")),
@@ -105,18 +104,18 @@ DISPATCH = {
     "shift": lambda data: num.shift(values_of(data, "x"), int(np.asarray(data["n"]).reshape(-1)[0])),
     "diff": lambda data: num.diff(values_of(data, "x"), int(np.asarray(data["n"]).reshape(-1)[0])),
     "add": lambda data: num.add(values_of(data, "x"), values_of(data, "y")),
-    "sub": lambda data: num.sub(values_of(data, "x"), values_of(data, "y")),
-    "mul": lambda data: num.mul(values_of(data, "x"), values_of(data, "y")),
-    "div": lambda data: num.div(values_of(data, "x"), values_of(data, "y")),
+    "sub": lambda data: num.subtract(values_of(data, "x"), values_of(data, "y")),
+    "mul": lambda data: num.multiply(values_of(data, "x"), values_of(data, "y")),
+    "div": lambda data: num.divide(values_of(data, "x"), values_of(data, "y")),
     "equal": lambda data: num.equal(values_of(data, "x"), values_of(data, "y")),
     "not_equal": lambda data: num.not_equal(values_of(data, "x"), values_of(data, "y")),
-    "greater": lambda data: num.gt(values_of(data, "x"), values_of(data, "y")),
-    "greater_equal": lambda data: num.gte(values_of(data, "x"), values_of(data, "y")),
-    "less": lambda data: num.lt(values_of(data, "x"), values_of(data, "y")),
-    "less_equal": lambda data: num.lte(values_of(data, "x"), values_of(data, "y")),
-    "logic_and": lambda data: num.logic_and(values_of(data, "x"), values_of(data, "y")),
-    "logic_or": lambda data: num.logic_or(values_of(data, "x"), values_of(data, "y")),
-    "logic_not": lambda data: num.logic_not(values_of(data, "x")),
+    "greater": lambda data: num.greater(values_of(data, "x"), values_of(data, "y")),
+    "greater_equal": lambda data: num.greater_equal(values_of(data, "x"), values_of(data, "y")),
+    "less": lambda data: num.less(values_of(data, "x"), values_of(data, "y")),
+    "less_equal": lambda data: num.less_equal(values_of(data, "x"), values_of(data, "y")),
+    "logic_and": lambda data: num.logical_and(values_of(data, "x"), values_of(data, "y")),
+    "logic_or": lambda data: num.logical_or(values_of(data, "x"), values_of(data, "y")),
+    "logic_not": lambda data: num.logical_not(values_of(data, "x")),
     "all": lambda data: num.all(values_of(data, "x")),
     "any": lambda data: num.any(values_of(data, "x")),
     "where": lambda data: num.where(
@@ -138,7 +137,7 @@ DISPATCH = {
         if "digits" in data.files else num.decimal(value)
         for value in values_of(data, "x")
     ],
-    "nan_check": lambda data: [num.is_nan(value) for value in values_of(data, "x")],
+    "nan_check": lambda data: [num.isnan(value) for value in values_of(data, "x")],
     "dtype2int": lambda data: num.dtype2int(values_of(data, "x")),
     "bool_to_numeric": lambda data: (
         num.bool_to_float64([bool(value) for value in values_of(data, "x")])
@@ -147,75 +146,75 @@ DISPATCH = {
     ),
     "expm1": lambda data: num.expm1(values_of(data, "x")),
     "log1p": lambda data: num.log1p(values_of(data, "x")),
-    "neg": lambda data: vek.neg(values_of(data, "x")),
-    "inv": lambda data: vek.inv(values_of(data, "x")),
-    "prod": lambda data: vek.prod(values_of(data, "x")),
-    "cumprod": lambda data: vek.cumprod(values_of(data, "x")),
-    "norm": lambda data: vek.norm(values_of(data, "x")),
-    "manhattan_norm": lambda data: vek.manhattan_norm(values_of(data, "x")),
-    "distance": lambda data: vek.distance(values_of(data, "x"), values_of(data, "y")),
-    "manhattan_distance": lambda data: vek.manhattan_distance(
+    "neg": lambda data: num.negative(values_of(data, "x")),
+    "inv": lambda data: num.reciprocal(values_of(data, "x")),
+    "prod": lambda data: num.prod(values_of(data, "x")),
+    "cumprod": lambda data: num.cumprod(values_of(data, "x")),
+    "norm": lambda data: num.norm(values_of(data, "x")),
+    "manhattan_norm": lambda data: linalg.manhattan_norm(values_of(data, "x")),
+    "distance": lambda data: linalg.distance(values_of(data, "x"), values_of(data, "y")),
+    "manhattan_distance": lambda data: linalg.manhattan_distance(
         values_of(data, "x"), values_of(data, "y")
     ),
-    "cosine_similarity": lambda data: vek.cosine_similarity(
+    "cosine_similarity": lambda data: linalg.cosine_similarity(
         values_of(data, "x"), values_of(data, "y")
     ),
-    "logic_xor": lambda data: vek.logic_xor(
+    "logic_xor": lambda data: num.logical_xor(
         [bool(value) for value in values_of(data, "x")],
         [bool(value) for value in values_of(data, "y")],
     ),
-    "none": lambda data: vek.none([bool(value) for value in values_of(data, "x")]),
-    "quantile": lambda data: vek.quantile(
+    "none": lambda data: num.none([bool(value) for value in values_of(data, "x")]),
+    "quantile": lambda data: num.quantile(
         values_of(data, "x"), float(np.asarray(data["q"]).reshape(-1)[0])
     ),
-    "shape": lambda data: shape_module.shape(matrix_of(data, "x")),
-    "concat1d": lambda data: matrix.concat1d(
+    "shape": lambda data: num.shape(matrix_of(data, "x")),
+    "concat1d": lambda data: linalg.concat1d(
         values_of(data, "a"), values_of(data, "b"), values_of(data, "c")
     ),
-    "transpose2d": lambda data: matrix.transpose2d(matrix_of(data, "x")),
-    "dot2d": lambda data: matrix.dot2d(matrix_of(data, "a"), matrix_of(data, "b")),
-    "dot2d1": lambda data: matrix.dot2d1(matrix_of(data, "a"), values_of(data, "v")),
-    "matmul": lambda data: matrix.matmul(matrix_of(data, "x"), matrix_of(data, "y")),
-    "inverse": lambda data: matrix.inverse(matrix_of(data, "a")),
-    "mat4mul": lambda data: matrix.mat4mul(matrix_of(data, "x"), matrix_of(data, "y")),
-    "arange": lambda data: sequence.arange(
+    "transpose2d": lambda data: linalg.transpose(matrix_of(data, "x")),
+    "dot2d": lambda data: linalg.dot2d(matrix_of(data, "a"), matrix_of(data, "b")),
+    "dot2d1": lambda data: linalg.dot2d1(matrix_of(data, "a"), values_of(data, "v")),
+    "matmul": lambda data: linalg.matmul(matrix_of(data, "x"), matrix_of(data, "y")),
+    "inverse": lambda data: linalg.inv(matrix_of(data, "a")),
+    "mat4mul": lambda data: linalg.mat4mul(matrix_of(data, "x"), matrix_of(data, "y")),
+    "arange": lambda data: num.arange(
         float(np.asarray(data["start"]).reshape(-1)[0]),
         float(np.asarray(data["end"]).reshape(-1)[0]),
         float(np.asarray(data["step"]).reshape(-1)[0]),
     ),
-    "linspace": lambda data: sequence.linspace(
+    "linspace": lambda data: num.linspace(
         float(np.asarray(data["start"]).reshape(-1)[0]),
         float(np.asarray(data["end"]).reshape(-1)[0]),
         int(np.asarray(data["n"]).reshape(-1)[0]),
         bool(np.asarray(data["endpoint"]).reshape(-1)[0]),
     ),
-    "range": lambda data: sequence.range(int(np.asarray(data["n"]).reshape(-1)[0])),
+    "range": lambda data: core.range(int(np.asarray(data["n"]).reshape(-1)[0])),
     "rolling": lambda data: num.rolling(
         values_of(data, "x"), window_of(data, "window"), optional_int(data, "min_periods")
     ),
     "rolling_apply": lambda data: num.rolling_apply(
         values_of(data, "x"), window_of(data, "window"), num.mean
     ),
-    "from_bool": lambda data: vek.from_bool([bool(value) for value in values_of(data, "x")]),
-    "from_float": lambda data: vek.from_float(values_of(data, "x"), expected_code(data)),
-    "from_int32": lambda data: vek.from_int32([int(value) for value in values_of(data, "x")]),
-    "from_int64": lambda data: vek.from_int64([int(value) for value in values_of(data, "x")]),
-    "to_bool": lambda data: vek.to_bool(values_of(data, "x")),
-    "to_float32": lambda data: vek.to_float32(values_of(data, "x")),
-    "to_float64": lambda data: vek.to_float64(values_of(data, "x")),
-    "to_int32": lambda data: vek.to_int32(values_of(data, "x")),
-    "to_int64": lambda data: vek.to_int64(values_of(data, "x")),
-    "slice_float_to_int": lambda data: vek.slice_float_to_int(
+    "from_bool": lambda data: convert.from_bool([bool(value) for value in values_of(data, "x")]),
+    "from_float": lambda data: convert.from_float(values_of(data, "x"), expected_code(data)),
+    "from_int32": lambda data: convert.from_int32([int(value) for value in values_of(data, "x")]),
+    "from_int64": lambda data: convert.from_int64([int(value) for value in values_of(data, "x")]),
+    "to_bool": lambda data: convert.to_bool(values_of(data, "x")),
+    "to_float32": lambda data: convert.to_float32(values_of(data, "x")),
+    "to_float64": lambda data: convert.to_float64(values_of(data, "x")),
+    "to_int32": lambda data: convert.to_int32(values_of(data, "x")),
+    "to_int64": lambda data: convert.to_int64(values_of(data, "x")),
+    "slice_float_to_int": lambda data: convert.slice_float_to_int(
         values_of(data, "x"), expected_code(data)
     ),
-    "slice_to_float64": lambda data: vek.slice_to_float64(values_of(data, "x")),
+    "slice_to_float64": lambda data: convert.slice_to_float64(values_of(data, "x")),
     "type_default": lambda data: [num.type_default(expected_code(data))],
     "fill": lambda data: num.fill(values_of(data, "x"), values_of(data, "value")[0]),
     "fill_na": lambda data: num.fill_na(values_of(data, "x"), values_of(data, "value")[0]),
-    "poly_fit": lambda data: num.poly_fit(
+    "poly_fit": lambda data: num.polyfit(
         values_of(data, "x"), values_of(data, "y"), int(np.asarray(data["deg"]).reshape(-1)[0])
     ),
-    "poly_val": lambda data: num.poly_val(values_of(data, "p"), values_of(data, "x")),
+    "poly_val": lambda data: num.polyval(values_of(data, "p"), values_of(data, "x")),
     "slope": lambda data: [
         num.slope(
             int(np.asarray(data["x1"]).reshape(-1)[0]),
@@ -240,25 +239,25 @@ DISPATCH = {
     "range_float": lambda data: num.range_float(
         values_of(data, "a")[0], values_of(data, "b")[0]
     ),
-    "ceil": lambda data: vek.ceil(values_of(data, "x")),
-    "floor": lambda data: vek.floor(values_of(data, "x")),
-    "round": lambda data: vek.round(values_of(data, "x")),
-    "sin": lambda data: vek.to_float32(vek.sin(values_of(data, "x"))),
-    "cos": lambda data: vek.to_float32(vek.cos(values_of(data, "x"))),
-    "exp": lambda data: vek.to_float32(vek.exp(values_of(data, "x"))),
-    "log": lambda data: vek.to_float32(vek.log(values_of(data, "x"))),
-    "log2": lambda data: vek.to_float32(vek.log2(values_of(data, "x"))),
-    "log10": lambda data: vek.to_float32(vek.log10(values_of(data, "x"))),
-    "pow_float": lambda data: vek.pow_float(values_of(data, "x"), values_of(data, "y")),
-    "pow_integer": lambda data: vek.pow_integer(values_of(data, "x"), 2),
-    "find": lambda data: [vek.find(values_of(data, "x"), values_of(data, "value")[0])],
-    "gather": lambda data: vek.gather(
+    "ceil": lambda data: num.ceil(values_of(data, "x")),
+    "floor": lambda data: num.floor(values_of(data, "x")),
+    "round": lambda data: num.round(values_of(data, "x")),
+    "sin": lambda data: convert.to_float32(num.sin(values_of(data, "x"))),
+    "cos": lambda data: convert.to_float32(num.cos(values_of(data, "x"))),
+    "exp": lambda data: convert.to_float32(num.exp(values_of(data, "x"))),
+    "log": lambda data: convert.to_float32(num.log(values_of(data, "x"))),
+    "log2": lambda data: convert.to_float32(num.log2(values_of(data, "x"))),
+    "log10": lambda data: convert.to_float32(num.log10(values_of(data, "x"))),
+    "pow_float": lambda data: num.power(values_of(data, "x"), values_of(data, "y")),
+    "pow_integer": lambda data: num.power(values_of(data, "x"), 2),
+    "find": lambda data: [index.find(values_of(data, "x"), values_of(data, "value")[0])],
+    "gather": lambda data: index.take(
         values_of(data, "x"), [int(value) for value in values_of(data, "idx")]
     ),
-    "select": lambda data: vek.select(
+    "select": lambda data: index.compress(
         values_of(data, "x"), [bool(value) for value in values_of(data, "mask")]
     ),
-    "scatter": lambda data: vek.scatter(
+    "scatter": lambda data: index.scatter(
         values_of(data, "x"),
         [int(value) for value in values_of(data, "idx")],
         int(np.asarray(data["size"]).reshape(-1)[0]),
@@ -352,17 +351,17 @@ class EmptyInputs(unittest.TestCase):
         self.assertEqual(num.sum([]), 0.0)
         self.assertTrue(math.isnan(num.mean([])))
         self.assertEqual(num.std([]), 0.0)
-        self.assertEqual(num.variance([]), 0.0)
+        self.assertEqual(num.var([]), 0.0)
         self.assertEqual(num.covariance([], []), 0.0)
 
     def test_elementwise(self) -> None:
         self.assertEqual(num.abs([]), [])
         self.assertEqual(num.cumsum([]), [])
-        self.assertEqual(num.dot1d([], []), 0.0)
+        self.assertEqual(num.dot([], []), 0.0)
 
     def test_length_mismatch(self) -> None:
         with self.assertRaises(ValueError):
-            num.dot1d([1.0, 2.0], [1.0])
+            num.dot([1.0, 2.0], [1.0])
         with self.assertRaises(ValueError):
             num.maximum([1.0, 2.0], [1.0])
         with self.assertRaises(ValueError):

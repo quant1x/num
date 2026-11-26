@@ -26,12 +26,12 @@
 优先补用例（当前语句覆盖 12.8%，175 个函数只有 2 个用例），再按
 [§2.3](../../CONTRIBUTING.md#23-语言角色与演进顺序) 推进 Python / Rust 对位。
 
-**基准**：`tests/contract/NAME-MAP.tsv` 的 `authority` 逐行标注现行基准 —— 标 `python` 的以 `x32/vek.py` 为准，
+**基准**：`tests/contract/NAME-MAP.tsv` 的 `authority` 逐行标注现行基准 —— 标 `python` 的以 `num/core.py` / `num/linalg.py` / `num/lib/convert.py` 为准，
 其余以本文件 + `vek_test.go` 为准（[§9.3](../../CONTRIBUTING.md#93-spec--实现--验证)）。
 
 | 阶段 | 语言（角色） | 载体 / 文件 | 状态 | 说明 |
 | --- | --- | --- | --- | --- |
-| spec 定语义 | Python（spec） | `x32/vek.py` | 部分落地 | 覆盖向量算子、距离族、逻辑与 dtype 转换；本文件其余条目待补 |
+| spec 定语义 | Python（spec） | `num/core.py` / `num/linalg.py` / `num/lib/convert.py` | 已落地 | 向量算子、距离族、逻辑与 dtype 转换已按 NumPy 命名空间归集 |
 | 生产实现 | C++（生产） | —（不设本层） | — | 对应语义在仓库根门面层，见 [§3.8](../../CONTRIBUTING.md#38-c单层扁平无-include--src) |
 | 对齐实现 | Rust（对齐） | `x32/vek.rs` | 未落地 | 见 §5 TODO |
 | 对齐实现 | Go（对齐） | `x32/vek.go` | 已落地 | 175 个导出函数，用例见 §4.1 |
@@ -148,6 +148,6 @@
 | 待办项 | 缺什么 | 卡在哪 | 关联章节 | 关联 issue | 优先级 |
 | --- | --- | --- | --- | --- | --- |
 | `ToBool` 签名与包内其余 API 不一致 | `x32.ToBool` / `ToBool_Into` 收 `[]float64`，本包其余函数全是 `[]float32` | 无技术阻塞；是否改成 `[]float32` 需定 spec | §2 | 待建单 | 中 |
-| 补 Python spec | 无 `x32/vek.py`，三形式契约与失败约定无正式 spec | 无技术阻塞，待排期 | §1 | 待建单 | 高 |
+| Python spec 归集 | ~~无 `x32/vek.py`~~ | 已随提案 0003 归入 `num/` | §1 | 已解决 |
 | 补目录 `README.md` | 本目录缺 `README.md`（[§6.1](../../CONTRIBUTING.md#61-每个目录必须有-readmemd)） | 无技术阻塞，待排期 | §1 | 待建单 | 中 |
 | 设覆盖率门槛 | 仓库未设统一门槛，当前 98.4% | 无技术阻塞，待排期 | §4.2 | 待建单 | 低 |

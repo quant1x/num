@@ -1,14 +1,4 @@
-"""`.numb` 二进制样本读写（spec，D1 §3.2 版本 2，提案 0001）。
-
-与 Go / C++ / Rust 三端同格式：
-
-```text
-magic `NUMB` | version u16 LE | dtype 2 字节 ASCII | ndim u8 | dims u64 LE × ndim | data
-```
-
-数据区小端、紧密排列；文件长度必须精确等于 `9 + 8×ndim + 元素个数×宽度`。
-版本 1（dtype 占 1 字节）不兼容。读写支持 `f8` / `f4` / `i8` / `b1`，其余 dtype 只做透传。
-"""
+"""`.numb` 二进制格式编解码。"""
 
 from __future__ import annotations
 
@@ -16,16 +6,16 @@ import struct
 from dataclasses import dataclass
 
 MAGIC = b"NUMB"
+
 VERSION = 2
+
 HEADER_SIZE = 9
 
 WIDTHS = {"b1": 1, "i1": 1, "i2": 2, "i4": 4, "i8": 8,
           "u1": 1, "u2": 2, "u4": 4, "u8": 8, "f4": 4, "f8": 8}
 
-
 class InvalidNumb(ValueError):
     """头部、版本、dtype 或长度不自洽。"""
-
 
 @dataclass(frozen=True)
 class Numb:
@@ -64,7 +54,6 @@ class Numb:
             out.append(bool(value))
         return out
 
-
 def encode(numb: Numb) -> bytes:
     width = WIDTHS.get(numb.dtype)
     if width is None:
@@ -81,7 +70,6 @@ def encode(numb: Numb) -> bytes:
         out += struct.pack("<Q", length)
     out += numb.payload
     return bytes(out)
-
 
 def decode(data: bytes) -> Numb:
     if len(data) < HEADER_SIZE:
@@ -108,7 +96,6 @@ def decode(data: bytes) -> Numb:
     if len(data) != want:
         raise InvalidNumb(f"文件长度 {len(data)}，期望 {want}")
     return Numb(dtype=dtype, shape=shape, payload=data[header:])
-
 
 def from_f64(shape: tuple[int, ...], values: list[float]) -> Numb:
     return Numb("f8", shape, struct.pack(f"<{len(values)}d", *values))

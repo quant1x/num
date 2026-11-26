@@ -171,7 +171,7 @@ func rustPublicFunctions(t *testing.T) map[string]bool {
 	return out
 }
 
-// TestNameMapPythonSymbols 校验 python 列登记的 `模块.函数` 确实在仓库根的 `.py` 里。
+// TestNameMapPythonSymbols 校验 python 列登记的 `模块.函数` 确实在 num/ 包里。
 func TestNameMapPythonSymbols(t *testing.T) {
 	rows := readTable(t, "NAME-MAP.tsv", nameMapColumns)
 	for i, row := range rows {
@@ -187,7 +187,7 @@ func TestNameMapPythonSymbols(t *testing.T) {
 			}
 			module := strings.ReplaceAll(item[:dot], ".", "/")
 			function := item[dot+1:]
-			path := filepath.Join(repoRoot, filepath.FromSlash(module)+".py")
+			path := filepath.Join(repoRoot, "num", filepath.FromSlash(module)+".py")
 			data, err := os.ReadFile(path)
 			if err != nil {
 				t.Errorf("第 %d 行 python 符号 %q：读取 %s 失败: %v", i+2, item, path, err)

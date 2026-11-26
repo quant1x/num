@@ -143,22 +143,21 @@ GBK 解析会切碎注释并连带吃换行）、`CMAKE_MSVC_RUNTIME_LIBRARY` �
 - 仓库根只放构建与打包入口（`go.mod`；C++ 的 `conanfile.py` / `CMakeLists.txt` / `CMakePresets.json`；
   将来补 `Cargo.toml` / `pyproject.toml` / `pom.xml`）与跨语言基础设施（`docs/`、`tests/`、`benches/`、
   `tools/`）。
-- **导入 / 包含路径本身属于语义**：同一功能在各语言的模块路径必须对位。Go 的包路径即
-  `github.com/quant1x/num/<目录>`，C++ 用 `<num/<模块>/<头文件>.h>`（包含根是仓库根的上一级），Python 用
-  `<包>.<模块>.<子模块>`，三段式对位关系在模块 `.md` 的对照表里登记。
-- **Python 的包就是仓库根**（[提案 0002](docs/proposals/0002-python-package-layout.md) 定案）：根目录有
-  `__init__.py`，`pyproject.toml` 用 `packages = ["num"]` + `package-dir = { num = "." }`，包名即仓库目录名。
-  因此 `.py` 与同名 `.go` / `.h` / `.rs` 仍平铺在同一目录；从源码运行时要把仓库的**父目录**放进 `sys.path`
-  再 `import num`（`tests/python/` 的用例就是这么做的）。
+- **导入 / 包含路径本身属于语义**：C++ / Rust / Go / Zig 的模块路径必须对位。Go 的包路径即
+  `github.com/quant1x/num/<目录>`，C++ 用 `<num/<模块>/<头文件>.h>`（包含根是仓库根的上一级）；Python 按
+  NumPy 公开命名空间组织（见下），与 Go 文件的对应关系只在模块 `.md` 与 `NAME-MAP.tsv` 里登记。
+- **Python 的包根是 `num/`**（[提案 0003](docs/proposals/0003-python-numpy-package-layout.md) 定案，取代 0002 的布局部分）：
+  `pyproject.toml` 用 `[tool.setuptools.packages.find] include = ["num*"]`，仓库根直接 `import num`，不再要求
+  把仓库父目录放进 `sys.path`。Python 按 NumPy 公开命名空间组织（顶层 / `linalg` / `polynomial` / `lib`），
+  跨语言对位由 `NAME-MAP.tsv` 的 python 列承担，不再与 `.go` 同名同目录。
 
 ### 3.2 同一功能平铺、同名不同后缀
 
-同一功能的多种语言实现**放在同一目录、同名不同后缀**：
+同一功能的多种语言实现**放在同一目录、同名不同后缀**（Python 例外，见下）：
 
 ```text
 internal/functions/
 ├── arithmetic.md       # 文档（Spec / 对照表）
-├── arithmetic.py       # Python（spec，未落地时只占位）
 ├── arithmetic.h        # C++（模板在头，非模板实现落同名 .cpp）
 ├── arithmetic.rs       # Rust（对齐）
 ├── arithmetic.go       # Go（package functions）
@@ -166,11 +165,12 @@ internal/functions/
 ```
 
 **不得**按语言拆目录把同一功能的实现物理隔离 —— 同目录并列才能形成"看到 `arithmetic.go` 顺手去看
-`arithmetic.py` / `.h` / `.rs`"的对照。语义拆成几个模块，各语言就拆成几个文件，不得把 spec 的多个子模块
-合并进一个 `.rs` / `.go` 文件。
+`.h` / `.rs`"的对照。C++ / Rust / Go / Zig 的语义拆成几个模块，就拆成几个同名文件，不得把多个子模块
+合并进一个 `.rs` / `.go` 文件；Python 例外见下。
 
-Python 的包边界由仓库根承担（见 §3.1），不需要再建 `num/` 这样的二级包目录；`import num.sum` 来自根目录的
-`sum.py`，`import num.x64.sum` 来自 `x64/sum.py`。
+**Python 是唯一例外**：spec 按 NumPy 的公开命名空间组织在 `num/`（`core.py` / `linalg.py` / `polynomial.py` /
+`lib/` / `ta.py` / `ztable.py` / `freq.py`），不要求在 Go 文件旁保留同名 `.py`；跨语言对位只在
+`NAME-MAP.tsv` 的 python 列与模块 `.md` 的对照表里登记。C++ / Rust / Go / Zig 不得援引此例外。
 
 Rust / Zig 同样适用：**不建 `src/`、`rust/`、`zig/`、`pandas-rust/` 这类语言目录**，源码与同名 `.go` 平铺在同一
 目录，构建入口（`Cargo.toml` / `build.zig`）放仓库根；Rust 的 crate 根用 `[lib] path` 指到具体文件，集成用例用

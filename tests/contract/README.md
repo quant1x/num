@@ -31,8 +31,8 @@
 - 校验只枚举**导出顶层函数**；方法（`Line.Angle`、`Window.At` 等）不在函数粒度契约内。
 - `rust` 列登记仓库根 `*.rs` 里的 `pub fn` 名称（逗号分隔），由 `TestNameMapRustSymbols` 校验存在性；
   Rust 未实现的语义写 `—`。
-- `python` 列登记 `模块.函数`（模块是仓库根的 `.py` 文件名），由 `TestNameMapPythonSymbols`
-  校验「文件存在且含 `def 函数名(`」；Python 未实现的语义写 `—`。
+- `python` 列登记 `模块.函数`（模块相对 `num/`，如 `linalg.inv` / `lib.parse.parse_int32`），由
+  `TestNameMapPythonSymbols` 校验「`num/<模块>.py` 存在且含 `def 函数名(`」；未实现写 `—`。
 - python 列写 `—` 的两种情形都要在 `note` 里写明：**未实现**（待排期）或**不适用**
   （如 `avx2_switch` 的运行期开关、`abs_int` / `abs_float` 的定宽类型）。
 - 新增公开函数时二选一：在 `NAME-MAP.tsv` 补一行，或在 `NAME-MAP-EXCLUDED.tsv` 写明排除理由。
@@ -45,4 +45,4 @@ go test ./tests/contract/
 ```
 
 失败信息会列出四类问题：`未登记契约表`（新增符号漏登记）、`登记的符号不存在`（Go 改名或删除后未同步）、
-`rust 符号在 src/ 中不存在`、`python 符号在根目录 .py 里不存在`。
+`rust 符号在 src/ 中不存在`、`python 符号在 num/ 里不存在`。

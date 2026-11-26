@@ -14,7 +14,7 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 
 | 阶段 | 语言（角色） | 载体 / 文件 | 状态 | 说明 |
 | --- | --- | --- | --- | --- |
-| spec 定语义 | Python（spec） | 仓库根 `*.py`（与 `.go` 同名） | 已落地 | 122 / 134 行，余 12 行不适用，见 §2 / §5 TODO |
+| spec 定语义 | Python（spec） | `num/**/*.py`（NumPy 命名空间） | 已落地 | 122 / 134 行，余 12 行不适用，见 §2 / §5 TODO |
 | 生产实现 | C++（生产） | 仓库根 `*.h` / `*.cpp`（与 `.go` 同名） | 已落地 | 132 / 134 行，2 行不移植，见 §2 / §5 TODO |
 | 对齐实现 | Rust（对齐） | 根 `Cargo.toml` + 根目录 `*.rs`（与 `.go` 同名平铺；`vek.rs` 对应 `x32/vek.go`） | 部分落地 | 112 / 134 行，见 §5 TODO |
 | 扩展实现 | Zig（扩展） | 根目录 `*.zig`（与 `.go` 同名平铺；`num.zig` 只做重导出） | 已落地 | 134 / 134 行，66 个模块 |
@@ -38,63 +38,63 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 
 | 功能 | python（spec） | c++ | rust | go | zig | java | 状态 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 逐元素绝对值 | `abs.abs` | `abs` | `abs` | `Abs` | `abs` | — | 已落地（zig / java 为扩展） |
+| 逐元素绝对值 | `core.abs` | `abs` | `abs` | `Abs` | `abs` | — | 已落地（zig / java 为扩展） |
 | 标量整数绝对值 | — | `abs_int` / `abs_int8` / `abs_int16` / `abs_int32` / `abs_int64` | — | `AbsInt` / `AbsInt8` / `AbsInt16` / `AbsInt32` / `AbsInt64` | `abs_int` | — | 部分落地（缺 python / rust） |
 | 标量浮点绝对值 | — | `abs_float32` / `abs_float64` | — | `AbsFloat32` / `AbsFloat64` | `abs_float32` / `abs_float64` | — | 部分落地（缺 python / rust） |
-| 逐元素平方根 | `sqrt.sqrt` | `sqrt` | `sqrt` | `Sqrt` | `sqrt` | — | 已落地（zig / java 为扩展） |
-| 逐元素整数次幂 | `x32.vek.pow_integer` | `pow` | `pow_integer` | `Pow` | `pow_integer` | — | 已落地（zig / java 为扩展） |
-| 逐元素 `log(1+x)` | `log.log1p` | `log1p` | `log1p` | `Log1p` / `Log1pUnrolled` | `log1p` | — | 部分落地（子集；zig / java 为扩展） |
-| 逐元素 `e^x-1` | `log.expm1` | `expm1` | `expm1` | `Expm1` / `Expm1Unrolled` | `expm1` | — | 部分落地（子集；zig / java 为扩展） |
-| 二进制位舍入 | `decimals.decimal` | `decimal` | `decimal` | `Decimal` | `decimal` | — | 已落地（zig / java 为扩展） |
-| 逐元素加 | `arithmetics_add.add` | `add` / `add_inplace` | `add` | `Add` | `add` | — | 已落地（zig / java 为扩展） |
-| 逐元素减 | `arithmetics_sub.sub` | `sub` / `sub_inplace` | `sub` | `Sub` / `SubInplace` | `sub` | — | 部分落地（子集；zig / java 为扩展） |
-| 逐元素乘 | `arithmetics_mul.mul` | `mul` / `mul_inplace` | `mul` | `Mul` | `mul` | — | 已落地（zig / java 为扩展） |
-| 逐元素除 | `arithmetics_div.div` | `div` / `div_inplace` | `div` | `Div` | `div` | — | 已落地（zig / java 为扩展） |
-| 逐元素取大 / 取小 | `maximum.maximum` / `minimum.minimum` | `maximum` / `minimum` | `maximum` / `minimum` | `Maximum` / `Minimum` | `maximum` / `minimum` | — | 已落地（zig / java 为扩展） |
-| 变化率 / 净变化率 | `decimals.change_rate` / `decimals.net_change_rate` | `change_rate` / `net_change_rate` | `change_rate` / `net_change_rate` | `ChangeRate` / `NetChangeRate` | `change_rate` / `net_change_rate` | — | 已落地（zig / java 为扩展） |
+| 逐元素平方根 | `core.sqrt` | `sqrt` | `sqrt` | `Sqrt` | `sqrt` | — | 已落地（zig / java 为扩展） |
+| 逐元素整数次幂 | `core.power` | `pow` | `pow_integer` | `Pow` | `pow_integer` | — | 已落地（zig / java 为扩展） |
+| 逐元素 `log(1+x)` | `core.log1p` | `log1p` | `log1p` | `Log1p` / `Log1pUnrolled` | `log1p` | — | 部分落地（子集；zig / java 为扩展） |
+| 逐元素 `e^x-1` | `core.expm1` | `expm1` | `expm1` | `Expm1` / `Expm1Unrolled` | `expm1` | — | 部分落地（子集；zig / java 为扩展） |
+| 二进制位舍入 | `ta.decimal` | `decimal` | `decimal` | `Decimal` | `decimal` | — | 已落地（zig / java 为扩展） |
+| 逐元素加 | `core.add` | `add` / `add_inplace` | `add` | `Add` | `add` | — | 已落地（zig / java 为扩展） |
+| 逐元素减 | `core.subtract` | `sub` / `sub_inplace` | `sub` | `Sub` / `SubInplace` | `sub` | — | 部分落地（子集；zig / java 为扩展） |
+| 逐元素乘 | `core.multiply` | `mul` / `mul_inplace` | `mul` | `Mul` | `mul` | — | 已落地（zig / java 为扩展） |
+| 逐元素除 | `core.divide` | `div` / `div_inplace` | `div` | `Div` | `div` | — | 已落地（zig / java 为扩展） |
+| 逐元素取大 / 取小 | `core.maximum` / `core.minimum` | `maximum` / `minimum` | `maximum` / `minimum` | `Maximum` / `Minimum` | `maximum` / `minimum` | — | 已落地（zig / java 为扩展） |
+| 变化率 / 净变化率 | `ta.change_rate` / `ta.net_change_rate` | `change_rate` / `net_change_rate` | `change_rate` / `net_change_rate` | `ChangeRate` / `NetChangeRate` | `change_rate` / `net_change_rate` | — | 已落地（zig / java 为扩展） |
 | 一元运算分发内核 | — | —（模板在编译期分发，不设此层） | — | `UnaryOperations` / `UnaryOperations1` / `UnaryOperations2` | — | — | 部分落地（缺 python / rust） |
 | 二元运算分发内核 | — | —（模板在编译期分发，不设此层） | — | `BinaryOperations` / `BinaryOperations2` | — | — | 部分落地（缺 python / rust） |
-| 求和 | `sum.sum` | `sum` | `sum` | `Sum` | `sum` | — | 已落地（zig / java 为扩展） |
-| 均值 | `mean.mean` | `mean` | `mean` | `Mean` / `Mean2` | `mean` | — | 部分落地（子集；zig / java 为扩展） |
-| 中位数 | `median.median` | `median` | `median` | `Median` | `median` | — | 已落地（zig / java 为扩展） |
-| 最大值 / 最小值 | `max.max` / `min.min` | `max` / `min` | `max` / `min` | `Max` / `Max2` / `Min` / `Min2` | `max` / `min` | — | 部分落地（子集；zig / java 为扩展） |
-| 极值下标 | `argmax.argmax` / `argmin.argmin` | `argmax` / `argmin` | `argmax` / `argmin` | `ArgMax` / `ArgMax2` / `ArgMin` / `ArgMin2` | `argmax` / `argmin` | — | 部分落地（子集；zig / java 为扩展） |
-| 标准差 / 方差 / 协方差 | `stddev.std` / `covariance.variance` / `covariance.covariance` | `stddev` / `variance` / `covariance` | `std` / `variance` / `covariance` | `Std` / `Variance` / `Covariance` | `std` / `variance` / `covariance` | — | 已落地（zig / java 为扩展） |
-| 非零计数 | `count.count` | `count` | `count, count_true` | `Count` | `count` / `count_true` | — | 已落地（zig / java 为扩展） |
-| 全真 / 任一为真 | `logic_all.all` / `logic_any.any` | `all` / `any` | `all` / `any` | `All` / `Any` | `all` / `any` | — | 已落地（zig / java 为扩展） |
-| 逐元素逻辑与 / 或 / 非 | `logic.logic_and` / `logic.logic_or` / `logic.logic_not` | `logic_and` / `logic_or` / `logic_not` | `logic_and` / `logic_or` / `logic_not` | `And` / `Or` / `Not` | `logic_and` / `logic_or` / `logic_not` | — | 已落地（zig / java 为扩展） |
-| 逐元素比较 | `logic.gt` / `logic.gte` / `logic.lt` / `logic.lte` / `logic_equal.equal` / `logic_equal.not_equal` | `gt` / `gte` / `lt` / `lte` / `equal` / `not_equal` | `greater` / `greater_equal` / `less` / `less_equal` / `equal` / `not_equal` | `Gt` / `Gte` / `Lt` / `Lte` / `Equal` / `NotEqual` | `gt` / `gte` / `lt` / `lte` / `equal` / `not_equal` | — | 已落地（zig / java 为扩展） |
-| 条件选择 | `where.where` | `where` | `where_select` | `Where` | `where_select` | — | 已落地（zig / java 为扩展） |
-| 等差序列 | `range.arange` / `range.linspace` / `range.range` | `arange` / `linspace` / `range` | `arange_f64, arange_i64` / `linspace` / `range_i64` | `Arange` / `Linspace` / `Range` | `arange_f64` / `arange_i64` / `linspace` / `range_i64` | — | 已落地（zig / java 为扩展） |
-| 全零 / 全一 | `zeros.zeros` / `zeros.ones` | `zeros` / `ones` | `zeros` / `ones` | `Zeros` / `Ones` | `zeros` / `ones` | — | 已落地（zig / java 为扩展） |
-| 按最长对齐 | `align.align` | `align` | `align` | `Align` | `align` | — | 已落地（zig / java 为扩展） |
-| 形状 | `shape.shape` | `shape` | `shape, shape_2d` | `Shape` | `shape` / `shape_2d` | — | 已落地（zig / java 为扩展） |
-| 重复 / 重复写入 | `repeat.repeat` | `repeat` / `repeat_into` | `repeat` | `Repeat` / `RepeatInto` | `repeat` | — | 部分落地（子集；zig / java 为扩展） |
-| 一维拼接 | `matrix.concat1d` | `concat1d` | `concat1d` | `Concat1D` | `concat1d` | — | 已落地（zig / java 为扩展） |
-| 二维转置 | `matrix.transpose2d` | `transpose2d` | `transpose2d` | `Transpose2D` | `transpose2d` | — | 已落地（zig / java 为扩展） |
-| 缺失值填充 | `fillna.fill` / `fillna.fill_na` | `fill` / `fill_inplace` / `fill_na` / `fill_na_inplace` | `fill` / `fill_na` | `Fill` / `FillNa` | `fill` / `fill_na` | — | 已落地（zig / java 为扩展） |
-| 累计和 | `cumsum.cumsum` | `cumsum` / `cumsum_inplace` | `cumsum` | `CumSum` | `cumsum` | — | 已落地（zig / java 为扩展） |
-| 一阶离散差分 | `diff.diff` | `diff` | `diff` | `Diff` / `V2Diff` | `diff` | — | 部分落地（子集；zig / java 为扩展） |
-| 索引平移 | `shift.shift` | `shift` | `shift` | `Shift` | `shift` | — | 已落地（zig / java 为扩展） |
-| 滑动窗口 | `rolling.rolling` / `rolling.rolling_apply` | `rolling` / `rolling_apply` | `rolling` / `rolling_apply` | `Rolling` / `RollingApply` | `rolling` / `rolling_apply` | — | 已落地（zig / java 为扩展） |
+| 求和 | `core.sum` | `sum` | `sum` | `Sum` | `sum` | — | 已落地（zig / java 为扩展） |
+| 均值 | `core.mean` | `mean` | `mean` | `Mean` / `Mean2` | `mean` | — | 部分落地（子集；zig / java 为扩展） |
+| 中位数 | `core.median` | `median` | `median` | `Median` | `median` | — | 已落地（zig / java 为扩展） |
+| 最大值 / 最小值 | `core.max` / `core.min` | `max` / `min` | `max` / `min` | `Max` / `Max2` / `Min` / `Min2` | `max` / `min` | — | 部分落地（子集；zig / java 为扩展） |
+| 极值下标 | `core.argmax` / `core.argmin` | `argmax` / `argmin` | `argmax` / `argmin` | `ArgMax` / `ArgMax2` / `ArgMin` / `ArgMin2` | `argmax` / `argmin` | — | 部分落地（子集；zig / java 为扩展） |
+| 标准差 / 方差 / 协方差 | `core.std` / `core.var` / `core.covariance` | `stddev` / `variance` / `covariance` | `std` / `variance` / `covariance` | `Std` / `Variance` / `Covariance` | `std` / `variance` / `covariance` | — | 已落地（zig / java 为扩展） |
+| 非零计数 | `core.count` | `count` | `count, count_true` | `Count` | `count` / `count_true` | — | 已落地（zig / java 为扩展） |
+| 全真 / 任一为真 | `core.all` / `core.any` | `all` / `any` | `all` / `any` | `All` / `Any` | `all` / `any` | — | 已落地（zig / java 为扩展） |
+| 逐元素逻辑与 / 或 / 非 | `core.logical_and` / `core.logical_or` / `core.logical_not` | `logic_and` / `logic_or` / `logic_not` | `logic_and` / `logic_or` / `logic_not` | `And` / `Or` / `Not` | `logic_and` / `logic_or` / `logic_not` | — | 已落地（zig / java 为扩展） |
+| 逐元素比较 | `core.greater` / `core.greater_equal` / `core.less` / `core.less_equal` / `core.equal` / `core.not_equal` | `gt` / `gte` / `lt` / `lte` / `equal` / `not_equal` | `greater` / `greater_equal` / `less` / `less_equal` / `equal` / `not_equal` | `Gt` / `Gte` / `Lt` / `Lte` / `Equal` / `NotEqual` | `gt` / `gte` / `lt` / `lte` / `equal` / `not_equal` | — | 已落地（zig / java 为扩展） |
+| 条件选择 | `core.where` | `where` | `where_select` | `Where` | `where_select` | — | 已落地（zig / java 为扩展） |
+| 等差序列 | `core.arange` / `core.linspace` / `core.range` | `arange` / `linspace` / `range` | `arange_f64, arange_i64` / `linspace` / `range_i64` | `Arange` / `Linspace` / `Range` | `arange_f64` / `arange_i64` / `linspace` / `range_i64` | — | 已落地（zig / java 为扩展） |
+| 全零 / 全一 | `core.zeros` / `core.ones` | `zeros` / `ones` | `zeros` / `ones` | `Zeros` / `Ones` | `zeros` / `ones` | — | 已落地（zig / java 为扩展） |
+| 按最长对齐 | `lib.array.align` | `align` | `align` | `Align` | `align` | — | 已落地（zig / java 为扩展） |
+| 形状 | `core.shape` | `shape` | `shape, shape_2d` | `Shape` | `shape` / `shape_2d` | — | 已落地（zig / java 为扩展） |
+| 重复 / 重复写入 | `core.repeat` | `repeat` / `repeat_into` | `repeat` | `Repeat` / `RepeatInto` | `repeat` | — | 部分落地（子集；zig / java 为扩展） |
+| 一维拼接 | `linalg.concat1d` | `concat1d` | `concat1d` | `Concat1D` | `concat1d` | — | 已落地（zig / java 为扩展） |
+| 二维转置 | `linalg.transpose` | `transpose2d` | `transpose2d` | `Transpose2D` | `transpose2d` | — | 已落地（zig / java 为扩展） |
+| 缺失值填充 | `lib.fill.fill` / `lib.fill.fill_na` | `fill` / `fill_inplace` / `fill_na` / `fill_na_inplace` | `fill` / `fill_na` | `Fill` / `FillNa` | `fill` / `fill_na` | — | 已落地（zig / java 为扩展） |
+| 累计和 | `core.cumsum` | `cumsum` / `cumsum_inplace` | `cumsum` | `CumSum` | `cumsum` | — | 已落地（zig / java 为扩展） |
+| 一阶离散差分 | `core.diff` | `diff` | `diff` | `Diff` / `V2Diff` | `diff` | — | 部分落地（子集；zig / java 为扩展） |
+| 索引平移 | `core.shift` | `shift` | `shift` | `Shift` | `shift` | — | 已落地（zig / java 为扩展） |
+| 滑动窗口 | `ta.rolling` / `ta.rolling_apply` | `rolling` / `rolling_apply` | `rolling` / `rolling_apply` | `Rolling` / `RollingApply` | `rolling` / `rolling_apply` | — | 已落地（zig / java 为扩展） |
 | 滚动窗口对象 | — | `Window` / `rolling_window`（`at` / `is_const`） | — | `RollingWindow` / `Any2Window` / `Window.At` / `Window.IsConst` | `rolling_window` | — | 部分落地（缺 python / rust） |
 | 周期序列 | — | `Periods`（`at` / `is_const`） | — | `Periods` / `AnyToPeriod` | `periods` | — | 部分落地（缺 python / rust） |
 | 波峰波谷 | — | `arg_rel_extrema`（`peeks_and_valleys` 在 Go 侧是空实现，未移植） | — | `PeeksAndValleys` / `ArgRelExtrema` | `peeks_and_valleys` | — | 部分落地（缺 python / rust） |
-| 两序列交叉 | `cross.cross` | `cross` / `LinerTrend` / `TrendState` | `cross` | `Cross` | `cross` | — | 已落地（zig / java 为扩展） |
+| 两序列交叉 | `ta.cross` | `cross` / `LinerTrend` / `TrendState` | `cross` | `Cross` | `cross` | — | 已落地（zig / java 为扩展） |
 | 频率解析 / 日期序列 | `freq.parse_freq` / `freq.date_range` | `parse_freq` / `date_range` | `parse_freq` / `date_range` | `ParseFreq` / `DateRange` | `parse_freq` / `date_range` | — | 已落地（zig / java 为扩展） |
-| 点积 | `dot.dot1d` / `matrix.dot2d` / `matrix.dot2d1` | `dot1d` / `matmul` / `dot2d` / `dot2d_v1` / `dot2d1` | `dot1d` / `dot2d` / `dot2d1` | `Dot` / `Dot1D` / `Dot2D` / `Dot2D1` / `Dot2D1_v2` / `Dot2D_V1` / `Dot_v1` | `dot1d` / `dot2d` / `dot2d1` | — | 部分落地（子集；zig / java 为扩展） |
-| 矩阵求逆 | `matrix.inverse` | `inverse` | `inverse` | `Inverse` | `inverse` | — | 已落地（zig / java 为扩展） |
-| 多项式拟合 / 求值 | `polynomial.poly_fit` / `polynomial.poly_val` | `poly_fit` / `poly_val` | `poly_fit` / `poly_val` | `PolyFit` / `PolyVal` | `poly_fit` / `poly_val` | — | 已落地（zig / java 为扩展） |
-| 直线方程与角度 | `slope.slope` / `slope.slope_to_degrees` / `slope.degrees_to_slope` / `line.calculate_line_equation` / `slope.triangle_bevel` | `slope` / `triangle_bevel` / `degrees_to_slope` / `slope_to_degrees` / `calculate_line_equation` / `Line`（`radian` / `degrees` / `angle` / `equation` / `distance` / `horizontal_distance` / `vertical_distance` / `shortest_distance` / `parallel_line` / `symmetric_parallel_line` / `x` / `y` / `incr` / `intersect`） | `slope` / `slope_to_degrees` / `degrees_to_slope` / `calculate_line_equation` / `triangle_bevel` | `Slope` / `SlopeToDegrees` / `DegreesToSlope` / `CalculateLineEquation` / `TriangleBevel` | `slope` / `slope_to_degrees` / `degrees_to_slope` / `calculate_line_equation` / `triangle_bevel` | — | 已落地（zig / java 为扩展） |
-| 趋势线拟合 | `line.fit_line` | `fit_line`（`Line::extend` / `Line::analyze`） | `fit_line` | `FitLine` / `Line.*`（`Analyze` / `Extend` / `Angle` / `Incr` / `X` / `Y` …） | `fit_line` | — | 部分落地（子集；zig / java 为扩展） |
+| 点积 | `linalg.dot` / `linalg.dot2d` / `linalg.dot2d1` | `dot1d` / `matmul` / `dot2d` / `dot2d_v1` / `dot2d1` | `dot1d` / `dot2d` / `dot2d1` | `Dot` / `Dot1D` / `Dot2D` / `Dot2D1` / `Dot2D1_v2` / `Dot2D_V1` / `Dot_v1` | `dot1d` / `dot2d` / `dot2d1` | — | 部分落地（子集；zig / java 为扩展） |
+| 矩阵求逆 | `linalg.inv` | `inverse` | `inverse` | `Inverse` | `inverse` | — | 已落地（zig / java 为扩展） |
+| 多项式拟合 / 求值 | `polynomial.polyfit` / `polynomial.polyval` | `poly_fit` / `poly_val` | `poly_fit` / `poly_val` | `PolyFit` / `PolyVal` | `poly_fit` / `poly_val` | — | 已落地（zig / java 为扩展） |
+| 直线方程与角度 | `ta.slope` / `ta.slope_to_degrees` / `ta.degrees_to_slope` / `ta.calculate_line_equation` / `ta.triangle_bevel` | `slope` / `triangle_bevel` / `degrees_to_slope` / `slope_to_degrees` / `calculate_line_equation` / `Line`（`radian` / `degrees` / `angle` / `equation` / `distance` / `horizontal_distance` / `vertical_distance` / `shortest_distance` / `parallel_line` / `symmetric_parallel_line` / `x` / `y` / `incr` / `intersect`） | `slope` / `slope_to_degrees` / `degrees_to_slope` / `calculate_line_equation` / `triangle_bevel` | `Slope` / `SlopeToDegrees` / `DegreesToSlope` / `CalculateLineEquation` / `TriangleBevel` | `slope` / `slope_to_degrees` / `degrees_to_slope` / `calculate_line_equation` / `triangle_bevel` | — | 已落地（zig / java 为扩展） |
+| 趋势线拟合 | `ta.fit_line` | `fit_line`（`Line::extend` / `Line::analyze`） | `fit_line` | `FitLine` / `Line.*`（`Analyze` / `Extend` / `Angle` / `Incr` / `X` / `Y` …） | `fit_line` | — | 部分落地（子集；zig / java 为扩展） |
 | 点 / 数据点 | — | `Point` / `DataPoint` / `new_point`（`add` / `to_data_point` / `to_point`） | — | `Point` / `NewPoint` / `DataPoint` / `Point.Add` | `new_point` / `Point` / `DataPoint` | — | 部分落地（缺 python / rust） |
 | 关联趋势 | — | `LinerTrend`（`x` / `state`） | — | `LinerTrend` | — | — | 部分落地（缺 python / rust） |
 | 正态分布分位 | `ztable.find_percent` / `ztable.find_zscore` | `find_percent` / `find_zscore` | — | `FindPercent` / `FindZScore` | `find_percent` / `find_zscore` | — | 部分落地（缺 rust） |
 | 置信区间换算 | `ztable.confidence_interval_to_zscore` / `ztable.zscore_to_confidence_interval` | `confidence_interval_to_zscore` / `zscore_to_confidence_interval` | — | `ConfidenceIntervalToZscore` / `ZscoreToConfidenceInterval` | `confidence_interval_to_zscore` / `zscore_to_confidence_interval` | — | 部分落地（缺 rust） |
-| 类型零值 / 无效值 | `type_dtype.type_default` / `decimals.is_nan` | `type_default` / `nan` / `is_nan` | `type_default` / `is_nan` | `TypeDefault` / `NaN` / `DTypeIsNaN` / `Float32NaN` / `Float64NaN` | `type_default` / `is_nan` | — | 部分落地（子集；zig / java 为扩展） |
+| 类型零值 / 无效值 | `lib.convert.type_default` / `lib.convert.isnan` | `type_default` / `nan` / `is_nan` | `type_default` / `is_nan` | `TypeDefault` / `NaN` / `DTypeIsNaN` / `Float32NaN` / `Float64NaN` | `type_default` / `is_nan` | — | 部分落地（子集；zig / java 为扩展） |
 | `any` 转数值 | — | `to_bool` / `to_string`（值重载，无 `any` 分派） | — | `AnyToInt32` / `AnyToInt64` / `AnyToFloat32` / `AnyToFloat64` / `AnyToBool` / `AnyToString` | `any_to_bool` / `any_to_int32` / `any_to_int64` / `any_to_float32` / `any_to_float64` / `any_to_string` | — | 部分落地（缺 python / rust） |
 | 字符串解析 | `type_generic.parse_bool, type_generic.parse_int32, type_generic.parse_int64, type_generic.parse_float32, type_generic.parse_float64` | `parse_bool` / `parse_int32` / `parse_int64` / `parse_float32` / `parse_float64` / `generic_parse`（目标类型由模板形参给出，`GenericParse[T]` 的对位） | — | `ParseBool` / `ParseInt32` / `ParseInt64` / `ParseFloat32` / `ParseFloat64` / `GenericParse` | `parse_bool` / `parse_int32` / `parse_int64` / `parse_float32` / `parse_float64` / `generic_parse` | — | 部分落地（缺 rust） |
-| 切片类型转换 | `type_bool.slice_to_bool` / `type_integer.slice_to_int` / `type_float32.slice_to_float32` / `x32.vek.slice_to_float64` / `x32.vek.slice_float_to_int` / `type_dtype.dtype2int` | `slice_to_bool` / `slice_to_string` / `slice_to_ints` / `slice_to_float32` / `slice_to_float64` / `slice_float_to_int32` / `slice_float_to_int64`（`Slice2DType` / `DType2Int` 分别是 `slice_to_float64` / `slice_float_to_int32` 的同义包装，按「一个功能一个导出符号」不另设） | `floats_to_int32, floats_to_int64` / `dtype2int` | `SliceToBool` / `SliceToInts` / `SliceToFloat32` / `SliceToFloat64` / `SliceToString` / `SliceFloatToInt32` / `SliceFloatToInt64` / `Slice2DType` / `DType2Int` | `slice_to_bool` / `slice_to_string` / `slice_to_int` / `slice_to_float32` / `slice_to_float64` / `floats_to_int32` / `floats_to_int64` / `dtype2int` | — | 部分落地（子集；zig / java 为扩展） |
+| 切片类型转换 | `lib.convert.slice_to_bool` / `lib.convert.slice_to_int` / `lib.convert.slice_to_float32` / `lib.convert.slice_to_float64` / `lib.convert.slice_float_to_int` / `lib.convert.dtype2int` | `slice_to_bool` / `slice_to_string` / `slice_to_ints` / `slice_to_float32` / `slice_to_float64` / `slice_float_to_int32` / `slice_float_to_int64`（`Slice2DType` / `DType2Int` 分别是 `slice_to_float64` / `slice_float_to_int32` 的同义包装，按「一个功能一个导出符号」不另设） | `floats_to_int32, floats_to_int64` / `dtype2int` | `SliceToBool` / `SliceToInts` / `SliceToFloat32` / `SliceToFloat64` / `SliceToString` / `SliceFloatToInt32` / `SliceFloatToInt64` / `Slice2DType` / `DType2Int` | `slice_to_bool` / `slice_to_string` / `slice_to_int` / `slice_to_float32` / `slice_to_float64` / `floats_to_int32` / `floats_to_int64` / `dtype2int` | — | 部分落地（子集；zig / java 为扩展） |
 | 布尔与数值互转 | `type_bool.bool_to_int64, type_bool.bool_to_float64` | `bool_to_int` / `bool_to_int32` / `bool_to_int64` / `bool_to_float32` / `bool_to_float64` / `bool_to_string` | `bool_to_i64, bool_to_f64, bools_to_f64` | `BoolToInt` / `BoolToInt32` / `BoolToInt64` / `BoolToFloat32` / `BoolToFloat64` / `BoolToString` | `bool_to_i64` / `bool_to_f64` / `bools_to_f64` | — | 部分落地（子集；zig / java 为扩展） |
 | 字符串判空 / 判真 | `type_strings.is_empty, type_strings.string_is_true, type_strings.string_is_false, type_strings.string_is_nan` | `is_empty` / `string_is_true` / `string_is_false` / `string_is_nan` | — | `IsEmpty` / `StringIsTrue` / `StringIsFalse` / `StringIsNaN` | `is_empty` / `string_is_true` / `string_is_false` / `string_is_nan` | — | 部分落地（缺 rust） |
 | 泛型与反射工具 | — | `generic_parse`（`GenericParse` 的字符串入口；`AnyToGeneric` 的数值入口由 `slice_to_*` / `to_bool` / `to_string` 覆盖，反射部分不设） | — | `AnyToGeneric` / `AnyToSlice` / `Any2DType` / `CheckoutRawType` / `ExtractValueFromPointer` | `generic_parse` / `any2dtype` | — | 部分落地（缺 python / rust） |
@@ -144,7 +144,7 @@ C++ 侧只有**一层**：`Vector<T>`（`xt::xtensor<T, 1>`）用模板覆盖 f3
 
 | 语言 | 测试文件 | 用例数 | 运行命令 |
 | --- | --- | --- | --- |
-| Python（spec） | `tests/python/`（5 个文件，与语义族同名） | 15 个 `TestCase` | `python -m unittest discover -s tests/python -v` |
+| Python（spec） | `tests/python/`（6 个文件，按 num/ 模块组织） | 17 个 `TestCase` | `python -m unittest discover -s tests/python -v` |
 | C++ | 仓库根 `*_test.cpp`（23 个文件，与语义族同名） | 221 个 `TEST` | `ctest --preset release-static`（实测 `100% tests passed out of 221`，Debug 预设同数） |
 | Rust | `tests/conform.rs`（读 `tests/fixtures`） | 163 个 fixture | `cargo test` |
 | Go | 仓库根 `*_test.go`（49 个文件，与实现同名） | 84 个 `Test` + 46 个 `Benchmark` | `go test .`（实测 `ok github.com/quant1x/num 0.491s`） |
@@ -211,8 +211,8 @@ C++ 用例按**语义族**合并成 23 个文件（`arithmetics_test.cpp` / `agg
 | C++ 对拍覆盖 | `num_fixture_conform` 已全量接入 163 个样本；无 fixture 的转换族与 mat4mul 不在范围 | 新增 fixture 时同步扩展分派 | §4.6 | #27 | 低 |
 | C++ 打包与导出 | `conan create` 与 `cmake --install` 未落地，`num_core` 只能源码内使用 | 安装布局要与扁平目录一起设计（头文件按 `num/` 前缀导出） | §3 | #11 | 中 |
 | C++ 指令集分发 | 只按编译器基线下发，未做运行期多版本分发（Go 侧有 `UseAVX2` 开关与两套内核） | 需要 CMake 多目标编译 + 运行期 `__builtin_cpu_supports` / `IsProcessorFeaturePresent` 探测；会牺牲老 CPU 兼容，须先定策略 | §2 精度与平台 | #11 | 中 |
-| `diff` 方向文档化核对 | C++ 已按 Go 口径实现为 `s[i-n] - s[i]`（与 pandas 相反），但 Go 侧无文档说明 | 需确认是设计意图还是历史包袱 | §2 | #11 | 低 |
-| `Median` 是否内置排序 | Go 与 C++ 均按入参顺序取中间元素、**不排序**（空输入 `NaN`、单元素 `0`），排序责任在调用方 | 两侧已逐行一致（`median.h` 照抄 Go），待复核 spec 时确认「不排序」是意图；定案后一起改 | §2 | 待建单 | 低 |
+| `diff` 方向文档化核对 | C++ 已按 Go 口径实现为 `s[i-n] - s[i]`（与 pandas 相反），但 Go 侧无文档说明 | [提案 0004](docs/proposals/0004-python-spec-semantics-alignment.md) §2.3 建议保留该口径并与 `np.diff` 划清，定案后补文档 | §2 | #11、0004 | 低 |
+| `Median` 是否内置排序 | Go 与 C++ 均按入参顺序取中间元素、**不排序**（空输入 `NaN`、单元素 `0`），排序责任在调用方 | [提案 0004](docs/proposals/0004-python-spec-semantics-alignment.md) §2.1 建议采纳 NumPy（Go 私有 `__median_go` 已是正确路径），待定案 | §2 | 0004 | 低 |
 | C++ 覆盖率与基准 | 无覆盖率工具接入、无 Google Benchmark 用例与基线 | 需要在 CMake 侧引入 `llvm-cov` / `benchmark` | §4.2 / §4.5 | #11 | 低 |
 | 根包用例按 `accel` 两遍跑 | 84 个 `Test` 均未引用 `functions.Info().Acceleration`，`UseAVX2 = false` 分支在根包层无用例（`x32` / `x64` 的用例已按 §7 跑两遍） | 无技术阻塞，待排期 | §4.1 / §4.6 | 待建单 | 中 |
 | 提升覆盖率并设门槛 | 语句覆盖 42.1%，仓库未设门槛；`window_test.go` 只有基准、无 `Test` | 无技术阻塞，待排期 | §4.2 | 待建单 | 中 |

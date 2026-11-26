@@ -19,7 +19,7 @@ num 是类似 numpy 的数值工具包，按语言**平行实现、语义相同*
   构建走 conan2 + CMake，见 [BUILDING.md](BUILDING.md) §6.2；
 - **Rust**：部分落地 112 / 134 行（`Cargo.toml`，见 [BUILDING.md](BUILDING.md) §6.3）；
 - **Zig**：已落地 134 / 134 行（66 个模块；`zig test num_test.zig`、`zig test num_fixture_test.zig`，163 / 163 个 npz 样本对拍，见 [BUILDING.md](BUILDING.md) §6.4）；
-- **Python**：已落地 spec（`pyproject.toml`，包即仓库根），覆盖契约表 134 行中的 122 行，
+- **Python**：已落地 spec（`num/` 包，`pyproject.toml`），覆盖契约表 134 行中的 122 行，
   见 [BUILDING.md](BUILDING.md) §4.5。
 
 一致性由 `tests/fixtures` 的 163 个 npz 样本 + `.numb` 黄金样本承担：Go / C++ / Rust / Python 读同一批
